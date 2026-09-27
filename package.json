@@ -1,0 +1,29 @@
+{
+  "name": "trace-agent",
+  "version": "0.1.0",
+  "description": "留痕 Agent — 全程留痕、可审计的桌面自动化智能体",
+  "main": "out/main/index.js",
+  "author": "youxi",
+  "license": "MIT",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json"
+  },
+  "dependencies": {
+    "puppeteer-core": "^24.10.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/react": "^18.3.20",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.5.0",
+    "electron": "^37.0.0",
+    "electron-vite": "^3.1.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}
