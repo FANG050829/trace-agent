@@ -7,79 +7,78 @@ import { AuditPanel } from './components/AuditPanel'
 import { TemplatesView } from './components/TemplatesView'
 import { SkillsView } from './components/SkillsView'
 import { SettingsView } from './components/SettingsView'
+import { Icon } from './components/Icon'
 
 type View = 'chat' | 'templates' | 'skills' | 'settings'
 
-function clearStreaming(prev: RenderItem[], liveRef: { current: string | null }): RenderItem[] {
-  if (!liveRef.current) return prev
-  const id = liveRef.current
-  liveRef.current = null
-  return prev.map((p) => (p.id === id && p.kind === 'assistant' ? { ...p, streaming: false } : p))
+function clearStreaming(prev: RenderItem[]): RenderItem[] {
+  return prev.map((p) => (p.kind === 'assistant' && p.streaming ? { ...p, streaming: false } : p))
 }
 
-function appendDelta(prev: RenderItem[], liveRef: { current: string | null }, kind: 'text' | 'reasoning', delta: string): RenderItem[] {
-  const id = liveRef.current
-  if (id && prev.some((p) => p.id === id && p.kind === 'assistant')) {
+/**
+ * 流式增量的纯 updater:不修改任何外部引用(React StrictMode 会双重调用 updater,
+ * 带 liveRef 副作用会让指针与真实列表失配,最终把回复渲染成两份)。
+ * live 项的身份由 streaming 标记判定;liveId 只是复用当前项的优化。
+ */
+function appendDelta(prev: RenderItem[], kind: 'text' | 'reasoning', delta: string, liveId: string | null, ts: number): RenderItem[] {
+  if (liveId && prev.some((p) => p.id === liveId && p.kind === 'assistant')) {
     return prev.map((p) =>
-      p.id === id && p.kind === 'assistant'
+      p.id === liveId && p.kind === 'assistant'
         ? kind === 'text'
           ? { ...p, text: p.text + delta }
           : { ...p, reasoning: (p.reasoning ?? '') + delta }
         : p
     )
   }
-  const newId = `live-${Date.now().toString(36)}`
-  liveRef.current = newId
-  const item: RenderItem = { kind: 'assistant', id: newId, ts: Date.now(), text: '', streaming: true }
+  const item: RenderItem = { kind: 'assistant', id: liveId ?? `live-${ts.toString(36)}`, ts, text: '', streaming: true }
   if (kind === 'reasoning') item.reasoning = delta
   else item.text = delta
   return [...prev, item]
 }
 
-function applyEvent(prev: RenderItem[], event: AuditEvent, liveRef: { current: string | null }): RenderItem[] {
+function applyEvent(prev: RenderItem[], event: AuditEvent): RenderItem[] {
   switch (event.type) {
     case 'user_message':
-      liveRef.current = null
       return [...prev, { kind: 'user', id: event.id, ts: event.ts, text: event.text ?? '' }]
     case 'assistant_message': {
-      const liveId = liveRef.current
-      liveRef.current = null
-      if (liveId && prev.some((p) => p.id === liveId)) {
-        return prev.map((p) =>
-          p.id === liveId && p.kind === 'assistant'
-            ? { ...p, text: event.text || p.text, streaming: false }
-            : p
-        )
+      // 优先把流式 live 项转正,避免同一句话出现两个气泡
+      const liveIdx = prev.findIndex((p) => p.kind === 'assistant' && p.streaming)
+      if (liveIdx >= 0) {
+        return prev.map((p, i) => (i === liveIdx && p.kind === 'assistant' ? { ...p, text: event.text || p.text, streaming: false } : p))
       }
       return [...prev, { kind: 'assistant', id: event.id, ts: event.ts, text: event.text ?? '' }]
     }
     case 'tool_call': {
-      const cleared = clearStreaming(prev, liveRef)
+      const cleared = clearStreaming(prev)
       return [...cleared, { kind: 'tool', id: event.id, ts: event.ts, call: event }]
     }
     case 'tool_result':
       return prev.map((p) => (p.id === event.refId && p.kind === 'tool' ? { ...p, result: event } : p))
     case 'approval_request':
-      return [
-        ...clearStreaming(prev, liveRef),
-        { kind: 'notice', id: event.id, ts: event.ts, text: `⏸ 需要确认:${event.text ?? ''}`, status: 'pending' }
-      ]
+      return [...clearStreaming(prev), { kind: 'notice', id: event.id, ts: event.ts, text: `等待确认 — ${event.text ?? ''}`, status: 'pending' }]
     case 'approval_decision':
       return [
         ...prev,
-        { kind: 'notice', id: event.id, ts: event.ts, text: `${event.status === 'approved' ? '✅' : '⛔'} ${event.text ?? ''}`, status: event.status }
+        {
+          kind: 'notice',
+          id: event.id,
+          ts: event.ts,
+          text: `${event.status === 'approved' ? '已批准' : '已拒绝'} — ${event.text ?? ''}`,
+          status: event.status
+        }
       ]
     case 'error':
-      return [...clearStreaming(prev, liveRef), { kind: 'notice', id: event.id, ts: event.ts, text: `❌ ${event.text ?? '发生错误'}`, status: 'error' }]
+      return [...clearStreaming(prev), { kind: 'notice', id: event.id, ts: event.ts, text: event.text ?? '发生错误', status: 'error' }]
+    case 'system':
+      return [...clearStreaming(prev), { kind: 'notice', id: event.id, ts: event.ts, text: event.text ?? '', status: 'system' }]
     default:
-      return [...prev, { kind: 'notice', id: event.id, ts: event.ts, text: event.text ?? '', status: 'system' }]
+      return [...clearStreaming(prev), { kind: 'notice', id: event.id, ts: event.ts, text: event.text ?? '', status: 'system' }]
   }
 }
 
 function itemsFromAudit(events: AuditEvent[]): RenderItem[] {
   let items: RenderItem[] = []
-  const liveRef = { current: null as string | null }
-  for (const e of events) items = applyEvent(items, e, liveRef)
+  for (const e of events) items = applyEvent(items, e)
   return items
 }
 
@@ -99,6 +98,7 @@ export default function App(): React.ReactNode {
 
   const activeRef = useRef<string | null>(null)
   const liveRef = useRef<string | null>(null)
+  const liveSeq = useRef(0)
   const stateBySession = useRef(new Map<string, { running: boolean; pending: ApprovalRequest | null }>())
 
   const refreshSessions = (): void => {
@@ -132,14 +132,24 @@ export default function App(): React.ReactNode {
 
     const offEvent = api.onAgentEvent(({ sessionId, event }) => {
       if (sessionId !== activeRef.current) return
+      // liveRef 只能在 updater 之外修改(纯 updater 约束)
+      if (event.type === 'user_message' || event.type === 'assistant_message' || event.type === 'tool_call') {
+        liveRef.current = null
+      }
       setAuditEvents((prev) => [...prev, event])
-      setItems((prev) => applyEvent(prev, event, liveRef))
+      setItems((prev) => applyEvent(prev, event))
     })
     const offDelta = api.onAgentDelta(({ sessionId, kind, text }) => {
       if (sessionId !== activeRef.current) return
-      if (kind === 'text') setItems((prev) => appendDelta(prev, liveRef, 'text', text))
-      else if (kind === 'reasoning') setItems((prev) => appendDelta(prev, liveRef, 'reasoning', text))
-      else setStreamingTool(text || null)
+      if (kind === 'text' || kind === 'reasoning') {
+        // live 项不存在时在这里建号,updater 内保持纯净
+        if (!liveRef.current) liveRef.current = `live-${Date.now().toString(36)}-${++liveSeq.current}`
+        const liveId = liveRef.current
+        const ts = Date.now()
+        setItems((prev) => appendDelta(prev, kind, text, liveId, ts))
+      } else {
+        setStreamingTool(text || null)
+      }
     })
     const offState = api.onAgentState(({ sessionId, running, pendingApproval }) => {
       stateBySession.current.set(sessionId, { running, pending: pendingApproval })
@@ -286,14 +296,15 @@ export default function App(): React.ReactNode {
               </button>
             )}
             {view === 'chat' && activeId && hasConversation && !running && (
-              <button className="ghost small" onClick={() => setSkillDraft({ name: activeMeta?.title ?? '', prompt: lastUserText(items) })}>
-                ✦ 沉淀为技能
+              <button className="ghost small" onClick={() => setSkillDraft({ name: activeMeta?.title ?? '', prompt: lastUserText(items) })} title="把这次任务的提示词保存为技能">
+                <Icon name="bookmark" size={13} /> 沉淀为技能
               </button>
             )}
             <span className={`status-dot ${pending ? 'wait' : running ? 'run' : ''}`} />
             <span className="status-text">{statusText}</span>
             {view === 'chat' && activeId && (
-              <button className="ghost small" onClick={() => setAuditOpen(!auditOpen)} title="Ctrl+B">
+              <button className="ghost small" onClick={() => setAuditOpen(!auditOpen)} title="显示/隐藏审计面板(Ctrl+B)">
+                <Icon name="panelRight" size={13} />
                 {auditOpen ? '隐藏审计面板' : '显示审计面板'}
               </button>
             )}
@@ -344,8 +355,8 @@ export default function App(): React.ReactNode {
       {skillDraft && (
         <div className="modal-mask" onClick={() => setSkillDraft(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>✦ 沉淀为技能</h3>
-            <p className="dim">把这次任务的提示词保存下来,以后在技能库里一键重跑。保存前可以修改措辞。</p>
+            <h3>沉淀为技能</h3>
+            <p>把这次任务的提示词保存下来,以后在技能库里一键重跑。保存前可以修改措辞。</p>
             <label className="modal-field">
               技能名称
               <input value={skillDraft.name} onChange={(e) => setSkillDraft({ ...skillDraft, name: e.target.value })} placeholder="如:整理下载文件夹" />

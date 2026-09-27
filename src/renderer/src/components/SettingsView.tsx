@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import type { AppSettings, ProviderConfig, RiskPolicy } from '@shared/types'
 import { api } from '../api'
+import { Icon } from './Icon'
 
 const PRESETS: Omit<ProviderConfig, 'id' | 'apiKey'>[] = [
   { name: '智谱 GLM', baseUrl: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-4.6', vision: true },
@@ -48,7 +49,7 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
   const testProvider = async (p: ProviderConfig): Promise<void> => {
     setTestMsg((m) => ({ ...m, [p.id]: '测试中…' }))
     const r = await api.testProvider(p)
-    setTestMsg((m) => ({ ...m, [p.id]: `${r.ok ? '✅' : '❌'} ${r.message}` }))
+    setTestMsg((m) => ({ ...m, [p.id]: `${r.ok ? '' : '连接失败 — '}${r.message}` }))
     if (r.models.length) {
       setModels((m) => ({ ...m, [p.id]: r.models }))
       // 未填模型名时自动采用服务端列表里的第一个
@@ -60,7 +61,7 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
     setTestMsg((m) => ({ ...m, ollama: '检测中…' }))
     const r = await api.listOllamaModels(draft.ollama.baseUrl)
     setOllamaModels(r.models)
-    setTestMsg((m) => ({ ...m, ollama: `${r.ok ? '✅' : '❌'} ${r.message}` }))
+    setTestMsg((m) => ({ ...m, ollama: `${r.ok ? '' : '连接失败 — '}${r.message}` }))
   }
 
   const save = async (): Promise<void> => {
@@ -130,10 +131,10 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
                   />
                   <button
                     className="ghost small"
-                    title={keyVisible[p.id] ? '隐藏' : '显示'}
+                    title={keyVisible[p.id] ? '隐藏 API Key' : '显示 API Key'}
                     onClick={() => setKeyVisible((v) => ({ ...v, [p.id]: !v[p.id] }))}
                   >
-                    {keyVisible[p.id] ? '🙈' : '👁'}
+                    <Icon name={keyVisible[p.id] ? 'eyeOff' : 'eye'} size={13} />
                   </button>
                 </span>
               </label>
@@ -260,7 +261,8 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
         </div>
         <p className="dim">上下文预算控制发给模型的历史长度:超出后最早的消息会被自动省略,较老的截图只保留最近几张。上下文窗口小的模型(如 8k)建议调低。</p>
         <button className="ghost small" onClick={() => void api.openDataDir()}>
-          📂 打开数据目录(审计记录所在位置)
+          <Icon name="folderOpen" size={13} />
+          打开数据目录(审计记录所在位置)
         </button>
       </section>
 

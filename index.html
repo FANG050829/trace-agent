@@ -1,0 +1,1156 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="留痕 Agent 是运行在你 Windows 电脑上的桌面自动化智能体：文件、命令、截图、浏览器，每一步操作都追加写入审计日志，随时批准、拒绝、取消。">
+<meta name="theme-color" content="#0d0e11">
+<title>留痕 Agent — 桌面自动化，全程可审计</title>
+<link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="%230d0e11"/><path d="M12 4v16" stroke="%23e8e9ec" stroke-width="1.6"/><circle cx="12" cy="7.4" r="1.7" fill="%23e8e9ec"/><circle cx="12" cy="12" r="1.7" fill="%23e8e9ec" opacity=".66"/><circle cx="12" cy="16.6" r="1.7" fill="%23e8e9ec" opacity=".33"/></svg>'>
+<style>
+/* ============================================================
+   留痕 Agent · 介绍页 — 工程石墨·深色(继承应用既有世界)
+   中性石墨色阶 · 墨白文字 · 1px 发丝线 · 钢蓝只做焦点/链接/激活
+   主按钮反色(白底黑字) · 统一 1.5px SVG 线性图标 · 等宽只用于数据
+   对标:VS Code / Linear 深色主题的工艺水准
+   ============================================================ */
+:root {
+  --bg0: #0d0e11;
+  --bg1: #141519;
+  --bg2: #1a1c21;
+  --bg3: #22242b;
+  --bg-code: #0a0b0d;
+  --line: #26282e;
+  --line-strong: #35383f;
+  --ink: #e8e9ec;
+  --ink-2: #a6abb5;
+  --ink-3: #7f8490;
+  --accent: #6c9ee6;
+  --accent-dim: rgba(108, 158, 230, 0.14);
+  --ok: #58b380;
+  --warn: #d9a850;
+  --err: #e07a7a;
+  --teal: #5fb3a3;
+  --radius: 6px;
+  --radius-lg: 8px;
+  --font: 'Segoe UI Variable Text', 'Segoe UI', 'Microsoft YaHei UI', 'Microsoft YaHei', system-ui, sans-serif;
+  --mono: 'Cascadia Code', 'Cascadia Mono', Consolas, 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-padding-top: 76px; }
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg0);
+  color: var(--ink);
+  font-size: 15.5px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: rgba(108, 158, 230, 0.32); }
+:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+a { color: var(--accent); text-decoration: none; text-underline-offset: 3px; }
+a:hover { text-decoration: underline; }
+
+.wrap { max-width: 1200px; margin-inline: auto; padding-inline: clamp(20px, 4.5vw, 48px); }
+
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+.ic { flex: none; display: block; }
+
+/* ---------- 顶栏 ---------- */
+.nav {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--bg0);
+  border-bottom: 1px solid var(--line);
+}
+.nav-in { display: flex; align-items: center; gap: 28px; height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font-weight: 600; font-size: 15px; }
+.brand:hover { text-decoration: none; }
+.brand .ic { color: var(--ink); }
+.brand .ver { font-family: var(--mono); font-size: 11px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; font-weight: 400; }
+.nav-links { display: flex; gap: 22px; margin-left: auto; }
+.nav-links a { color: var(--ink-2); font-size: 13.5px; }
+.nav-links a:hover { color: var(--ink); text-decoration: none; }
+.nav .btn { margin-left: 0; }
+.nav-links + .btn { margin-left: 4px; }
+
+/* ---------- 按钮(与应用同款) ---------- */
+.btn {
+  font-family: inherit; font-size: 13.5px;
+  border: 1px solid var(--line-strong);
+  background: transparent; color: var(--ink-2);
+  border-radius: 5px; padding: 7px 16px;
+  cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 7px;
+  white-space: nowrap;
+  transition: background .12s ease-out, border-color .12s ease-out, color .12s ease-out;
+}
+.btn:hover { background: var(--bg3); color: var(--ink); text-decoration: none; }
+.btn.primary { background: var(--ink); border-color: var(--ink); color: #101114; font-weight: 600; }
+.btn.primary:hover { background: #fff; border-color: #fff; color: #101114; }
+.btn.sm { font-size: 12.5px; padding: 5px 12px; }
+.btn:disabled { opacity: .38; cursor: not-allowed; }
+
+/* ---------- 区块节奏 ---------- */
+section { border-top: 1px solid var(--line); }
+section.pad { padding-block: clamp(68px, 9vw, 116px); }
+h1, h2, h3 { text-wrap: balance; font-weight: 650; }
+h2 { font-size: clamp(26px, 3.4vw, 36px); line-height: 1.3; letter-spacing: -0.01em; }
+h3 { font-size: 17px; }
+.lead { color: var(--ink-2); max-width: 680px; margin-top: 16px; font-size: 16.5px; text-wrap: pretty; }
+.sec-head { margin-bottom: clamp(36px, 5vw, 56px); }
+
+/* ---------- 首屏 ---------- */
+.hero { border-top: none; padding-top: clamp(52px, 7vw, 88px); }
+.hero h1 {
+  font-size: clamp(36px, 5.2vw, 58px);
+  line-height: 1.18; letter-spacing: -0.02em;
+  max-width: 18em;
+}
+.hero .sub { color: var(--ink-2); max-width: 640px; margin-top: 22px; font-size: 16.5px; text-wrap: pretty; }
+.hero .thesis { margin-top: 14px; font-size: 17px; font-weight: 600; color: var(--ink); }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.hero-meta { margin-top: 26px; font-family: var(--mono); font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+/* ---------- 演示窗 ---------- */
+.demo-outer { margin-top: clamp(36px, 5vw, 52px); }
+.demo {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--bg1);
+  overflow: hidden;
+}
+.demo-chrome {
+  display: flex; align-items: center; gap: 12px;
+  height: 46px; padding-inline: 14px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--line);
+}
+.demo-chrome .title { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; }
+.demo-chrome .tag { font-family: var(--mono); font-size: 11px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 4px; padding: 1px 7px; font-weight: 400; }
+.demo-chrome .spacer { flex: 1; }
+
+.status { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-2); }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); }
+.status-dot.run { background: var(--teal); animation: pulse 1.6s ease-in-out infinite; }
+.status-dot.wait { background: var(--warn); animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .35; } }
+
+.demo-body { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); height: 500px; }
+.pane { position: relative; overflow-y: auto; overscroll-behavior: contain; }
+.pane-chat { border-right: 1px solid var(--line); padding: 18px 18px 22px; display: flex; flex-direction: column; gap: 14px; }
+.pane-audit { display: flex; flex-direction: column; overflow: hidden; }
+.pane::-webkit-scrollbar { width: 8px; }
+.pane::-webkit-scrollbar-thumb { background: #2c2f36; border-radius: 4px; }
+.pane::-webkit-scrollbar-thumb:hover { background: #3a3e46; }
+.pane-audit .evlist::-webkit-scrollbar { width: 8px; }
+.pane-audit .evlist::-webkit-scrollbar-thumb { background: #2c2f36; border-radius: 4px; }
+
+/* 对话流 */
+.msg { max-width: 86%; font-size: 13.5px; line-height: 1.65; }
+.msg.user {
+  align-self: flex-end;
+  background: var(--bg2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  padding: 9px 13px;
+}
+.msg.bot { align-self: flex-start; color: var(--ink-2); }
+.msg.bot b { color: var(--ink); font-weight: 600; }
+.tool-chip {
+  align-self: flex-start;
+  display: flex; align-items: center; gap: 9px;
+  font-family: var(--mono); font-size: 12px; color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  background: var(--bg-code);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 8px 11px; max-width: 96%;
+}
+.tool-chip .ic { color: var(--ink-3); }
+.tool-chip b { color: var(--ink); font-weight: 600; }
+
+/* 审批卡 */
+.approval {
+  align-self: stretch;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--bg2);
+  overflow: hidden;
+}
+.approval-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 13px; font-size: 13px; font-weight: 600;
+  border-bottom: 1px solid var(--line);
+}
+.approval-head .ic { color: var(--warn); }
+.approval-head .tag { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--warn); border: 1px solid rgba(217, 168, 80, 0.35); border-radius: 4px; padding: 1px 7px; font-weight: 400; }
+.approval-body { padding: 12px 13px; font-family: var(--mono); font-size: 12px; line-height: 1.8; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: pre; overflow-x: auto; }
+.approval-body .arrow { color: var(--ok); }
+.approval-foot { display: flex; gap: 8px; padding: 10px 13px 12px; }
+.approval.resolved { opacity: .62; }
+.approval .verdict { display: flex; align-items: center; gap: 7px; font-size: 12.5px; padding: 10px 13px 12px; }
+.approval .verdict.ok { color: var(--ok); }
+.approval .verdict.no { color: var(--ink-3); }
+
+.skill-btn { align-self: flex-start; }
+
+/* 审计时间线 */
+.audit-head { padding: 12px 14px 10px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+.audit-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+.audit-title .count { font-family: var(--mono); font-size: 11px; color: var(--ink-2); background: var(--bg3); border-radius: 4px; padding: 1px 7px; font-variant-numeric: tabular-nums; }
+.audit-title .btn { margin-left: auto; }
+.filters { display: flex; gap: 6px; }
+.filters button {
+  font-family: inherit; font-size: 12px;
+  background: transparent; color: var(--ink-3);
+  border: 1px solid transparent; border-radius: 4px;
+  padding: 2px 9px; cursor: pointer;
+  transition: color .12s, background .12s;
+}
+.filters button:hover { color: var(--ink); background: var(--bg3); }
+.filters button[aria-pressed="true"] { color: var(--accent); background: var(--accent-dim); }
+
+.evlist { flex: 1; overflow-y: auto; list-style: none; padding: 6px 0; }
+.ev-item.dyn-anim { animation: evin .28s ease-out; }
+@keyframes evin { from { opacity: 0; transform: translateY(5px); } }
+.ev-row {
+  width: 100%; display: flex; align-items: center; gap: 9px;
+  background: transparent; border: 0; text-align: left;
+  font-family: inherit; color: var(--ink-2);
+  padding: 6px 14px; cursor: pointer; font-size: 12.5px; line-height: 1.55;
+}
+.ev-row:hover { background: var(--bg3); }
+.ev-item.open .ev-row { background: var(--bg2); }
+.ev-row .t { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; flex: none; width: 52px; }
+.ev-row .ic { color: var(--ink-3); }
+.ev-row .x { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ev-row .x b { color: var(--ink); font-weight: 600; }
+.ev-row .chev { color: var(--ink-3); transition: transform .15s ease-out; }
+.ev-item.open .chev { transform: rotate(90deg); }
+.ev-row .chev svg { display: block; }
+.ev-detail { display: none; margin: 0 14px 8px 75px; }
+.ev-item.open .ev-detail { display: block; }
+.ev-detail pre {
+  font-family: var(--mono); font-size: 11.5px; line-height: 1.7;
+  color: var(--ink-2); font-variant-numeric: tabular-nums;
+  background: var(--bg-code); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 10px 12px;
+  white-space: pre; overflow-x: auto;
+}
+
+.to-bottom {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: 12px; z-index: 3;
+  font-family: inherit; font-size: 12px; color: var(--ink-2);
+  background: var(--bg2); border: 1px solid var(--line-strong); border-radius: 999px;
+  padding: 4px 12px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 5px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+.to-bottom[hidden] { display: none; }
+.to-bottom:hover { color: var(--ink); background: var(--bg3); }
+
+.audit-foot {
+  border-top: 1px solid var(--line);
+  padding: 8px 14px;
+  font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.demo-cap {
+  margin-top: 14px;
+  font-family: var(--mono); font-size: 12px; color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.demo-cap b { color: var(--ink-2); font-weight: 600; }
+
+/* ---------- 台账式行(审批门 / 边界) ---------- */
+.ledger { border-top: 1px solid var(--line); }
+.ledger-row {
+  display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 20px 40px;
+  padding: 26px 0; border-bottom: 1px solid var(--line);
+}
+.ledger-key { display: flex; align-items: baseline; gap: 10px; }
+.ledger-key .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; transform: translateY(-1px); }
+.ledger-key .en { font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.ledger-key .zh { font-size: 15px; font-weight: 600; color: var(--ink); }
+.ledger-key .zh-only { font-size: 15px; font-weight: 600; color: var(--ink); }
+.ledger-val { color: var(--ink-2); font-size: 15px; max-width: 62ch; text-wrap: pretty; }
+.ledger-val b { color: var(--ink); font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.chip { font-family: var(--mono); font-size: 12px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 4px; padding: 2px 9px; font-variant-numeric: tabular-nums; }
+.dot-safe { background: var(--ok); }
+.dot-confirm { background: var(--warn); }
+.dot-dangerous { background: var(--err); }
+.en-safe { color: var(--ok); }
+.en-confirm { color: var(--warn); }
+.en-dangerous { color: var(--err); }
+
+.ledger-note { padding: 20px 0 0; color: var(--ink-3); font-size: 13.5px; display: flex; gap: 9px; align-items: baseline; }
+.ledger-note .mono { font-size: 12.5px; }
+
+/* ---------- 时间线与报告 ---------- */
+.split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(36px, 5vw, 64px); align-items: start; }
+.feats { list-style: none; display: flex; flex-direction: column; }
+.feats li { display: flex; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); color: var(--ink-2); font-size: 15px; }
+.feats li:first-child { padding-top: 0; }
+.feats .ic { color: var(--ok); margin-top: 5px; }
+.feats b { color: var(--ink); font-weight: 600; }
+.feats .btn { margin-top: 16px; }
+.codecard { border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--bg-code); overflow: hidden; }
+.codecard-head {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 14px; border-bottom: 1px solid var(--line);
+  font-family: var(--mono); font-size: 12px; color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.codecard-head .lock { margin-left: auto; color: var(--ink-3); font-size: 11px; }
+.codecard pre {
+  font-family: var(--mono); font-size: 12.5px; line-height: 1.85;
+  color: var(--ink-2); font-variant-numeric: tabular-nums;
+  padding: 16px 18px; overflow-x: auto; white-space: pre;
+}
+.codecard pre .k { color: var(--ink); }
+.codecard pre .s { color: var(--teal); }
+.codecard pre .c { color: var(--ink-3); }
+
+/* ---------- 能力 ---------- */
+.tools .ledger-key { flex-direction: column; align-items: flex-start; gap: 2px; }
+.tools .ledger-row { grid-template-columns: 220px minmax(0, 1fr); }
+
+.templ { margin-top: clamp(44px, 6vw, 64px); }
+.templ h3 { margin-bottom: 6px; }
+.templ .sub { color: var(--ink-3); font-size: 13.5px; margin-bottom: 20px; }
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th {
+  text-align: left; font-weight: 500; font-size: 12.5px; color: var(--ink-3);
+  padding: 0 14px 10px; border-bottom: 1px solid var(--line-strong);
+}
+.tbl td { padding: 11px 14px; border-bottom: 1px solid var(--line); font-size: 13.5px; vertical-align: baseline; }
+.tbl td:first-child { color: var(--ink-3); font-size: 12.5px; white-space: nowrap; }
+.tbl td:nth-child(2) { color: var(--ink); font-weight: 600; white-space: nowrap; }
+.tbl td:last-child { color: var(--ink-2); }
+
+/* ---------- 快速开始 ---------- */
+.start-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(36px, 5vw, 64px); align-items: start; }
+.term { border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--bg-code); overflow: hidden; }
+.term-head {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 14px; border-bottom: 1px solid var(--line);
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-3);
+}
+.term pre {
+  font-family: var(--mono); font-size: 13px; line-height: 2;
+  padding: 16px 18px; overflow-x: auto; white-space: pre;
+  font-variant-numeric: tabular-nums;
+}
+.term .ps { color: var(--teal); }
+.term .cmd { color: var(--ink); }
+.term .cm { color: var(--ink-3); }
+.steps { list-style: none; counter-reset: st; margin-top: 4px; }
+.steps li {
+  counter-increment: st;
+  display: flex; gap: 14px; padding: 15px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-2); font-size: 15px;
+}
+.steps li::before {
+  content: counter(st, decimal-leading-zero);
+  font-family: var(--mono); font-size: 12.5px; color: var(--ink-3);
+  flex: none; margin-top: 3px;
+}
+.steps b { color: var(--ink); font-weight: 600; }
+.start-note {
+  margin-top: 22px; font-family: var(--mono); font-size: 12px; line-height: 2;
+  color: var(--ink-3); font-variant-numeric: tabular-nums;
+}
+.start-note b { color: var(--ink-2); font-weight: 600; }
+
+/* ---------- 页脚 ---------- */
+footer { border-top: 1px solid var(--line); padding: 30px 0 44px; }
+.foot-in { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.foot-in .brand { font-size: 13.5px; }
+.foot-in .meta { color: var(--ink-3); font-size: 12.5px; }
+.foot-in .mono { margin-left: auto; font-size: 11.5px; color: var(--ink-3); }
+
+/* ---------- Toast ---------- */
+.toast {
+  position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 8px);
+  z-index: 90; background: var(--bg2); border: 1px solid var(--line-strong);
+  border-radius: var(--radius); padding: 10px 18px;
+  font-size: 13px; color: var(--ink);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+  opacity: 0; pointer-events: none;
+  transition: opacity .18s ease-out, transform .18s ease-out;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 980px) {
+  .nav-links { display: none; }
+  .demo-body { grid-template-columns: 1fr; height: auto; }
+  .pane-chat { border-right: 0; border-bottom: 1px solid var(--line); height: 380px; }
+  .pane-audit { height: 460px; }
+  .split, .start-grid { grid-template-columns: 1fr; }
+  .ledger-row, .tools .ledger-row { grid-template-columns: 1fr; gap: 8px; }
+  .ledger-key { flex-wrap: wrap; }
+}
+@media (max-width: 520px) {
+  body { font-size: 15px; }
+  .hero-actions .btn { flex: 1; justify-content: center; }
+  .approval-body { font-size: 11px; }
+  .tbl th:nth-child(1), .tbl td:nth-child(1) { display: none; }
+  .ev-row { padding-inline: 10px; }
+  .ev-detail { margin-left: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-dot.run, .status-dot.wait { animation: none; }
+  .ev-item.dyn-anim { animation: none; }
+  .toast, .ev-row .chev, .btn { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     DIRECTION CONTRACT — surface 491a7410 / dealt #1 · code-led
+     THESIS: 首屏即机制——访客先"亲眼核对"一段实时留痕、可被自己批准或拒绝的
+     自动化任务，再读任何文案；拒绝居中大 hero、药丸标签与卡片海。
+     OWN-WORLD: 工程石墨深色(bg0 #0d0e11→bg3、1px 发丝线 #26282e)，墨白 #e8e9ec，
+     钢蓝 #6c9ee6 只用于焦点/链接/激活；主按钮白底黑字；Segoe UI/微软雅黑，
+     Cascadia 等宽只用于时间戳、路径、JSON；统一 1.5px SVG 线性图标；6–8px 圆角。
+     STORY: 访客看懂"它替你操作电脑、每步留痕、随时批准/拒绝"，亲手批准或拒绝
+     一次演示任务，并能把这份会话导出成单文件审计报告。
+     FIRST VIEWPORT: 细导航(品牌轨迹标记 + 锚点 + 反色主按钮)；左列一句话主张与
+     两个动作；下方整宽演示窗——左对话流、右审计时间线，窗体标题栏含状态点与
+     重播，时间线头部含类型过滤与"导出报告"。
+     FORM: surface 轮盘 dealt #1(活体审计时间线首屏)，seed 491a7410。
+     FINISH: unreviewed and undocumented is unfinished; this build ends with the
+     finish review, the verdict, DESIGN.md, and every shipping raster carrying
+     its provenance.
+     ============================================================ -->
+
+<svg hidden aria-hidden="true" style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <symbol id="i-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3v18"/><circle cx="12" cy="6.2" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" opacity=".66"/><circle cx="12" cy="17.8" r="1.6" fill="currentColor" stroke="none" opacity=".33"/>
+    </symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4.5" width="18" height="15" rx="1.5"/><path d="M7 9l3 3-3 3M12.5 15H17"/>
+    </symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3.5 6.5A1.5 1.5 0 0 1 5 5h4l2 2.5h8A1.5 1.5 0 0 1 20.5 9v9A1.5 1.5 0 0 1 19 19.5H5A1.5 1.5 0 0 1 3.5 18z"/>
+    </symbol>
+    <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M13.5 3H7a1.5 1.5 0 0 0-1.5 1.5v15A1.5 1.5 0 0 0 7 21h10a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M13.5 3V8h5"/>
+    </symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3.5 8A1.5 1.5 0 0 1 5 6.5h2.5L9 4.5h6l1.5 2H19A1.5 1.5 0 0 1 20.5 8v10A1.5 1.5 0 0 1 19 19.5H5A1.5 1.5 0 0 1 3.5 18z"/><circle cx="12" cy="12.8" r="3.4"/>
+    </symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.3 4 5.2 4 8.5s-1.4 6.2-4 8.5c-2.6-2.3-4-5.2-4-8.5s1.4-6.2 4-8.5z"/>
+    </symbol>
+    <symbol id="i-message" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 6a1.5 1.5 0 0 1 1.5-1.5h13A1.5 1.5 0 0 1 20 6v9a1.5 1.5 0 0 1-1.5 1.5H9l-4.2 3.6V6z"/>
+    </symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3l7 2.8v5.4c0 4.3-2.9 7.4-7 8.8-4.1-1.4-7-4.5-7-8.8V5.8z"/><path d="M9 11.8l2.1 2.2L15.3 9.6"/>
+    </symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3.8L21 19.5H3z"/><path d="M12 10v4M12 16.6v.01"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12.5l4.5 4.5L19 7.5"/>
+    </symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 6l6 6-6 6"/>
+    </symbol>
+    <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 4v10M7.5 10.5L12 15l4.5-4.5M5 19h14"/>
+    </symbol>
+    <symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 4l1.9 6.1L20 12l-6.1 1.9L12 20l-1.9-6.1L4 12l6.1-1.9z"/>
+    </symbol>
+    <symbol id="i-replay" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3L4.5 8.9"/><path d="M4.5 4.5v4.4h4.4"/>
+    </symbol>
+    <symbol id="i-arrow-dn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 5v14M6 13l6 6 6-6"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top">
+      <svg class="ic" width="20" height="20" aria-hidden="true"><use href="#i-mark"/></svg>
+      留痕 Agent <span class="ver">v0.1.0</span>
+    </a>
+    <nav class="nav-links" aria-label="页面导航">
+      <a href="#demo">演示</a>
+      <a href="#gate">审批门</a>
+      <a href="#timeline">时间线与报告</a>
+      <a href="#ability">能力</a>
+      <a href="#edge">边界</a>
+    </nav>
+    <a class="btn primary sm" href="#start">五分钟跑起来</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ 首屏：活体审计时间线 ============ -->
+  <section class="hero">
+    <div class="wrap">
+      <h1>替你操作电脑，<br>每一步都留痕。</h1>
+      <p class="sub">留痕 Agent 是运行在你 Windows 电脑上的桌面自动化智能体：操作文件、执行命令、截屏、控浏览器。它做的每一件事，都以事件流的形式追加写入审计日志，随时批准、拒绝、取消。</p>
+      <p class="thesis">你亲眼核对它做过的每一件事，而不是相信它。</p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#start">
+          <svg class="ic" width="15" height="15" aria-hidden="true"><use href="#i-terminal"/></svg>
+          五分钟跑起来
+        </a>
+        <a class="btn" href="#gate">先看审批门怎么工作</a>
+      </div>
+      <p class="hero-meta">本地运行 · 数据写在你自己的磁盘 · Electron + React</p>
+
+      <div class="demo-outer" id="demo">
+        <figure class="demo" aria-label="留痕 Agent 界面演示（由本页面本地驱动）">
+          <div class="demo-chrome">
+            <span class="title">
+              <svg class="ic" width="16" height="16" aria-hidden="true"><use href="#i-mark"/></svg>
+              留痕 Agent
+            </span>
+            <span class="tag">演示会话</span>
+            <span class="spacer"></span>
+            <span class="status"><span class="status-dot" id="statusDot"></span><span id="statusText" aria-live="polite">空闲</span></span>
+            <button class="btn sm" id="replayBtn" type="button">
+              <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-replay"/></svg>
+              重播
+            </button>
+          </div>
+
+          <noscript><p style="padding:14px 16px;margin:0;color:#a6abb5;font-size:13px;border-bottom:1px solid #26282e">启用 JavaScript 后，这里会播放一段本地驱动的实时演示：任务执行、审批请求、事件追加。</p></noscript>
+
+          <div class="demo-body">
+            <div class="pane pane-chat" id="chatPane">
+              <p class="msg user" data-seed>帮我把「下载」文件夹里的 PDF 按年份整理进子文件夹</p>
+              <p class="msg bot" data-seed>好的，先看一下里面有什么。</p>
+              <div class="to-bottom" id="chatToBottom" hidden tabindex="-1">
+                <svg class="ic" width="12" height="12" aria-hidden="true"><use href="#i-arrow-dn"/></svg>回到底部
+              </div>
+            </div>
+
+            <div class="pane pane-audit">
+              <div class="audit-head">
+                <div class="audit-title">
+                  审计时间线
+                  <span class="count" id="evCount">2</span>
+                  <button class="btn sm" id="exportBtn" type="button">
+                    <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-download"/></svg>
+                    导出报告
+                  </button>
+                </div>
+                <div class="filters" role="group" aria-label="按类型过滤事件">
+                  <button type="button" data-filter="all" aria-pressed="true">全部</button>
+                  <button type="button" data-filter="op" aria-pressed="false">操作</button>
+                  <button type="button" data-filter="msg" aria-pressed="false">消息</button>
+                  <button type="button" data-filter="approval" aria-pressed="false">审批</button>
+                </div>
+              </div>
+              <ul class="evlist" id="evList">
+                <li class="ev-item" data-seed data-type="msg">
+                  <button class="ev-row" type="button" aria-expanded="false">
+                    <span class="t">--:--:--</span>
+                    <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-message"/></svg>
+                    <span class="x">用户：把「下载」里的 PDF 按年份整理</span>
+                    <span class="chev"><svg width="12" height="12" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+                  </button>
+                  <div class="ev-detail"><pre>{"type":"message","role":"user"}</pre></div>
+                </li>
+                <li class="ev-item" data-seed data-type="msg">
+                  <button class="ev-row" type="button" aria-expanded="false">
+                    <span class="t">--:--:--</span>
+                    <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-message"/></svg>
+                    <span class="x">助手：好的，先看一下里面有什么。</span>
+                    <span class="chev"><svg width="12" height="12" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+                  </button>
+                  <div class="ev-detail"><pre>{"type":"message","role":"assistant"}</pre></div>
+                </li>
+              </ul>
+              <button class="to-bottom" id="evToBottom" hidden type="button">
+                <svg class="ic" width="12" height="12" aria-hidden="true"><use href="#i-arrow-dn"/></svg>回到底部
+              </button>
+              <p class="audit-foot" id="auditFoot">所有事件已追加写入 .data/sessions/demo/audit.jsonl</p>
+            </div>
+          </div>
+        </figure>
+
+        <figcaption class="demo-cap">以上是<b>内置演示会话</b>，事件由页面在本地生成，不会离开你的浏览器；真实运行时，同类事件追加写入 <b>.data/sessions/&lt;会话&gt;/audit.jsonl</b>。点击任意事件可展开 JSON 详情。</figcaption>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 审批门 ============ -->
+  <section class="pad" id="gate">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>三档审批门：该自动的自动，该问的必问。</h2>
+        <p class="lead">每个动作都按风险分级，策略分宽松、标准（默认）、严格三档，随时切换。危险路径不靠策略——直接拒绝。</p>
+      </div>
+      <div class="ledger">
+        <div class="ledger-row">
+          <div class="ledger-key">
+            <span class="dot dot-safe" aria-hidden="true"></span>
+            <span class="en en-safe">safe</span>
+            <span class="zh">自动执行</span>
+          </div>
+          <div class="ledger-val">
+            读文件、截屏、打开网页这类<b>只读操作</b>直接执行，不打断你；事件照常落进时间线。
+            <span class="chips"><span class="chip">读文件</span><span class="chip">截屏</span><span class="chip">浏览网页</span></span>
+          </div>
+        </div>
+        <div class="ledger-row">
+          <div class="ledger-key">
+            <span class="dot dot-confirm" aria-hidden="true"></span>
+            <span class="en en-confirm">confirm</span>
+            <span class="zh">暂停待批</span>
+          </div>
+          <div class="ledger-val">
+            写文件、执行命令之前，把<b>内容原文摊开</b>等你批准；不批准，一个字节都不会动。任务栏图标会闪烁提醒，刚才标签页标题的闪烁就是同一件事。
+            <span class="chips"><span class="chip">写文件</span><span class="chip">移动文件</span><span class="chip">PowerShell</span></span>
+          </div>
+        </div>
+        <div class="ledger-row">
+          <div class="ledger-key">
+            <span class="dot dot-dangerous" aria-hidden="true"></span>
+            <span class="en en-dangerous">dangerous</span>
+            <span class="zh">直接拒绝</span>
+          </div>
+          <div class="ledger-val">
+            删除文件、格式化、改注册表这类高危命令永远需要确认；而<b>系统目录、盘符根目录、用户主目录</b>，在任何策略下都拒绝执行，拒绝本身也写入审计。
+            <span class="chips"><span class="chip">删除</span><span class="chip">格式化</span><span class="chip">注册表</span><span class="chip">系统目录</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 时间线与报告 ============ -->
+  <section class="pad" id="timeline">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>发生过的事，查得到，带得走。</h2>
+      </div>
+      <div class="split">
+        <ul class="feats">
+          <li>
+            <svg class="ic" width="15" height="15" aria-hidden="true"><use href="#i-check"/></svg>
+            <span><b>实时滚动</b>——所有事件按发生顺序追加，按类型过滤、关键词搜索。</span>
+          </li>
+          <li>
+            <svg class="ic" width="15" height="15" aria-hidden="true"><use href="#i-check"/></svg>
+            <span><b>逐条可查</b>——点击任意事件展开 JSON 详情，截图直接内嵌预览。</span>
+          </li>
+          <li>
+            <svg class="ic" width="15" height="15" aria-hidden="true"><use href="#i-check"/></svg>
+            <span><b>一键导出</b>——自包含的 HTML 审计报告，截图以 base64 内嵌，单个文件即可归档、转发。<span class="feats-btn" style="display:block"><button class="btn sm" id="exportBtn2" type="button"><svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-download"/></svg>导出演示报告</button></span></span>
+          </li>
+        </ul>
+        <div class="codecard">
+          <div class="codecard-head">
+            <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-file"/></svg>
+            audit.jsonl
+            <span class="lock">只追加，永不覆盖</span>
+          </div>
+          <pre><span class="c">// 每行一个事件，按发生顺序追加</span>
+{"ts":"<span class="k">19:25:02</span>","type":"message","role":"user","text":"<span class="s">把下载文件夹里的 PDF 按年份整理</span>"}
+{"ts":"<span class="k">19:25:04</span>","type":"fs.list","path":"<span class="s">Downloads</span>","count":12}
+{"ts":"<span class="k">19:25:09</span>","type":"approval.wait","action":"fs.move","policy":"<span class="s">confirm</span>"}
+{"ts":"<span class="k">19:25:31</span>","type":"approval.ok","by":"<span class="s">user</span>"}
+{"ts":"<span class="k">19:25:33</span>","type":"fs.move","from":"<span class="s">Downloads/报价单2024.pdf</span>","to":"<span class="s">Downloads/2024/报价单2024.pdf</span>"}</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 能力 ============ -->
+  <section class="pad" id="ability">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>一个智能体，十八件工具。</h2>
+      </div>
+      <div class="ledger tools">
+        <div class="ledger-row">
+          <div class="ledger-key"><span class="zh-only">对话驱动</span></div>
+          <div class="ledger-val">用一句话下达任务。文件读写与搜索、PowerShell 命令、屏幕截图、浏览器控制（Edge / Chrome CDP）、窗口枚举，共 <b>18 个工具</b>。</div>
+        </div>
+        <div class="ledger-row">
+          <div class="ledger-key"><span class="zh-only">模型双通道</span></div>
+          <div class="ledger-val">接任何 OpenAI 兼容的云端服务（智谱 GLM、DeepSeek、Kimi、通义、OpenAI 或自定义端点），也能一键切到<b>本地 Ollama</b>。截图自动回传视觉模型，思考型模型的思考过程实时可见。</div>
+        </div>
+        <div class="ledger-row">
+          <div class="ledger-key"><span class="zh-only">内核可靠</span></div>
+          <div class="ledger-val">任务执行中发来的消息<b>自动排队</b>，当前任务结束后依次发送；取消留下的未完成调用<b>自动修复</b>，对话记录永远可用；限流、服务端故障、网络抖动<b>自动退避重试</b>；上下文超预算自动压缩；随时中止。</div>
+        </div>
+        <div class="ledger-row">
+          <div class="ledger-key"><span class="zh-only">技能沉淀</span></div>
+          <div class="ledger-val">完成过的任务一键存成技能，随时编辑、一键重跑——上面的演示会话里就可以试一次。</div>
+        </div>
+      </div>
+
+      <div class="templ">
+        <h3>内置 8 个场景模板</h3>
+        <p class="sub">开箱即用，覆盖浏览器、文件整理与国产办公。</p>
+        <table class="tbl">
+          <thead>
+            <tr><th>分类</th><th>模板</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>浏览器</td><td>打开网页并截图存档</td><td>自动化浏览器打开网址，截图进审计记录</td></tr>
+            <tr><td>浏览器</td><td>网页正文采集存档</td><td>提取正文，存成 Markdown</td></tr>
+            <tr><td>文件整理</td><td>下载文件夹整理</td><td>先给分类方案，确认后才移动文件</td></tr>
+            <tr><td>文件整理</td><td>批量重命名文件</td><td>先给预览对照表，确认后执行</td></tr>
+            <tr><td>国产办公</td><td>Word/WPS 批量转 PDF</td><td>PowerShell COM，优先 Word，失败用 WPS</td></tr>
+            <tr><td>国产应用</td><td>微信给联系人发消息（实验性）</td><td>模拟键盘操作，失败即停</td></tr>
+            <tr><td>系统</td><td>电脑体检报告</td><td>只读收集磁盘 / 内存 / 启动项，生成报告</td></tr>
+            <tr><td>屏幕</td><td>看屏问答</td><td>截屏，视觉模型回答</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 快速开始 ============ -->
+  <section class="pad" id="start">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>五分钟，跑在你自己的电脑上。</h2>
+      </div>
+      <div class="start-grid">
+        <div class="term">
+          <div class="term-head">
+            <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-terminal"/></svg>
+            Windows PowerShell
+          </div>
+          <pre><span class="cm"># 克隆或下载本仓库后，在项目目录执行</span>
+<span class="ps">PS E:\trace-agent&gt;</span> <span class="cmd">npm install</span>
+<span class="ps">PS E:\trace-agent&gt;</span> <span class="cmd">npm run dev</span></pre>
+        </div>
+        <div>
+          <ol class="steps">
+            <li><span>启动后，左下角打开<b>「设置」</b>。</span></li>
+            <li><span>添加服务商——智谱 GLM、DeepSeek、Kimi、通义、OpenAI 或本地 Ollama——填入 API Key，测试连接后选择模型。</span></li>
+            <li><span>保存，回到对话页开聊。<b>右侧审计时间线从第一句话开始留痕。</b></span></li>
+          </ol>
+          <p class="start-note">
+            <b>本地模型</b>：安装并启动 Ollama（ollama pull qwen3:8b），在设置页选择「使用本地 Ollama」。<br>
+            <b>数据位置</b>：全部数据写入项目目录 .data\，不写系统盘。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 边界 ============ -->
+  <section class="pad" id="edge">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>边界，说在前面。</h2>
+      </div>
+      <div class="ledger">
+        <div class="ledger-row">
+          <div class="ledger-key"><span class="zh-only">真实的电脑</span></div>
+          <div class="ledger-val">它运行在你的真实系统上，文件操作有完整审计；但请<b>自行备份重要数据</b>。</div>
+        </div>
+        <div class="ledger-row">
+          <div class="ledger-key"><span class="zh-only">隔离的浏览器</span></div>
+          <div class="ledger-val">浏览器自动化使用<b>独立用户数据目录</b>，不带你日常浏览器的登录态，也不会碰你正开着的浏览器。</div>
+        </div>
+        <div class="ledger-row">
+          <div class="ledger-key"><span class="zh-only">命令的硬边界</span></div>
+          <div class="ledger-val">默认 <b>60 秒超时</b>、输出截断 64KB；高危命令在任何策略下都要确认；文件移动、重命名<b>拒绝覆盖</b>已存在的目标。</div>
+        </div>
+        <div class="ledger-row">
+          <div class="ledger-key"><span class="zh-only">实验性即实验</span></div>
+          <div class="ledger-val">「微信发消息」依赖窗口焦点与模拟按键，<b>失败立即停止并汇报</b>，不会硬试到底。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot-in">
+    <a class="brand" href="#top">
+      <svg class="ic" width="18" height="18" aria-hidden="true"><use href="#i-mark"/></svg>
+      留痕 Agent
+    </a>
+    <span class="meta">v0.1.0 · MIT License · 桌面自动化，全程可审计</span>
+    <span class="mono">audit.jsonl · 只追加，永不覆盖</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------------- 通用:Toast ---------------- */
+  const toastEl = $('#toast');
+  let toastTimer = 0;
+  function toast(text) {
+    toastEl.textContent = text;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+  }
+
+  /* ---------------- 演示会话状态 ---------------- */
+  const BASE_TITLE = document.title;
+  const evList = $('#evList');
+  const chatPane = $('#chatPane');
+  const evCount = $('#evCount');
+  const statusDot = $('#statusDot');
+  const statusText = $('#statusText');
+  const auditFoot = $('#auditFoot');
+
+  const pad2 = n => String(n).padStart(2, '0');
+  const nowTs = () => { const d = new Date(); return `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`; };
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+  const ICONS = { op: 'i-folder', msg: 'i-message', approval: 'i-shield' };
+  const TYPE_ZH = { op: '操作', msg: '消息', approval: '审批' };
+
+  const S = {
+    events: [],
+    filter: 'all',
+    waiting: null,   // 审批闸门的 resolve
+    denied: false,
+    done: false,
+    token: 0,
+    flashTimer: 0,
+  };
+
+  // 把静态种子事件登记进状态(时间标签补成当前时刻,与后续事件同一时钟)
+  $$('.ev-item[data-seed]', evList).forEach((li, i) => {
+    const ts = nowTs();
+    $('.t', li).textContent = ts;
+    S.events.push({
+      seed: true,
+      ts,
+      type: 'msg',
+      text: i === 0 ? '用户：把「下载」里的 PDF 按年份整理' : '助手：好的，先看一下里面有什么。',
+      detail: i === 0
+        ? { type: 'message', role: 'user', text: '把「下载」文件夹里的 PDF 按年份整理进子文件夹' }
+        : { type: 'message', role: 'assistant', text: '好的，先看一下里面有什么。' },
+    });
+  });
+
+  /* ---------------- 滚动吸底(与应用一致) ---------------- */
+  function bindStick(pane, chip) {
+    const nearBottom = () => pane.scrollTop + pane.clientHeight >= pane.scrollHeight - 48;
+    pane.addEventListener('scroll', () => { chip.hidden = nearBottom(); });
+    chip.addEventListener('click', () => { pane.scrollTo({ top: pane.scrollHeight, behavior: reduced ? 'auto' : 'smooth' }); });
+    return nearBottom;
+  }
+  const chatStick = bindStick(chatPane, $('#chatToBottom'));
+  const evWrap = $('.pane-audit');
+  const evStick = bindStick(evList, $('#evToBottom'));
+
+  /* ---------------- 状态灯 / 标题闪烁 ---------------- */
+  function setStatus(s) {
+    statusDot.className = 'status-dot' + (s === 'idle' ? '' : ' ' + s);
+    statusText.textContent = s === 'run' ? '执行中' : s === 'wait' ? '待确认' : '空闲';
+  }
+  function startFlash() {
+    if (reduced) { document.title = '【待确认】' + BASE_TITLE; return; }
+    let on = false;
+    stopFlash();
+    S.flashTimer = setInterval(() => {
+      on = !on;
+      document.title = (on ? '【待确认】' : '') + BASE_TITLE;
+    }, 900);
+    document.title = '【待确认】' + BASE_TITLE;
+  }
+  function stopFlash() {
+    clearInterval(S.flashTimer);
+    if (document.title !== BASE_TITLE) document.title = BASE_TITLE;
+  }
+
+  /* ---------------- 事件流渲染 ---------------- */
+  function renderEvent(ev) {
+    const li = document.createElement('li');
+    li.className = 'ev-item dyn dyn-anim';
+    li.dataset.type = ev.type;
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'ev-row';
+    row.setAttribute('aria-expanded', 'false');
+    row.innerHTML =
+      `<span class="t">${esc(ev.ts)}</span>` +
+      `<svg class="ic" width="14" height="14" aria-hidden="true"><use href="#${ICONS[ev.type]}"/></svg>` +
+      `<span class="x">${esc(ev.text)}</span>` +
+      `<span class="chev"><svg width="12" height="12" aria-hidden="true"><use href="#i-chevron"/></svg></span>`;
+    const det = document.createElement('div');
+    det.className = 'ev-detail';
+    const pre = document.createElement('pre');
+    pre.textContent = JSON.stringify(ev.detail, null, 2);
+    det.appendChild(pre);
+    li.append(row, det);
+    row.addEventListener('click', () => {
+      const open = li.classList.toggle('open');
+      row.setAttribute('aria-expanded', String(open));
+    });
+    applyFilterTo(li);
+    evList.appendChild(li);
+    evCount.textContent = String(S.events.length);
+    if (evStick()) evList.scrollTop = evList.scrollHeight;
+  }
+
+  function addEvent(type, text, detail) {
+    const ev = { ts: nowTs(), type, text, detail: detail || { type, text } };
+    S.events.push(ev);
+    renderEvent(ev);
+  }
+
+  function applyFilterTo(li) {
+    li.hidden = S.filter !== 'all' && li.dataset.type !== S.filter;
+  }
+  $$('.filters button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      S.filter = btn.dataset.filter;
+      $$('.filters button').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+      $$('.ev-item', evList).forEach(applyFilterTo);
+    });
+  });
+
+  /* ---------------- 对话流渲染 ---------------- */
+  function addChat(node) {
+    node.classList.add('dyn');
+    chatPane.insertBefore(node, $('#chatToBottom'));
+    if (chatStick()) chatPane.scrollTop = chatPane.scrollHeight;
+  }
+  function chatMsg(kind, html) {
+    const p = document.createElement('p');
+    p.className = 'msg ' + kind;
+    p.innerHTML = html;
+    addChat(p);
+    return p;
+  }
+  function chatTool(html) {
+    const d = document.createElement('div');
+    d.className = 'tool-chip';
+    d.innerHTML = html;
+    addChat(d);
+    return d;
+  }
+
+  /* ---------------- 演示脚本 ---------------- */
+  const DL = 'D:\\Users\\you\\Downloads';
+  const chatApproveCard = () => {
+    const card = document.createElement('div');
+    card.className = 'approval';
+    card.innerHTML =
+      `<div class="approval-head"><svg class="ic" width="15" height="15" aria-hidden="true"><use href="#i-alert"/></svg>审批请求：移动 8 个文件<span class="tag">标准 · confirm</span></div>` +
+      `<div class="approval-body">fs.move × 8\n${esc(DL)}\\*.pdf\n  <span class="arrow">→</span> ${esc(DL)}\\{2023|2024|2025|2026}\\</div>` +
+      `<div class="approval-foot"><button class="btn sm primary" data-act="ok" type="button">批准</button><button class="btn sm" data-act="no" type="button">拒绝</button></div>`;
+    addChat(card);
+    if (chatStick()) chatPane.scrollTop = chatPane.scrollHeight;
+    return card;
+  };
+
+  async function play() {
+    const my = ++S.token;
+    const guard = () => { if (my !== S.token) throw 0; };
+    const pause = async ms => { await sleep(ms); guard(); };
+
+    try {
+      setStatus('run');
+      auditFoot.textContent = '所有事件已追加写入 .data/sessions/demo/audit.jsonl';
+
+      await pause(900);
+      chatMsg('bot', '找到了 <b>8 个 PDF</b>，修改时间横跨 2023–2026。方案：按年份建四个子文件夹，逐一移动，<b>不覆盖已有文件</b>。');
+      addEvent('op', `fs.list ${DL} · 12 项`, { type: 'fs.list', path: DL, count: 12, pdf: 8 });
+
+      await pause(1200);
+      chatMsg('bot', '移动属于写入操作，需要你批准。');
+      addEvent('msg', '助手：方案已给出，等待批准移动 8 个文件。', { type: 'message', role: 'assistant', wait: 'fs.move ×8' });
+
+      await pause(700);
+      chatApproveCard();
+      addEvent('approval', 'fs.move ×8 — 待你批准', { type: 'approval.wait', action: 'fs.move', count: 8, policy: 'confirm' });
+      setStatus('wait');
+      startFlash();
+
+      const waitStart = Date.now();
+      const ok = await new Promise(res => { S.waiting = res; });
+      guard();
+      stopFlash();
+      const waited = Math.round((Date.now() - waitStart) / 1000);
+
+      const card = $('.approval:not(.resolved)', chatPane);
+      if (ok) {
+        S.denied = false;
+        setStatus('run');
+        if (card) {
+          card.classList.add('resolved');
+          $('.approval-foot', card).outerHTML = `<div class="verdict ok"><svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-check"/></svg>已批准 · 等待 ${waited} 秒</div>`;
+        }
+        addEvent('approval', `fs.move ×8 — 已批准（等待 ${waited} 秒）`, { type: 'approval.ok', by: 'user', waited: waited + 's' });
+
+        const moves = [
+          ['报价单2024.pdf', '2024'],
+          ['简历-2023终版.pdf', '2023'],
+          ['供应商合同2025.pdf', '2025'],
+        ];
+        for (const [name, yr] of moves) {
+          await pause(380);
+          addEvent('op', `fs.move ${name} → ${yr}\\`, { type: 'fs.move', from: `${DL}/${name}`, to: `${DL}/${yr}/${name}` });
+        }
+        await pause(380);
+        addEvent('op', 'fs.move 会议纪要-2026-01.pdf → 2026\\（另有 4 个文件已移动）', { type: 'fs.move', from: `${DL}/会议纪要-2026-01.pdf`, to: `${DL}/2026/`, moved: 8 });
+
+        await pause(600);
+        chatTool(`<svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-folder"/></svg><span><b>fs.move</b> — 8 个文件已按年份移动，0 覆盖</span>`);
+        await pause(900);
+        const skillBtn = document.createElement('button');
+        skillBtn.type = 'button';
+        skillBtn.className = 'btn sm skill-btn';
+        skillBtn.innerHTML = `<svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-star"/></svg>沉淀为技能`;
+        skillBtn.addEventListener('click', () => {
+          if (skillBtn.disabled) return;
+          skillBtn.disabled = true;
+          addEvent('op', '技能已保存：「按年份整理 PDF」', { type: 'skill.saved', name: '按年份整理 PDF' });
+          toast('已保存为技能「按年份整理 PDF」（演示）');
+        });
+        addChat(skillBtn);
+        chatMsg('bot', '完成。<b>8 个 PDF 已按年份归档</b>，没有覆盖任何已有文件。要把这个任务沉淀为技能吗？');
+        await pause(500);
+        addEvent('op', 'fs.verify — 8 个文件全部就位，0 覆盖', { type: 'fs.verify', expect: 8, ok: 8, overwritten: 0 });
+      } else {
+        S.denied = true;
+        setStatus('idle');
+        if (card) {
+          card.classList.add('resolved');
+          $('.approval-foot', card).outerHTML = `<div class="verdict no">已拒绝 · 未移动任何文件</div>`;
+        }
+        addEvent('approval', 'fs.move ×8 — 已拒绝，未移动任何文件', { type: 'approval.denied', by: 'user' });
+        await pause(800);
+        chatMsg('bot', '好的，一个文件都没有动。方案保留在对话里，你可以调整规则后再让我执行。');
+        addEvent('msg', '助手：已停止，等待用户调整方案。', { type: 'message', role: 'assistant', stopped: true });
+      }
+
+      S.done = true;
+      setStatus('idle');
+      auditFoot.textContent = '所有事件已追加写入 .data/sessions/demo/audit.jsonl · 演示结束，可点「重播」再看一次';
+    } catch (e) {
+      if (e !== 0) throw e;
+    }
+  }
+
+  /* ---------------- 审批按钮(事件委托) ---------------- */
+  chatPane.addEventListener('click', e => {
+    const btn = e.target.closest('.approval .btn[data-act]');
+    if (!btn || !S.waiting) return;
+    const ok = btn.dataset.act === 'ok';
+    const res = S.waiting;
+    S.waiting = null;
+    res(ok);
+  });
+
+  /* ---------------- 重播 ---------------- */
+  $('#replayBtn').addEventListener('click', () => {
+    S.token++;
+    if (S.waiting) { const res = S.waiting; S.waiting = null; res(false); }
+    stopFlash();
+    $$('.dyn', chatPane).forEach(n => n.remove());
+    $$('.ev-item.dyn', evList).forEach(n => n.remove());
+    S.events = S.events.filter(ev => ev.seed);
+    evCount.textContent = String(S.events.length);
+    S.denied = false;
+    S.done = false;
+    S.filter = 'all';
+    $$('.filters button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.filter === 'all')));
+    $$('.ev-item', evList).forEach(li => { li.hidden = false; });
+    chatPane.scrollTop = 0;
+    evList.scrollTop = 0;
+    setStatus('idle');
+    play();
+  });
+
+  /* ---------------- 导出审计报告(真实可下载) ---------------- */
+  function buildReport() {
+    const stamp = new Date();
+    const rows = S.events.map(ev =>
+      `<tr><td class="t">${esc(ev.ts)}</td><td>${TYPE_ZH[ev.type] || esc(ev.type)}</td><td>${esc(ev.text)}</td></tr>` +
+      `<tr class="det"><td></td><td colspan="2"><pre>${esc(JSON.stringify(ev.detail))}</pre></td></tr>`
+    ).join('\n');
+    return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>留痕 Agent 审计报告（演示）</title><style>
+body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;background:#0d0e11;color:#e8e9ec;margin:0;padding:40px 20px}
+main{max-width:860px;margin:0 auto}
+h1{font-size:20px;margin:0 0 4px}
+.meta{color:#7f8490;font-size:12.5px;font-family:Consolas,monospace;margin-bottom:28px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td{padding:8px 10px;border-bottom:1px solid #26282e;vertical-align:top;color:#a6abb5}
+td.t{font-family:Consolas,monospace;color:#7f8490;white-space:nowrap;width:70px}
+tr.det td{padding-top:0;border-bottom:1px solid #1a1c21}
+pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6px;white-space:pre-wrap}
+.foot{margin-top:26px;color:#7f8490;font-family:Consolas,monospace;font-size:11.5px}
+</style></head><body><main>
+<h1>留痕 Agent · 审计报告（演示）</h1>
+<p class="meta">会话 demo · 共 ${S.events.length} 个事件 · 时间范围 ${esc(S.events[0]?.ts || '--')} – ${esc(S.events[S.events.length - 1]?.ts || '--')} · 导出于 ${esc(stamp.toLocaleString('zh-CN'))}</p>
+<table>${rows}</table>
+<p class="foot">audit.jsonl — 只追加，永不覆盖 · 本报告由介绍页的演示会话生成，数据均为演示内容</p>
+</main></body></html>`;
+  }
+  function exportReport() {
+    const blob = new Blob([buildReport()], { type: 'text/html;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '留痕Agent-审计报告-演示.html';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast('报告已导出：单文件 HTML（演示数据）');
+  }
+  $('#exportBtn').addEventListener('click', exportReport);
+  $('#exportBtn2').addEventListener('click', exportReport);
+
+  /* ---------------- 进入视口后开始播放 ---------------- */
+  let started = false;
+  const demo = $('.demo');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries => {
+      if (entries.some(en => en.isIntersecting) && !started) {
+        started = true;
+        io.disconnect();
+        setTimeout(play, 500);
+      }
+    }, { threshold: 0.3 });
+    io.observe(demo);
+  } else {
+    setTimeout(play, 800);
+  }
+})();
+</script>
+</body>
+</html>

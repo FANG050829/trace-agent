@@ -8,15 +8,15 @@ function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
-const TYPE_LABEL: Record<string, { icon: string; label: string; cls: string }> = {
-  user_message: { icon: '🙋', label: '用户', cls: 'user' },
-  assistant_message: { icon: '✦', label: '回复', cls: 'assistant' },
-  tool_call: { icon: '🔧', label: '工具调用', cls: 'tool' },
-  tool_result: { icon: '✅', label: '工具结果', cls: 'tool' },
-  approval_request: { icon: '⏸', label: '请求确认', cls: 'approval' },
-  approval_decision: { icon: '⚖️', label: '审批决定', cls: 'approval' },
-  error: { icon: '❌', label: '错误', cls: 'error' },
-  system: { icon: 'ℹ️', label: '系统', cls: 'system' }
+const TYPE_LABEL: Record<string, { color: string; label: string; cls: string }> = {
+  user_message: { color: '#6c9ee6', label: '用户', cls: 'user' },
+  assistant_message: { color: '#e8e9ec', label: '回复', cls: 'assistant' },
+  tool_call: { color: '#5fb3a3', label: '工具调用', cls: 'tool' },
+  tool_result: { color: '#5fb3a3', label: '工具结果', cls: 'tool' },
+  approval_request: { color: '#d9a850', label: '请求确认', cls: 'approval' },
+  approval_decision: { color: '#d9a850', label: '审批决定', cls: 'approval' },
+  error: { color: '#e07a7a', label: '错误', cls: 'error' },
+  system: { color: '#35383f', label: '系统', cls: 'system' }
 }
 
 function fmtTime(ts: number): string {
@@ -51,7 +51,7 @@ export function buildReportHtml(meta: SessionMeta, events: AuditEvent[], shotsDi
           ? `<details><summary>详情</summary><pre>${esc(JSON.stringify(e.detail, null, 2).slice(0, 20000))}</pre></details>`
           : ''
       return `<div class="ev ${t.cls}">
-  <div class="ev-head"><span class="ev-time">${time}</span><span class="ev-icon">${t.icon}</span><span class="ev-label">${t.label}</span>${status}</div>
+  <div class="ev-head"><span class="ev-time">${time}</span><span class="ev-dot" style="background: ${t.color}"></span><span class="ev-label">${t.label}</span>${status}</div>
   ${e.text ? `<div class="ev-text">${esc(e.text)}</div>` : ''}
   ${shotHtml}
   ${detailHtml}
@@ -75,46 +75,50 @@ export function buildReportHtml(meta: SessionMeta, events: AuditEvent[], shotsDi
   const firstTs = events[0]?.ts ?? meta.createdAt
   const lastTs = events[events.length - 1]?.ts ?? meta.updatedAt
 
+  // 与主界面同一血统:石墨色阶 + 类型色点 + 发丝线,不含第二种视觉语言
   return `<!doctype html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
+<meta name="color-scheme" content="dark">
 <title>审计报告 · ${esc(meta.title)}</title>
 <style>
-  :root { color-scheme: light; }
+  :root { color-scheme: dark; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif; background: #f4f6fa; color: #1c2433; padding: 32px 16px; }
+  body { font-family: 'Segoe UI Variable Text', 'Segoe UI', 'Microsoft YaHei UI', 'Microsoft YaHei', system-ui, sans-serif; background: #0d0e11; color: #e8e9ec; padding: 32px 16px; font-size: 13px; line-height: 1.6; }
+  ::selection { background: rgba(108,158,230,.32); }
   .wrap { max-width: 860px; margin: 0 auto; }
-  header { background: #fff; border: 1px solid #e3e8f0; border-radius: 12px; padding: 22px 26px; margin-bottom: 18px; }
-  h1 { font-size: 20px; margin-bottom: 8px; }
-  .meta { color: #5a647d; font-size: 13px; line-height: 1.8; }
-  .summary { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-size: 12.5px; color: #3b4553; }
-  .summary span { background: #eef2f9; border-radius: 14px; padding: 3px 12px; }
-  .ev { background: #fff; border: 1px solid #e3e8f0; border-left: 3px solid #c6cfdd; border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; }
-  .ev.user { border-left-color: #2b6cb0; } .ev.assistant { border-left-color: #6b46c1; }
-  .ev.tool { border-left-color: #2f855a; } .ev.approval { border-left-color: #b7791f; }
-  .ev.error { border-left-color: #c53030; } .ev.system { border-left-color: #a0aec0; }
-  .ev-head { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #5a647d; }
-  .ev-time { font-family: Consolas, monospace; }
-  .ev-label { font-weight: 600; color: #3b4553; }
-  .ev-text { margin-top: 6px; font-size: 13.5px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
-  .chip { font-size: 11px; border-radius: 10px; padding: 1px 8px; background: #eef2f9; }
-  .chip.st-ok, .chip.st-approved { color: #227950; background: #e3f4ea; }
-  .chip.st-error, .chip.st-denied { color: #b02a2a; background: #fbe5e5; }
-  .chip.st-pending { color: #8a6116; background: #fdf3dd; }
-  .shot { display: block; max-width: 100%; margin-top: 8px; border: 1px solid #e3e8f0; border-radius: 8px; }
-  .shot-missing { margin-top: 8px; font-size: 12px; color: #8a6116; background: #fdf3dd; border-radius: 6px; padding: 6px 10px; }
-  details { margin-top: 6px; font-size: 12px; }
-  summary { cursor: pointer; color: #5a647d; }
-  pre { margin-top: 6px; background: #f6f8fb; border: 1px solid #e3e8f0; border-radius: 8px; padding: 10px; font-family: Consolas, monospace; font-size: 11.5px; overflow: auto; max-height: 320px; white-space: pre-wrap; word-break: break-all; }
-  footer { text-align: center; color: #8a93a5; font-size: 12px; margin-top: 20px; }
+  header { background: #141519; border: 1px solid #26282e; border-radius: 8px; padding: 20px 24px; margin-bottom: 14px; }
+  h1 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+  .meta { color: #a6abb5; font-size: 12.5px; line-height: 1.8; }
+  .meta .mono, .mono { font-family: 'Cascadia Code', Consolas, monospace; font-variant-numeric: tabular-nums; }
+  .summary { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: #a6abb5; }
+  .summary span { border: 1px solid #26282e; border-radius: 4px; padding: 2px 10px; }
+  .ev { background: #141519; border: 1px solid #26282e; border-radius: 6px; padding: 11px 14px; margin-bottom: 6px; }
+  .ev-head { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: #7f8490; }
+  .ev-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .ev-time { font-family: 'Cascadia Code', Consolas, monospace; font-size: 10.5px; font-variant-numeric: tabular-nums; }
+  .ev-label { font-weight: 600; color: #a6abb5; }
+  .ev-text { margin-top: 6px; font-size: 13px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; color: #e8e9ec; }
+  .chip { font-size: 11px; display: inline-flex; align-items: center; gap: 5px; color: #7f8490; }
+  .chip::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .chip.st-ok, .chip.st-approved { color: #58b380; }
+  .chip.st-error, .chip.st-denied { color: #e07a7a; }
+  .chip.st-pending { color: #d9a850; }
+  .shot { display: block; max-width: 100%; margin-top: 8px; border: 1px solid #26282e; border-radius: 6px; }
+  .shot-missing { margin-top: 8px; font-size: 11.5px; color: #d9a850; border: 1px solid rgba(217,168,80,.3); border-radius: 4px; padding: 5px 10px; }
+  details { margin-top: 6px; font-size: 11.5px; }
+  summary { cursor: pointer; color: #7f8490; }
+  summary:hover { color: #a6abb5; }
+  pre { margin-top: 6px; background: #0a0b0d; border: 1px solid #26282e; border-radius: 5px; padding: 9px 10px; font-family: 'Cascadia Code', Consolas, monospace; font-size: 11px; color: #a6abb5; overflow: auto; max-height: 320px; white-space: pre-wrap; word-break: break-all; }
+  footer { text-align: center; color: #7f8490; font-size: 11.5px; margin-top: 18px; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>📋 审计报告 · ${esc(meta.title)}</h1>
-    <div class="meta">会话 ID:${esc(meta.id)}<br>时间范围:${fmtTime(firstTs)} — ${fmtTime(lastTs)} · 共 ${events.length} 条事件</div>
+    <h1>审计报告 · ${esc(meta.title)}</h1>
+    <div class="meta">会话 ID:<span class="mono">${esc(meta.id)}</span><br>时间范围:<span class="mono">${fmtTime(firstTs)} — ${fmtTime(lastTs)}</span> · 共 ${events.length} 条事件</div>
     <div class="summary">${summary}</div>
   </header>
   ${rows || '<div class="ev system"><div class="ev-text">该会话没有审计事件。</div></div>'}

@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { api } from './api'
+import { Icon } from './components/Icon'
 
 /** 轻量 Markdown 渲染:代码块、标题、列表、表格、引用、链接、加粗/斜体/删除线。React 自动转义,无 XSS 面积。 */
 export function Markdown({ text }: { text: string }): ReactNode {
@@ -29,7 +30,7 @@ function CodeBlock({ code }: { code: string }): ReactNode {
   return (
     <pre className="code-block">
       <button className={`copy-btn ${copied ? 'done' : ''}`} onClick={copy} title="复制代码">
-        {copied ? '✓ 已复制' : '复制'}
+        <Icon name={copied ? 'check' : 'copy'} size={11} /> {copied ? '已复制' : '复制'}
       </button>
       <code>{code}</code>
     </pre>

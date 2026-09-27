@@ -1,16 +1,17 @@
 import React, { useState } from 'react'
 import type { AuditEvent } from '@shared/types'
 import { api } from '../api'
+import { Icon, toolIconName } from './Icon'
 
-const TYPE_META: Record<string, { icon: string; label: string; cls: string }> = {
-  user_message: { icon: '🙋', label: '用户', cls: 't-user' },
-  assistant_message: { icon: '✦', label: '回复', cls: 't-assistant' },
-  tool_call: { icon: '🔧', label: '工具调用', cls: 't-tool' },
-  tool_result: { icon: '✅', label: '工具结果', cls: 't-tool' },
-  approval_request: { icon: '⏸', label: '请求确认', cls: 't-approval' },
-  approval_decision: { icon: '⚖️', label: '审批决定', cls: 't-approval' },
-  error: { icon: '❌', label: '错误', cls: 't-error' },
-  system: { icon: 'ℹ️', label: '系统', cls: 't-system' }
+const TYPE_META: Record<string, { label: string; dot: string }> = {
+  user_message: { label: '用户', dot: 'dot-user' },
+  assistant_message: { label: '回复', dot: 'dot-assistant' },
+  tool_call: { label: '工具调用', dot: 'dot-tool' },
+  tool_result: { label: '工具结果', dot: 'dot-tool' },
+  approval_request: { label: '请求确认', dot: 'dot-approval' },
+  approval_decision: { label: '审批决定', dot: 'dot-approval' },
+  error: { label: '错误', dot: 'dot-error' },
+  system: { label: '系统', dot: 'dot-system' }
 }
 
 type Filter = 'all' | 'tool' | 'msg' | 'approval'
@@ -20,10 +21,12 @@ export function AuditPanel(props: { events: AuditEvent[]; sessionId: string | nu
   const [keyword, setKeyword] = useState('')
   const [expanded, setExpanded] = useState<string | null>(null)
   const [exportMsg, setExportMsg] = useState<string | null>(null)
+  const [exporting, setExporting] = useState(false)
   const bottomRef = React.useRef<HTMLDivElement>(null)
   const listRef = React.useRef<HTMLDivElement>(null)
   const stickRef = React.useRef(true)
-  const [exporting, setExporting] = useState(false)
+  // 留痕脉冲:只对挂载之后新落位的事件生效,打开历史会话时不高亮一整屏
+  const knownIds = React.useRef<Set<string> | null>(null)
 
   const kw = keyword.trim().toLowerCase()
   const shown = props.events.filter((e) => {
@@ -35,7 +38,18 @@ export function AuditPanel(props: { events: AuditEvent[]; sessionId: string | nu
     return true
   })
 
-  // 智能吸底:用户向上翻阅审计历史时不强行拉回
+  // 会话切换后重置已知事件集合
+  if (knownIds.current === null) {
+    knownIds.current = new Set(props.events.map((e) => e.id))
+  }
+  const freshIds = new Set<string>()
+  for (const e of props.events) {
+    if (!knownIds.current.has(e.id)) {
+      freshIds.add(e.id)
+      knownIds.current.add(e.id)
+    }
+  }
+
   const onScroll = (): void => {
     const el = listRef.current
     if (!el) return
@@ -52,7 +66,7 @@ export function AuditPanel(props: { events: AuditEvent[]; sessionId: string | nu
     setExportMsg(null)
     try {
       const r = await api.exportSession(props.sessionId)
-      setExportMsg(`${r.ok ? '✅' : '❌'} ${r.message}`)
+      setExportMsg(`${r.ok ? '已导出' : '导出失败'} — ${r.message}`)
       setTimeout(() => setExportMsg(null), 5000)
     } finally {
       setExporting(false)
@@ -75,7 +89,8 @@ export function AuditPanel(props: { events: AuditEvent[]; sessionId: string | nu
         <span className="audit-count">{props.events.length}</span>
         <span className="audit-head-spacer" />
         <button className="ghost small" onClick={() => void doExport()} disabled={exporting} title="导出为自包含的 HTML 审计报告(含截图)">
-          {exporting ? '导出中…' : '⬇ 导出报告'}
+          <Icon name="download" size={12} />
+          {exporting ? '导出中' : '导出报告'}
         </button>
       </div>
       <div className="audit-filters">
@@ -91,23 +106,30 @@ export function AuditPanel(props: { events: AuditEvent[]; sessionId: string | nu
             {label}
           </button>
         ))}
-        <input
-          className="audit-search"
-          placeholder="搜索…"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-        />
+        <input className="audit-search" placeholder="搜索" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
       </div>
       <div className="audit-list" ref={listRef} onScroll={onScroll}>
         {shown.map((e) => {
           const meta = TYPE_META[e.type] ?? TYPE_META.system
           const shot = e.shot ?? (e.type === 'tool_result' ? (e.detail as { shot?: string } | undefined)?.shot : undefined)
+          const text = e.text || meta.label
           return (
-            <div key={e.id} className={`audit-item ${meta.cls}`} onClick={() => setExpanded(expanded === e.id ? null : e.id)}>
+            <div
+              key={e.id}
+              className={`audit-item ${freshIds.has(e.id) ? 'is-new' : ''}`}
+              onClick={() => setExpanded(expanded === e.id ? null : e.id)}
+            >
               <div className="audit-row">
                 <span className="audit-time">{new Date(e.ts).toLocaleTimeString('zh-CN', { hour12: false })}</span>
-                <span className="audit-icon">{meta.icon}</span>
-                <span className="audit-text">{e.text || meta.label}</span>
+                <span className={`audit-dot ${meta.dot}`} title={meta.label} />
+                <span className="audit-text" title={text}>
+                  {e.type === 'tool_call' || e.type === 'tool_result' ? (
+                    <>
+                      <Icon name={toolIconName(e.toolName ?? '')} size={11} style={{ verticalAlign: '-1.5px' }} />{' '}
+                    </>
+                  ) : null}
+                  {text}
+                </span>
               </div>
               {shot && (
                 <img className="audit-shot" src={`trace://shots/${props.sessionId}/${shot}`} alt="截图" loading="lazy" />
@@ -118,11 +140,14 @@ export function AuditPanel(props: { events: AuditEvent[]; sessionId: string | nu
             </div>
           )
         })}
-        {shown.length === 0 && <div className="audit-empty">没有匹配的事件。</div>}
+        {props.events.length === 0 && (
+          <div className="audit-empty">开始对话后,每一步操作都会实时记录在这里。</div>
+        )}
+        {props.events.length > 0 && shown.length === 0 && <div className="audit-empty">没有匹配的事件。</div>}
         <div ref={bottomRef} />
       </div>
       {exportMsg && <div className="audit-export-msg">{exportMsg}</div>}
-      <div className="audit-foot">所有事件已追加写入 .data/sessions/{props.sessionId.slice(0, 8)}…/audit.jsonl</div>
+      <div className="audit-foot">追加写入 .data/sessions/{props.sessionId.slice(0, 8)}…/audit.jsonl</div>
     </aside>
   )
 }

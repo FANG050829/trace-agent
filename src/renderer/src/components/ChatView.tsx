@@ -1,25 +1,13 @@
 import React from 'react'
 import type { AuditEvent, ApprovalRequest } from '@shared/types'
 import { Markdown } from '../md'
+import { Icon, toolIconName } from './Icon'
 
 export type RenderItem =
   | { kind: 'user'; id: string; ts: number; text: string }
   | { kind: 'assistant'; id: string; ts: number; text: string; streaming?: boolean; reasoning?: string }
   | { kind: 'tool'; id: string; ts: number; call: AuditEvent; result?: AuditEvent }
   | { kind: 'notice'; id: string; ts: number; text: string; status?: string }
-
-const TOOL_ICON: [RegExp, string][] = [
-  [/^fs_/, '📄'],
-  [/^run_command/, '⌨️'],
-  [/^screenshot/, '📷'],
-  [/^browser_/, '🌐'],
-  [/^window_list/, '🪟']
-]
-
-function toolIcon(name: string): string {
-  const hit = TOOL_ICON.find(([re]) => re.test(name))
-  return hit ? hit[1] : '🔧'
-}
 
 function statusChip(status?: string): { cls: string; text: string } | null {
   switch (status) {
@@ -41,7 +29,7 @@ const RISK_BADGE: Record<string, { cls: string; text: string }> = {
   dangerous: { cls: 'risk-danger', text: '不可逆操作' }
 }
 
-function CopyBtn({ getText }: { getText: () => string }): React.ReactNode {
+function CopyBtn({ getText, label = '复制' }: { getText: () => string; label?: string }): React.ReactNode {
   const [copied, setCopied] = React.useState(false)
   return (
     <button
@@ -57,7 +45,7 @@ function CopyBtn({ getText }: { getText: () => string }): React.ReactNode {
         )
       }}
     >
-      {copied ? '✓ 已复制' : '复制'}
+      <Icon name={copied ? 'check' : 'copy'} size={11} /> {copied ? '已复制' : label}
     </button>
   )
 }
@@ -71,10 +59,14 @@ function ToolCard({ item, sessionId }: { item: Extract<RenderItem, { kind: 'tool
   return (
     <div className={`tool-card st-${result?.status ?? 'pending'}`}>
       <button className="tool-head" onClick={() => setOpen(!open)}>
-        <span className="tool-icon">{toolIcon(call.toolName ?? '')}</span>
+        <span className="tool-icon">
+          <Icon name={toolIconName(call.toolName ?? '')} size={14} />
+        </span>
         <span className="tool-name">{String(call.text ?? call.toolName)}</span>
         {chip && <span className={`chip ${chip.cls}`}>{chip.text}</span>}
-        <span className="tool-caret">{open ? '▾' : '▸'}</span>
+        <span className={`tool-caret ${open ? 'open' : ''}`}>
+          <Icon name="chevron" size={12} />
+        </span>
       </button>
       {open && (
         <div className="tool-body">
@@ -90,7 +82,7 @@ function ToolCard({ item, sessionId }: { item: Extract<RenderItem, { kind: 'tool
               <pre className="tool-pre">{JSON.stringify(result.detail ?? result.text, null, 2).slice(0, 4000)}</pre>
             </>
           )}
-          {!result && <div className="tool-label dim">尚未返回结果…</div>}
+          {!result && <div className="tool-label">尚未返回结果…</div>}
         </div>
       )}
       {shot && (
@@ -101,6 +93,12 @@ function ToolCard({ item, sessionId }: { item: Extract<RenderItem, { kind: 'tool
     </div>
   )
 }
+
+const WELCOME_EXAMPLES = [
+  { icon: 'folder', text: '整理我的下载文件夹,先给方案' },
+  { icon: 'globe', text: '打开 baidu.com 截个图' },
+  { icon: 'terminal', text: '看看 C 盘还剩多少空间' }
+]
 
 export function ChatView(props: {
   items: RenderItem[]
@@ -180,20 +178,42 @@ export function ChatView(props: {
       <div className="chat-scroll" ref={scrollRef} onScroll={onScroll}>
         {items.length === 0 && (
           <div className="welcome">
-            <div className="welcome-logo">✦</div>
-            <h2>留痕 Agent</h2>
-            <p>每一步操作都被完整记录、可审计、可回放的桌面自动化智能体。</p>
-            <div className="welcome-actions">
-              <button onClick={props.onOpenTemplates}>📋 从模板库开始</button>
-              {!llmReady && <button className="ghost" onClick={props.onOpenSettings}>⚙️ 先去配置模型服务</button>}
+            <div className="welcome-head">
+              <span className="welcome-mark">
+                <Icon name="mark" size={22} />
+              </span>
+              <h2>留痕 Agent</h2>
             </div>
-            <div className="welcome-tips">
-              <span>试试(点击填入):</span>
-              {['整理我的下载文件夹,先给方案', '打开 baidu.com 截个图', '看看 C 盘还剩多少空间'].map((tip) => (
-                <em key={tip} onClick={() => insertText(tip)}>
-                  “{tip}”
-                </em>
+            <p className="welcome-desc">
+              交代一件事,它替你操作文件、运行命令、截屏、控制浏览器。每一步都写入审计时间线,执行前会先征求你的确认。
+            </p>
+            <div className="welcome-label">试一试</div>
+            <div className="welcome-examples">
+              {WELCOME_EXAMPLES.map((ex) => (
+                <button key={ex.text} onClick={() => insertText(ex.text)}>
+                  <span className="ex-ico">
+                    <Icon name={ex.icon} size={14} />
+                  </span>
+                  {ex.text}
+                </button>
               ))}
+            </div>
+            <div className="welcome-links">
+              <button onClick={props.onOpenTemplates}>
+                <Icon name="layout" size={13} /> 模板库
+              </button>
+              <span className="link-sep">/</span>
+              {!llmReady && (
+                <>
+                  <button onClick={props.onOpenSettings}>
+                    <Icon name="sliders" size={13} /> 先配置模型服务
+                  </button>
+                  <span className="link-sep">/</span>
+                </>
+              )}
+              <span className="dim" style={{ fontSize: 11.5, alignSelf: 'center' }}>
+                支持拖入文件 · Enter 发送 · Shift+Enter 换行
+              </span>
             </div>
           </div>
         )}
@@ -213,12 +233,12 @@ export function ChatView(props: {
                   {it.reasoning && (it.streaming || !hasBody) && <div className="reasoning live">{it.reasoning}</div>}
                   {it.reasoning && hasBody && !it.streaming && (
                     <details className="reasoning-fold">
-                      <summary>💭 思考过程</summary>
+                      <summary>思考过程</summary>
                       <div className="reasoning">{it.reasoning}</div>
                     </details>
                   )}
-                  {hasBody ? <Markdown text={it.text} /> : !it.reasoning && <span className="dim">思考中…</span>}
-                  {it.streaming && hasBody && <span className="caret-blink">▍</span>}
+                  {hasBody ? <Markdown text={it.text} /> : !it.reasoning && <span className="dim">正在准备…</span>}
+                  {it.streaming && hasBody && <span className="stream-hint" />}
                 </div>
                 {hasBody && !it.streaming && (
                   <div className="msg-actions">
@@ -240,13 +260,19 @@ export function ChatView(props: {
 
         {streamingTool && running && !pending && (
           <div className="tool-streaming">
-            <span className="spin">◐</span> 正在调用 {streamingTool}…
+            <span className="spin">
+              <Icon name="clock" size={13} />
+            </span>
+            正在调用 {streamingTool}
           </div>
         )}
 
         {pending && (
           <div className="approval-card">
-            <div className="approval-head">⚠️ Agent 请求执行一个需要确认的操作</div>
+            <div className="approval-head">
+              <Icon name="alert" size={14} />
+              需要你的确认
+            </div>
             <div className="approval-meta">
               <span className="approval-tool">{pending.toolLabel}</span>
               {RISK_BADGE[pending.risk] && <span className={`chip ${RISK_BADGE[pending.risk].cls}`}>{RISK_BADGE[pending.risk].text}</span>}
@@ -257,7 +283,7 @@ export function ChatView(props: {
               <button className="primary" onClick={() => props.onRespond(true)}>
                 批准执行
               </button>
-              <button className="danger" onClick={() => props.onRespond(false)}>
+              <button className="danger-outline" onClick={() => props.onRespond(false)}>
                 拒绝
               </button>
             </div>
@@ -267,8 +293,8 @@ export function ChatView(props: {
       </div>
 
       {showJump && (
-        <button className="jump-bottom" onClick={scrollToBottom} title="回到底部">
-          ↓ 回到底部
+        <button className="jump-bottom" onClick={scrollToBottom}>
+          <Icon name="arrow-down" size={12} /> 回到底部
         </button>
       )}
 
@@ -276,7 +302,7 @@ export function ChatView(props: {
         <textarea
           ref={taRef}
           value={input}
-          placeholder={running ? 'Agent 正在执行任务…此时发送的消息会排队,任务结束后自动处理' : '描述你要让它做的事,Enter 发送,Shift+Enter 换行,可拖入文件'}
+          placeholder={running ? '正在执行任务…此时发送的消息会排队,任务结束后自动处理' : '描述要做的事,可拖入文件'}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
             // 中文输入法组词中的回车不发送
@@ -288,12 +314,13 @@ export function ChatView(props: {
           rows={2}
         />
         {running ? (
-          <button className="stop" onClick={props.onCancel}>
-            ■ 停止
+          <button className="stop-btn" onClick={props.onCancel} title="中止当前任务">
+            <Icon name="stop" size={11} /> 停止
           </button>
         ) : (
           <button className="primary send" onClick={doSend} disabled={!input.trim()}>
             发送
+            <Icon name="send" size={13} />
           </button>
         )}
       </div>

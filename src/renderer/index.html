@@ -3,9 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
     <title>留痕 Agent</title>
   </head>
   <body>
+    <!--
+      方向契约(seed: graphite-operate / code-led,用户 2026-09-27 拍板)
+      THESIS: 这是一个"审计仪器",不是聊天玩具——界面把"每一步都被记录"变成常驻的视觉事实:右侧审计时间线与对话等宽共存,状态(空闲/执行中/待确认)永远可扫读。
+      OWN-WORLD: 中性石墨色阶(#0d0e11–#1e2026),墨白文字,1px 发丝线,6–8px 圆角;钢蓝只用于焦点/链接/激活;主按钮白底黑字反色;统一 1.5px 描边 SVG 图标,零 emoji,零发光;等宽字体只出现在时间戳、路径、代码、参数。
+      STORY: 用户一眼知道 agent 在不在干活、要不要他批准;点开任何一条都能看到原始参数与结果;导出的报告和界面同一血统。
+      FIRST VIEWPORT: 三栏等高——240px 侧栏(字标+会话列表+底部导航)、弹性对话列(最大 72ch,气泡让位于普通排版)、320px 审计时间线(等宽时间戳+类型色点);输入栏吸底,主按钮(发送/停止)在右下角。
+      FORM: code-led;签名交互 = "留痕脉冲":审计时间线新事件落位时一次性的高亮沉降,配合顶栏状态点的三态节奏(空闲静止/执行中慢脉/待确认急脉)。
+      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.
+    -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

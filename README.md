@@ -6,6 +6,12 @@
 
 ![核心闭环](docs/screenshot.png)
 
+> 网页版介绍页:[index.html](index.html)(纯静态,可直接部署到 GitHub Pages)
+
+## 设计系统
+
+界面遵循「工程石墨」设计语言,设计令牌与规则记录在 [DESIGN.md](DESIGN.md),产品事实在 [PRODUCT.md](PRODUCT.md):中性石墨色阶、1px 发丝线、反色主按钮、统一 1.5px SVG 图标、等宽字体只承载数据。
+
 ## 功能
 
 - **对话驱动自动化**:文件读写/搜索、PowerShell 命令、屏幕截图、浏览器控制(Edge/Chrome CDP)、窗口枚举,共 18 个工具

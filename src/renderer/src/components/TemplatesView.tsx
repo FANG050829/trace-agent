@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import type { TemplateInfo } from '@shared/types'
 import { api } from '../api'
+import { Icon } from './Icon'
 
 const CATS = ['浏览器', '文件整理', '国产办公', '国产应用', '系统', '屏幕']
 
@@ -95,7 +96,8 @@ export function TemplatesView({ onUse }: { onUse: (prompt: string) => void }): R
                         </label>
                       ))}
                       <button className="primary" onClick={() => run(t)}>
-                        ▶ 开始执行
+                        <Icon name="play" size={12} />
+                        开始执行
                       </button>
                     </div>
                   )}

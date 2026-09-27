@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import type { SessionMeta } from '@shared/types'
+import { Icon } from './Icon'
 
 export function Sidebar(props: {
   sessions: SessionMeta[]
@@ -28,16 +29,23 @@ export function Sidebar(props: {
   return (
     <aside className="sidebar">
       <div className="logo-row">
-        <span className="logo">✦</span>
+        <span className="logo-mark">
+          <Icon name="mark" size={20} />
+        </span>
         <div>
           <div className="app-name">留痕 Agent</div>
           <div className="app-sub">桌面自动化 · 全程可审计</div>
         </div>
       </div>
-      <button className="new-session" onClick={props.onNew} title="Ctrl+N">
-        ＋ 新建会话
+      <button className="new-session" onClick={props.onNew} title="新建会话(Ctrl+N)">
+        <Icon name="plus" size={14} /> 新建会话
       </button>
-      <input className="session-search" placeholder="搜索会话…" value={search} onChange={(e) => setSearch(e.target.value)} />
+      <div className="session-search">
+        <span className="search-ico">
+          <Icon name="search" size={13} />
+        </span>
+        <input placeholder="搜索会话" value={search} onChange={(e) => setSearch(e.target.value)} />
+      </div>
       <div className="session-list">
         {shown.map((s) => (
           <div
@@ -76,7 +84,7 @@ export function Sidebar(props: {
                     if (confirm(`删除会话「${s.title}」?其审计记录将一并删除。`)) props.onDelete(s.id)
                   }}
                 >
-                  ✕
+                  <Icon name="x" size={12} />
                 </button>
               </>
             )}
@@ -84,15 +92,16 @@ export function Sidebar(props: {
         ))}
         {shown.length === 0 && <div className="session-empty">{search ? '没有匹配的会话' : '还没有会话'}</div>}
       </div>
-      <div className="sidebar-foot">
+      <div className="side-nav">
+        <div className="nav-label">资源</div>
         <button className={props.view === 'templates' ? 'active' : ''} onClick={props.onTemplates}>
-          📋 模板
+          <Icon name="layout" size={14} /> 模板库
         </button>
         <button className={props.view === 'skills' ? 'active' : ''} onClick={props.onSkills}>
-          ✦ 技能
+          <Icon name="repeat" size={14} /> 技能库
         </button>
         <button className={props.view === 'settings' ? 'active' : ''} onClick={props.onSettings}>
-          ⚙️ 设置
+          <Icon name="sliders" size={14} /> 设置
         </button>
       </div>
     </aside>

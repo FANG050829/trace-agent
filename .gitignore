@@ -2,5 +2,8 @@ node_modules/
 out/
 .data/
 .cache/
+.impeccable/
+!.impeccable/design.json
 tests/*.png
+tests/*.log
 *.log

@@ -140,7 +140,14 @@ export class AgentRunner {
         } else if (toolCalls.length === 0) {
           this.emitEvent(this.audit.append('system', { text: '模型这次没有返回内容。' }))
         }
-        if (toolCalls.length === 0) break
+        if (toolCalls.length === 0) {
+          // 最终回复必须写入对话记录,否则模型下一轮会丢失自己上一次的回答
+          if (content.trim()) {
+            this.messages.push({ role: 'assistant', content: content.trim() })
+            saveTranscript(this.sessionId, this.messages)
+          }
+          break
+        }
 
         this.messages.push({
           role: 'assistant',

@@ -15,7 +15,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { err
     if (this.state.error) {
       return (
         <div className="crash-screen">
-          <div className="welcome-logo">⚠️</div>
+          <div className="welcome-mark" style={{ color: "var(--warn)" }}><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3.8L21 19.5H3z" /><path d="M12 10v4M12 16.6v.01" /></svg></div>
           <h2>界面出了点问题</h2>
           <pre className="tool-pre">{this.state.error.stack?.slice(0, 2000) ?? String(this.state.error)}</pre>
           <button className="primary" onClick={() => location.reload()}>
