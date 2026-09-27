@@ -17,14 +17,23 @@ export function defaultSettings(): AppSettings {
     screenshotToVision: true,
     maxSteps: 40,
     temperature: 0.7,
-    maxContextChars: 60000
+    maxContextChars: 60000,
+    background: { closeToTray: false },
+    lanApproval: { enabled: false, port: 8765, token: '' }
   }
 }
 
 export function loadSettings(): AppSettings {
   try {
     const raw = JSON.parse(fs.readFileSync(settingsFile, 'utf-8')) as Partial<AppSettings>
-    return { ...defaultSettings(), ...raw, ollama: { ...defaultSettings().ollama, ...(raw.ollama ?? {}) } }
+    const d = defaultSettings()
+    return {
+      ...d,
+      ...raw,
+      ollama: { ...d.ollama, ...(raw.ollama ?? {}) },
+      background: { ...d.background, ...(raw.background ?? {}) },
+      lanApproval: { ...d.lanApproval, ...(raw.lanApproval ?? {}) }
+    }
   } catch {
     return defaultSettings()
   }
@@ -143,13 +152,26 @@ export function saveSkillFile(skills: Skill[]): void {
   fs.writeFileSync(skillsFile, JSON.stringify(skills, null, 2), 'utf-8')
 }
 
-export function upsertSkill(input: { id?: string; name: string; prompt: string }): Skill {
+export function upsertSkill(input: { id?: string; name: string; prompt: string; schedule?: Skill['schedule'] }): Skill {
   const all = listSkills()
   const now = Date.now()
   const existing = input.id ? all.find((s) => s.id === input.id) : undefined
   const skill: Skill = existing
-    ? { ...existing, name: input.name || existing.name, prompt: input.prompt, updatedAt: now }
-    : { id: `sk-${now.toString(36)}-${Math.random().toString(36).slice(2, 6)}`, name: input.name, prompt: input.prompt, createdAt: now, updatedAt: now }
+    ? {
+        ...existing,
+        name: input.name || existing.name,
+        prompt: input.prompt,
+        schedule: input.schedule ?? existing.schedule,
+        updatedAt: now
+      }
+    : {
+        id: `sk-${now.toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+        name: input.name,
+        prompt: input.prompt,
+        schedule: input.schedule,
+        createdAt: now,
+        updatedAt: now
+      }
   saveSkillFile([...all.filter((s) => s.id !== skill.id), skill])
   return skill
 }

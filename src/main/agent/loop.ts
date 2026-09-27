@@ -68,12 +68,21 @@ export class AgentRunner {
     for (const r of AgentRunner.runners.values()) r.cancel()
   }
 
+  /** 全部会话中等待确认的审批(局域网审批页数据源) */
+  static getAllPending(): { sessionId: string; req: ApprovalRequest }[] {
+    const out: { sessionId: string; req: ApprovalRequest }[] = []
+    for (const r of AgentRunner.runners.values()) {
+      if (r.pending) out.push({ sessionId: r.sessionId, req: r.pending.req })
+    }
+    return out
+  }
+
   running = false
   private audit: SessionAudit
   private messages: ChatMessage[]
   private meta: SessionMeta
   private abort: AbortController | null = null
-  private pending: { req: ApprovalRequest; resolve: (ok: boolean) => void } | null = null
+  private pending: { req: ApprovalRequest; resolve: (ok: boolean) => void; source: 'local' | 'lan' } | null = null
   private queue: string[] = [] // 任务执行期间用户追加的消息,任务结束后自动依次发送
   private powerSaveId: number | null = null
 
@@ -92,8 +101,13 @@ export class AgentRunner {
     this.pending?.resolve(false)
   }
 
-  respond(approvalId: string, approved: boolean): void {
-    if (this.pending?.req.approvalId === approvalId) this.pending.resolve(approved)
+  respond(approvalId: string, approved: boolean, source: 'local' | 'lan' = 'local'): boolean {
+    if (this.pending?.req.approvalId === approvalId) {
+      this.pending.source = source
+      this.pending.resolve(approved)
+      return true
+    }
+    return false
   }
 
   private emitEvent(e: AuditEvent): void {
@@ -299,13 +313,20 @@ export class AgentRunner {
       const approvedPromise = new Promise<boolean>((resolve) => {
         resolveApproval = resolve
       })
-      this.pending = { req, resolve: resolveApproval }
+      this.pending = { req, resolve: resolveApproval, source: 'local' }
       this.emitState()
       const approved = await approvedPromise
+      const viaLan = this.pending?.source === 'lan'
       this.pending = null
       this.emitEvent(
         this.audit.append('approval_decision', {
-          text: approved ? '用户批准了该操作' : '用户拒绝了该操作',
+          text: approved
+            ? viaLan
+              ? '已通过局域网批准该操作'
+              : '用户批准了该操作'
+            : viaLan
+              ? '已通过局域网拒绝该操作'
+              : '用户拒绝了该操作',
           refId: callEvent.id,
           status: approved ? 'approved' : 'denied'
         })

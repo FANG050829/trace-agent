@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import type { AppSettings, ProviderConfig, RiskPolicy } from '@shared/types'
+import type { AppInfo, AppSettings, ProviderConfig, RiskPolicy } from '@shared/types'
 import { api } from '../api'
 import { Icon } from './Icon'
 
@@ -24,6 +24,11 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
   const [models, setModels] = useState<Record<string, string[]>>({})
   const [keyVisible, setKeyVisible] = useState<Record<string, boolean>>({})
   const [ollamaModels, setOllamaModels] = useState<string[]>([])
+  const [info, setInfo] = useState<AppInfo | null>(null)
+
+  useEffect(() => {
+    api.getAppInfo().then(setInfo).catch(() => undefined)
+  }, [])
 
   useEffect(() => {
     if (props.settings && !draft) setDraft(props.settings)
@@ -260,10 +265,88 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
           </label>
         </div>
         <p className="dim">上下文预算控制发给模型的历史长度:超出后最早的消息会被自动省略,较老的截图只保留最近几张。上下文窗口小的模型(如 8k)建议调低。</p>
-        <button className="ghost small" onClick={() => void api.openDataDir()}>
-          <Icon name="folderOpen" size={13} />
-          打开数据目录(审计记录所在位置)
-        </button>
+      </section>
+
+      <section>
+        <h3>后台与定时</h3>
+        <label className="check-row">
+          <input
+            type="checkbox"
+            checked={draft.background.closeToTray}
+            onChange={(e) => upd({ background: { ...draft.background, closeToTray: e.target.checked } })}
+          />
+          关闭窗口时最小化到托盘(定时技能继续执行,托盘图标可唤回窗口)
+        </label>
+        <p className="dim">技能库里可为任意技能设置定时(每天 / 按间隔 / 单次)。应用运行期间(含托盘常驻)每 30 秒检查一次到期任务。</p>
+      </section>
+
+      <section>
+        <h3>局域网审批</h3>
+        <label className="check-row">
+          <input
+            type="checkbox"
+            checked={draft.lanApproval.enabled}
+            onChange={(e) => upd({ lanApproval: { ...draft.lanApproval, enabled: e.target.checked } })}
+          />
+          启用局域网远程审批(高风险操作可发送到同局域网的手机/平板确认)
+        </label>
+        {draft.lanApproval.enabled && (
+          <>
+            <div className="check-row-wrap" style={{ marginTop: 8 }}>
+              <label className="check-row">
+                端口
+                <input
+                  type="number"
+                  min={1024}
+                  max={65535}
+                  value={draft.lanApproval.port}
+                  onChange={(e) => upd({ lanApproval: { ...draft.lanApproval, port: Number(e.target.value) || 8765 } })}
+                  style={{ width: 100 }}
+                />
+              </label>
+              {info?.lanUrl && (
+                <button
+                  className="ghost small"
+                  title="复制到剪贴板,在同一 Wi-Fi 下的手机浏览器打开"
+                  onClick={() => navigator.clipboard.writeText(info.lanUrl ?? '')}
+                >
+                  <Icon name="copy" size={12} /> 复制审批页地址
+                </button>
+              )}
+            </div>
+            {info?.lanUrl && (
+              <div className="test-msg">审批页:{info.lanUrl}</div>
+            )}
+            <p className="dim">保存后生效。手机与电脑需在同一局域网;地址自带访问令牌,请勿外传。仅建议在可信网络使用。</p>
+          </>
+        )}
+      </section>
+
+      <section>
+        <h3>数据目录</h3>
+        <div className="test-msg" style={{ marginBottom: 10 }}>{info?.dataDir ?? '读取中…'}</div>
+        <div className="check-row-wrap">
+          <button className="ghost small" onClick={() => void api.openDataDir()}>
+            <Icon name="folderOpen" size={13} />
+            打开数据目录
+          </button>
+          {info?.isPackaged ? (
+            <button
+              className="ghost small"
+              onClick={async () => {
+                const dir = await api.pickDirectory()
+                if (!dir) return
+                if (!confirm('把数据目录更改为:' + dir + '?应用将自动重启以生效。')) return
+                await api.setDataDir(dir)
+              }}
+            >
+              更改数据目录(重启生效)
+            </button>
+          ) : (
+            <span className="dim" style={{ fontSize: 11.5 }}>开发模式下数据目录固定在项目内。</span>
+          )}
+        </div>
+        <p className="dim">审计日志、会话记录、技能与设置都在数据目录内;打包版默认在程序旁,可通过标记文件 data-dir.txt 或环境变量 TRACE_DATA_DIR 指定其他位置。</p>
       </section>
 
       <div className="save-row">

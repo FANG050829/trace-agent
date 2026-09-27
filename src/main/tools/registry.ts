@@ -14,6 +14,7 @@ import {
   browserClose
 } from './browser'
 import { windowList } from './windows'
+import { inputScreenSize, mouseMove, mouseClick, mouseScroll, keyTap, keyType } from './native'
 
 export const ALL_TOOLS: ToolImpl[] = [
   fsListDir,
@@ -33,7 +34,14 @@ export const ALL_TOOLS: ToolImpl[] = [
   browserType,
   browserPressKey,
   browserScreenshot,
-  browserClose
+  browserClose,
+  // 原生键鼠引擎
+  inputScreenSize,
+  mouseMove,
+  mouseClick,
+  mouseScroll,
+  keyTap,
+  keyType
 ]
 
 export const TOOL_MAP = new Map(ALL_TOOLS.map((t) => [t.name, t]))

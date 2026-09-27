@@ -1649,3 +1649,40 @@ input[type='checkbox'] {
     display: none;
   }
 }
+
+/* 技能定时设置 */
+.schedule-body {
+  border-top: 1px solid var(--line);
+  padding: 10px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--bg0);
+}
+.schedule-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.schedule-row select {
+  background: var(--bg1);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-radius: 5px;
+  padding: 5px 8px;
+  font-size: 12.5px;
+  font-family: inherit;
+  outline: none;
+}
+.schedule-row input[type='time'] {
+  width: 130px;
+  background: var(--bg1);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-radius: 5px;
+  padding: 4px 8px;
+  font-size: 12.5px;
+  font-family: inherit;
+  outline: none;
+  color-scheme: dark;
+}

@@ -2,10 +2,12 @@ import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import { randomUUID } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
+import { app } from 'electron'
 import { AgentRunner, resolveLLM } from './agent/loop'
 import { completionsUrl } from './agent/llm'
 import { buildReportHtml } from './exportReport'
-import { dataDir, sessionsDir } from './config'
+import { dataDir, dataDirMarker, dataRoot, sessionsDir } from './config'
+import { primaryLanUrl, syncLanApproval, lanAddresses } from './lan'
 import { TEMPLATE_INFOS, instantiateTemplate } from './templates/builtin'
 import {
   listSessions,
@@ -26,10 +28,12 @@ import type {
   AgentDeltaPush,
   AgentEventPush,
   AgentStatePush,
+  AppInfo,
   AuditEvent,
   ExportResult,
   ProviderConfig,
-  SessionMeta
+  SessionMeta,
+  SkillSchedule
 } from '@shared/types'
 
 function win(): BrowserWindow | null {
@@ -102,12 +106,13 @@ export function registerIpc(): void {
 
   // ---- 技能 ----
   ipcMain.handle('skills:list', () => listSkills())
-  ipcMain.handle('skills:save', (_e, s: { id?: string; name: string; prompt: string }) => {
+  ipcMain.handle('skills:save', (_e, s: { id?: string; name: string; prompt: string; schedule?: unknown }) => {
     const name = String(s.name ?? '').trim()
     const prompt = String(s.prompt ?? '').trim()
     if (!name) throw new Error('请给技能起个名字')
     if (!prompt) throw new Error('技能内容(提示词)不能为空')
-    return upsertSkill({ id: s.id, name, prompt })
+    const schedule = (s.schedule ?? undefined) as SkillSchedule | undefined
+    return upsertSkill({ id: s.id, name, prompt, schedule })
   })
   ipcMain.handle('skills:delete', (_e, id: string) => {
     removeSkill(id)
@@ -115,7 +120,11 @@ export function registerIpc(): void {
 
   // ---- 设置 ----
   ipcMain.handle('settings:get', () => loadSettings())
-  ipcMain.handle('settings:save', (_e, s) => saveSettings(s))
+  ipcMain.handle('settings:save', (_e, s) => {
+    const saved = saveSettings(s)
+    syncLanApproval() // 局域网审批开关/端口变化即时生效
+    return saved
+  })
 
   ipcMain.handle('settings:testProvider', async (_e, p: ProviderConfig) => {
     if (!p.baseUrl) return { ok: false, message: '请先填写 Base URL', models: [] }
@@ -205,6 +214,28 @@ export function registerIpc(): void {
   ipcMain.handle('app:openDataDir', () => {
     fs.mkdirSync(sessionsDir, { recursive: true })
     return shell.openPath(dataDir)
+  })
+
+  ipcMain.handle('app:getAppInfo', (): AppInfo => {
+    const settings = loadSettings()
+    return {
+      version: app.getVersion(),
+      isPackaged: app.isPackaged,
+      dataDir,
+      dataRoot,
+      lanUrl: settings.lanApproval.enabled ? primaryLanUrl(settings.lanApproval.port) : null,
+      lanIps: settings.lanApproval.enabled ? lanAddresses(settings.lanApproval.port).map((a) => a.ip) : []
+    }
+  })
+
+  ipcMain.handle('app:setDataDir', (_e, dir: string) => {
+    if (!dataDirMarker) throw new Error('开发模式下数据目录固定在项目内,无需更改。')
+    const target = path.resolve(String(dir ?? ''))
+    if (!fs.existsSync(target)) throw new Error('目录不存在,请先创建。')
+    fs.writeFileSync(dataDirMarker, target, 'utf-8')
+    // 立即生效需要重启:重启后 config 按标记文件解析
+    app.relaunch()
+    app.exit(0)
   })
 
   // 供渲染端检查模型是否已配置(顶栏提示)

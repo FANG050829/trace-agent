@@ -1,0 +1,26 @@
+appId: com.youxi.trace-agent
+productName: 留痕 Agent
+copyright: Copyright © 2026 youxi
+directories:
+  output: release
+  buildResources: build
+files:
+  - out/**
+  - "!**/.vscode/*"
+  - "!node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}"
+asarUnpack:
+  - "**/*.node"
+  - "node_modules/@nut-tree-fork/**"
+win:
+  icon: icons/icon.png
+  target:
+    - target: nsis
+      arch: [x64]
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  artifactName: ${productName}-${version}-setup.${ext}
+  shortcutName: 留痕 Agent
+portable:
+  artifactName: ${productName}-${version}-portable.${ext}

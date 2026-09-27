@@ -36,6 +36,8 @@ const api: TraceApi = {
   exportSession: (id: string) => ipcRenderer.invoke('export:session', id),
   openExternal: (url: string) => ipcRenderer.invoke('app:openExternal', url),
   openDataDir: () => ipcRenderer.invoke('app:openDataDir'),
+  getAppInfo: () => ipcRenderer.invoke('app:getAppInfo'),
+  setDataDir: (dir: string) => ipcRenderer.invoke('app:setDataDir', dir),
 
   onAgentEvent: (cb) => subscribe('agent:event', cb),
   onAgentDelta: (cb) => subscribe('agent:delta', cb),

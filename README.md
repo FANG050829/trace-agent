@@ -14,15 +14,16 @@
 
 ## 功能
 
-- **对话驱动自动化**:文件读写/搜索、PowerShell 命令、屏幕截图、浏览器控制(Edge/Chrome CDP)、窗口枚举,共 18 个工具
+- **对话驱动自动化**:文件读写/搜索、PowerShell 命令、屏幕截图、浏览器控制(Edge/Chrome CDP)、窗口枚举、原生键鼠(nut.js 引擎,鼠标点击/滚动、按键、打字),共 24 个工具
 - **审批门(安全分级)**:
   - `safe`(读文件、截图、浏览)自动执行
   - `confirm`(写文件、跑命令)暂停等你确认
   - `dangerous`(删除文件、危险命令)永远需要确认,且系统目录/盘符根目录/用户主目录**直接拒绝执行**
   - 三档策略可切换:宽松 / 标准(默认) / 严格
 - **审计时间线**:右侧面板实时滚动所有事件,按类型过滤、关键词搜索,点击展开 JSON 详情,截图直接内嵌预览;**一键导出 HTML 审计报告**(截图 base64 内嵌,单文件归档/分享)
+- **局域网远程审批**:高风险操作可推送到同一局域网的手机/平板,在手机浏览器里批准或拒绝(令牌门禁,仅限可信网络)
 - **模型双通道**:任何 OpenAI 兼容的云端服务(智谱 GLM / DeepSeek / Kimi / 通义 / OpenAI / 自定义)+ 本地 Ollama,一键切换;截图可自动回传给视觉模型;思考型模型(DeepSeek-R1 / GLM 系列)的**思考过程实时可见**
-- **技能库**:完成任务后点「✦ 沉淀为技能」把提示词保存下来,随时编辑、一键重跑
+- **技能库**:完成任务后点「沉淀为技能」把提示词保存下来,随时编辑、一键重跑、**定时执行**(每天/按间隔/单次,配合托盘常驻在后台运行)
 - **国产应用模板库**:开箱即用的 8 个场景模板(详见下文)
 
 ## 内核可靠性
@@ -79,10 +80,13 @@ npm run dev
   skills.json     技能库
   settings.json   设置(含 API Key,注意保管)
   electron-userdata/  Electron/Chromium 自身缓存(已重定向)
-.cache/           依赖下载缓存
+.cache/           依赖下载缓存(electron-builder / npm)
+release/          打包产物(不入库)
 tests/             测试脚本(截图为运行时产物,不入库)
                   (logic-test.mjs 跑核心逻辑单测;smoke2.mjs 用 CDP 驱动真实窗口做 UI 冒烟)
 ```
+
+**打包版数据目录可选**:默认在程序旁的 .data(便携),可通过环境变量 TRACE_DATA_DIR、启动参数 --data-dir=路径,或程序旁的 data-dir.txt 标记文件指定其他位置;设置页里也能直接更改(重启生效)。
 
 **重新安装依赖时**,让 Electron 二进制下载缓存也指向项目内(electron 37 的安装脚本只认这个 npm 配置):
 
@@ -97,6 +101,8 @@ npm_config_electron_config_cache="E:\ai-project\ZCode\trace-agent\.cache\electro
 - 文件移动/重命名**拒绝覆盖**已存在的目标;删除操作对系统目录、盘根、用户主目录和应用数据目录直接拒绝
 - agent 的文件操作有完整审计;但它仍然是在你真实电脑上运行的程序——**重要数据请自行备份**
 - 「微信发消息」模板依赖窗口焦点和模拟按键,失败会立即停止并汇报
+- 原生键鼠工具直接作用于真实桌面:每次移动/点击/按键都要确认,agent 被要求先截图看清、走一小步、再验证
+- 局域网审批地址自带访问令牌,请勿外传;仅建议在可信局域网使用
 
 ## 脚本
 
@@ -104,6 +110,7 @@ npm_config_electron_config_cache="E:\ai-project\ZCode\trace-agent\.cache\electro
 npm run dev         # 开发模式(可加 APP_DEBUG_PORT=9333 开渲染端调试口)
 npm run build       # 产物构建到 out/
 npm run typecheck   # TS 类型检查(main + renderer)
+npm run dist        # 打包 Windows 安装包到 release/(electron-builder)
 node tests/logic-test.mjs     # 核心逻辑单测(对话自愈/上下文压缩)
 node tests/smoke2.mjs         # UI 冒烟测试(需先 npm run dev 且开调试口)
 ```
@@ -112,7 +119,7 @@ node tests/smoke2.mjs         # UI 冒烟测试(需先 npm run dev 且开调试�
 
 - [x] **任务沉淀成技能**:一键把任务提示词保存为技能,可编辑、可重跑
 - [x] **审计记录导出**:自包含 HTML 报告(含内嵌截图)
-- [ ] 原生键鼠自动化引擎(nut.js),替代 SendKeys 的实验性方案
-- [ ] 打包安装程序(electron-builder),生产模式下数据目录可选
-- [ ] 技能定时执行(需要常驻后台)
-- [ ] 局域网内多人审批(高风险操作发到手机确认)
+- [x] 原生键鼠自动化引擎(nut.js,N-API 预编译,无需重编译):鼠标点击/滚动、按键、打字,全部走审批门
+- [x] 打包安装程序(electron-builder NSIS),生产模式下数据目录可选(env / 启动参数 / data-dir.txt / 设置页)
+- [x] 技能定时执行(每天/按间隔/单次;关闭到托盘常驻后台,主进程调度器每 30 秒检查)
+- [x] 局域网内多人审批(高风险操作推送到手机浏览器确认,令牌门禁)

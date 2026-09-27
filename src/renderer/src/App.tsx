@@ -153,6 +153,8 @@ export default function App(): React.ReactNode {
     })
     const offState = api.onAgentState(({ sessionId, running, pendingApproval }) => {
       stateBySession.current.set(sessionId, { running, pending: pendingApproval })
+      // 后台会话(如定时技能)任务结束时也要刷新会话列表,否则侧栏看不到新会话
+      if (!running) refreshSessions()
       if (sessionId !== activeRef.current) return
       setRunning(running)
       setPending(pendingApproval)
@@ -161,7 +163,6 @@ export default function App(): React.ReactNode {
         liveRef.current = null
         setItems((prev) => prev.filter((p) => !(p.kind === 'assistant' && !p.text.trim() && !p.reasoning)))
         setItems((prev) => prev.map((p) => (p.kind === 'assistant' ? { ...p, streaming: false } : p)))
-        refreshSessions()
       }
     })
     return () => {

@@ -4,6 +4,8 @@ out/
 .cache/
 .impeccable/
 !.impeccable/design.json
+release/
+data-dir.txt
 tests/*.png
 tests/*.log
 *.log

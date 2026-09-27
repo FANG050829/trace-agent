@@ -59,10 +59,21 @@ export interface SessionMeta {
 }
 
 // ---------- 技能(沉淀下来的可复用任务) ----------
+export type ScheduleKind = 'daily' | 'interval' | 'once'
+
+export interface SkillSchedule {
+  kind: ScheduleKind
+  time?: string // daily:HH:mm
+  intervalMin?: number // interval:每 N 分钟
+  enabled?: boolean
+  nextRun?: number
+}
+
 export interface Skill {
   id: string
   name: string
   prompt: string
+  schedule?: SkillSchedule
   createdAt: number
   updatedAt: number
 }
@@ -86,6 +97,12 @@ export interface OllamaConfig {
   vision: boolean
 }
 
+export interface LanApprovalConfig {
+  enabled: boolean
+  port: number
+  token: string
+}
+
 export interface AppSettings {
   providers: ProviderConfig[]
   activeProviderId: string | null // provider.id 或 'ollama'
@@ -96,6 +113,19 @@ export interface AppSettings {
   maxSteps: number
   temperature: number
   maxContextChars: number // 发给模型的上下文字符预算(超出自动压缩历史)
+  background: {
+    closeToTray: boolean // 关闭窗口时最小化到托盘,定时任务继续执行
+  }
+  lanApproval: LanApprovalConfig
+}
+
+export interface AppInfo {
+  version: string
+  isPackaged: boolean
+  dataDir: string
+  dataRoot: string
+  lanUrl: string | null // 局域网审批页地址(启用时)
+  lanIps: string[]
 }
 
 // ---------- 模板 ----------
@@ -178,7 +208,7 @@ export interface TraceApi {
   instantiateTemplate(id: string, params: Record<string, string>): Promise<{ prompt: string }>
   // 技能
   listSkills(): Promise<Skill[]>
-  saveSkill(s: { id?: string; name: string; prompt: string }): Promise<Skill>
+  saveSkill(s: { id?: string; name: string; prompt: string; schedule?: SkillSchedule }): Promise<Skill>
   deleteSkill(id: string): Promise<void>
   // 设置
   getSettings(): Promise<AppSettings>
@@ -191,6 +221,8 @@ export interface TraceApi {
   exportSession(id: string): Promise<ExportResult>
   openExternal(url: string): Promise<void>
   openDataDir(): Promise<void>
+  getAppInfo(): Promise<AppInfo>
+  setDataDir(dir: string): Promise<void>
   // 事件订阅(返回取消函数)
   onAgentEvent(cb: (p: AgentEventPush) => void): () => void
   onAgentDelta(cb: (p: AgentDeltaPush) => void): () => void

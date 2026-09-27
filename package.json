@@ -9,9 +9,12 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
-    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json"
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "dist": "electron-vite build && electron-builder --win",
+    "dist:portable": "electron-vite build && electron-builder --win portable"
   },
   "dependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.6",
     "puppeteer-core": "^24.10.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
@@ -22,6 +25,7 @@
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.5.0",
     "electron": "^37.0.0",
+    "electron-builder": "^26.15.3",
     "electron-vite": "^3.1.0",
     "typescript": "^5.8.3",
     "vite": "^6.3.5"
