@@ -401,7 +401,7 @@ components:
 
 ### Shapes
 
-圆角四阶复用：4px（迷你标签、过滤钮）、5px（按钮）、6px（代码 pre、工具调用片、toast）、8px（演示窗、代码卡、终端卡、审批卡、用户气泡）。全页唯一的 999px 全圆属于"回到底部"浮层控件，不是标签形制。线形二分同 Part 1：`line` 做内缝与节奏线，`line-strong` 做外框与交互描边。滚动条 8px、thumb #2c2f36（应用为 10px/5px，同色系）。
+圆角四阶复用：4px（迷你标签、过滤钮）、5px（按钮）、6px（代码 pre、工具调用片、toast）、8px（演示窗、代码卡、终端卡、审批卡、用户气泡）。全页唯一的 999px 全圆属于"回到底部"浮层控件，不是标签形制。线形二分同 Part 1：`line` 做内缝与节奏线，`line-strong` 做外框与交互描边。滚动条：根文档 10px、窗格与代码井 8px，thumb #2c2f36、hover #3a3e46、圆角 4/5px（Firefox 走 `scrollbar-color`），与应用同配方。
 
 ### Components
 
@@ -420,7 +420,7 @@ components:
 #### Do:
 
 - **Do** 用台账式行与整宽发丝线组织区块，行与区块靠"线 + 一致节奏"，不靠卡片。
-- **Do** 动效限制在 0.12s（状态）/ 0.15s（chevron）/ 0.28s（事件入场）的 ease-out，脉冲只给 run/wait 状态点，`prefers-reduced-motion` 下全部关闭。
+- **Do** 动效限制在 0.12s（状态）/ 0.15s（chevron）/ 0.18s（浮层与 JSON 展开）/ 0.28s（事件入场）/ 0.55–0.8s（一次性入场、落位与计数落定）的 ease-out，脉冲只给 run/wait 状态点与 trail-settle，`prefers-reduced-motion` 下全部关闭。
 - **Do** 让演示会话保持"机制先于文案"：审批闸门必须真的可批准/拒绝，演示数据必须带"演示"标注。
 
 #### Don't:
@@ -430,8 +430,23 @@ components:
 - **Don't** 在 token 表外引入新颜色；一次性内联值（noscript 回退、导出报告内嵌样式）除外，它们是自包含产物，不进入系统。
 - **Don't** 用 kicker/眉题、区块编号（01/02/03）或同尺寸图标卡片海组织页面。
 
+### v2 交互层（留痕背景 · 浏览留痕 · 导航辅助）
+
+- **留痕背景画布**（`#traceCanvas`：fixed 全视口、z-index -1、pointer-events none，纯 Canvas 2D）：静态层为 4–6 条缓弯竖向轨迹线 + 落点（品牌 mark 母题的放大笔迹；墨色 alpha 0.05/0.10，指针 220px 内显影至约 0.17/0.22），其中一条为工具青「执行中」轨迹（头部点 12s 缓移 + 脉动）；动态层为指针以 16px 间距写入的墨点尾迹（1.6px 点、3.4s 二次方衰减、1px 连线成笔迹，上限 140 点）；点击落 700ms 强线扩散圈 + 6s 长留点；进入区块时标题旁落一枚涟漪。**无 shadowBlur、无渐变**；`prefers-reduced-motion` 仅静态单帧，粗指针仅在涟漪期间起循环，`document.hidden` 暂停，DPR 上限 2，固定种子伪随机保证同视口图样稳定。
+- **浏览留痕计数**（页脚 mono 行）：本次浏览的移动 / 点击 / 浏览分项计数，仅存本页内存不上传；DOM 写入并入 rAF（每帧至多一次）。
+- **阅读进度发丝线**：导航底部 1px `ink-3` 线随阅读推进（rAF 节流）。
+- **导航滚动定位**：当前节链接染钢蓝（激活态语义）+ `aria-current`；无对应链接的节（快速开始）清空高亮；hero(#demo) 与演示窗(#demo-window) 同属「演示」。
+- **区块发丝线落位**：JS 下节顶 1px 线由伪元素 scaleX 0→1 绘入（0.8s ease-out）；无 JS 与 reduced-motion 直通为常态边框。
+- **首屏入场**：hero 六个子元素一次性 0.55s rise 级联（60ms 步进，CSS 原生，reduced-motion 关闭）。
+- **事件留痕脉冲**：演示时间线新事件行播放 1s trail-settle（钢蓝弱化底 → 透明），与应用签名动效同源。
+- **JSON 展开平滑化**：事件详情 grid-rows 0fr→1fr + 透明度（0.18s ease-out）。
+- **复制按钮**：终端（复制两条命令）与代码卡（data-copy 承载 5 行纯 JSONL，不带注释行）；clipboard API + execCommand 回退，成功换 check 图标、copied 态染 ok 绿边 + toast。
+- **数字落定**：「18」「8」滚入视口后 0.8s 计数到位（reduced-motion 直出）。
+- **回到顶部药丸**：999px 全圆 + 浮层-低阴影，滚动超过 720px 出现（世界既有浮层形制）。
+- **页脚**：GitHub 仓库 / 问题反馈（Issues）/ 邮箱（mailto）链接 + 锚点（演示 / 审批门 / 快速开始）+ 版权行与浏览留痕计数行（`.foot-links` `ink-2` 字、hover 提亮；外部链接带 `noopener noreferrer`）。
+
 ### Provenance / evidence note
 
-本部分记录的是介绍页（`index.html`，单文件：head 内全部 CSS + SVG symbol 图标表 + 一个 IIFE 演示脚本）定稿后的实际系统，finish review（verdict: ship）的三条物料修复已落地并体现于上文数值：`--teal` 已定义、用户气泡改石墨、步骤计数器用 `ink-3`。
+本部分记录的是介绍页（`index.html`，单文件：head 内全部 CSS + SVG symbol 图标表 + 两个 IIFE 脚本）定稿后的实际系统，finish review（verdict: ship）的三条物料修复已落地并体现于上文数值：`--teal` 已定义、用户气泡改石墨、步骤计数器用 `ink-3`。v2 交互层评审（fresh reviewer）：**ship**——六条物料修复（对话回底按钮化、根滚动条主题化、页脚锚点、滚动定位清空、计数 rAF 化、codecard data-copy）全部 resolved；两条低可见度回退（演示锚点精度、pre 横向滚动条粗细）已顺手修正。滚动条灰 #2c2f36/#3a3e46、999px 药丸、焦点 2px 圆角、导出报告内嵌 20px 为文档内豁免特例。
 
 截图栅格溯源——`.impeccable/review/` 下的整页截图渲染自 puppeteer-core 驱动的项目自带 Electron（Chromium），宽度为视口宽度减 15px 滚动条（desktop.png 像素宽 1425 ≡ 声明视口 1440；mobile.png 像素宽 750 ≡ 声明视口 390 @DPR2）。本页无其他 shipping raster：页面全部视觉由 CSS/SVG 代码绘制，无位图资产。

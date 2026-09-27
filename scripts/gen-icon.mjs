@@ -1,10 +1,12 @@
 /* 生成应用图标 icons/icon.png(512×512):石墨圆角方块 + 时间线标记,与产品视觉同一血统。
- * 无第三方依赖:自绘像素 + node:zlib PNG 编码。用法:node scripts/gen-icon.mjs */
+ * 4x 超采样绘制后盒式降采样,边缘平滑。无第三方依赖。用法:node scripts/gen-icon.mjs */
 import fs from 'node:fs'
 import path from 'node:path'
 import zlib from 'node:zlib'
 
 const SIZE = 512
+const SS = 4 // 超采样倍率
+const N = SIZE * SS
 
 // ---------- 极简 PNG 编码器 ----------
 function crc32(buf) {
@@ -33,14 +35,14 @@ function encodePng(rgba, w, h) {
   const stride = w * 4
   const raw = Buffer.alloc((stride + 1) * h)
   for (let y = 0; y < h; y++) {
-    raw[y * (stride + 1)] = 0 // filter: none
+    raw[y * (stride + 1)] = 0
     rgba.copy(raw, y * (stride + 1) + 1, y * stride, (y + 1) * stride)
   }
   const ihdr = Buffer.alloc(13)
   ihdr.writeUInt32BE(w, 0)
   ihdr.writeUInt32BE(h, 4)
-  ihdr[8] = 8 // bit depth
-  ihdr[9] = 6 // RGBA
+  ihdr[8] = 8
+  ihdr[9] = 6
   return Buffer.concat([
     Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
     chunk('IHDR', ihdr),
@@ -49,11 +51,11 @@ function encodePng(rgba, w, h) {
   ])
 }
 
-// ---------- 绘制 ----------
-const px = Buffer.alloc(SIZE * SIZE * 4)
+// ---------- 4x 超采样绘制 ----------
+const px = Buffer.alloc(N * N * 4)
 const set = (x, y, r, g, b, a) => {
-  if (x < 0 || y < 0 || x >= SIZE || y >= SIZE) return
-  const i = (y * SIZE + x) * 4
+  if (x < 0 || y < 0 || x >= N || y >= N) return
+  const i = (y * N + x) * 4
   const na = a / 255
   px[i] = Math.round(r * na + px[i] * (1 - na))
   px[i + 1] = Math.round(g * na + px[i + 1] * (1 - na))
@@ -69,44 +71,75 @@ const inRoundedRect = (x, y, x0, y0, x1, y1, r) => {
   return dx * dx + dy * dy <= r * r || (x >= x0 + r && x <= x1 - r) || (y >= y0 + r && y <= y1 - r)
 }
 
-// 石墨圆角方块(全出血 12px 内缩,留出透明边)
-for (let y = 0; y < SIZE; y++) {
-  for (let x = 0; x < SIZE; x++) {
-    if (inRoundedRect(x, y, 14, 14, SIZE - 15, SIZE - 15, 100)) set(x, y, 0x14, 0x15, 0x19, 255)
-  }
-}
-// 细描边(略亮一档,呼应发丝线)
-for (let y = 0; y < SIZE; y++) {
-  for (let x = 0; x < SIZE; x++) {
-    const inside = inRoundedRect(x, y, 14, 14, SIZE - 15, SIZE - 15, 100)
-    const outer = inRoundedRect(x, y, 10, 10, SIZE - 11, SIZE - 11, 104)
-    if (outer && !inside) set(x, y, 0x35, 0x38, 0x3f, 255)
+const M = 14 * SS // 方块内缩
+const R = 104 * SS // 圆角
+const B = { r: 0x14, g: 0x15, b: 0x19 } // 面板底
+const L = { r: 0x35, g: 0x38, b: 0x3f } // 发丝线
+const INK = { r: 0xe8, g: 0xe9, b: 0xec } // 墨白
+
+// 方块(硬边;4x 降采样自带平滑)+ 内缘发丝线
+for (let y = 0; y < N; y++) {
+  for (let x = 0; x < N; x++) {
+    const inner = inRoundedRect(x, y, M, M, N - M - 1, N - M - 1, R)
+    if (!inner) continue
+    const hair = !inRoundedRect(x, y, M + 2 * SS, M + 2 * SS, N - M - 1 - 2 * SS, N - M - 1 - 2 * SS, R - 2 * SS)
+    if (hair) set(x, y, L.r, L.g, L.b, 255)
+    else set(x, y, B.r, B.g, B.b, 255)
   }
 }
 
-// 时间线:竖线 + 三个圆点(白 → 0.66 → 0.33 透明度阶梯)
-const cx = SIZE / 2
-for (let y = 96; y <= SIZE - 96; y++) {
-  for (let dx = -7; dx <= 7; dx++) set(cx + dx, y, 0xe8, 0xe9, 0xec, 255)
+// 时间线:竖线 + 三个圆点(白 → 亮灰 → 暗灰,阶梯记录感)
+const cx = N / 2
+const lineHalf = 7.5 * SS
+for (let y = 96 * SS; y <= N - 96 * SS; y++) {
+  for (let dx = -Math.ceil(lineHalf); dx <= Math.ceil(lineHalf); dx++) {
+    set(cx + dx, y, INK.r, INK.g, INK.b, 255)
+  }
 }
-const dot = (cy, alpha) => {
-  const r = 30
-  for (let y = cy - r; y <= cy + r; y++) {
-    for (let x = cx - r; x <= cx + r; x++) {
+const dot = (cy512, color) => {
+  const r = 31 * SS
+  const cy = cy512 * SS
+  const hole = 5 * SS // 点与线之间挖空一圈,呼应应用里的节奏
+  for (let y = cy - r - hole; y <= cy + r + hole; y++) {
+    for (let x = cx - r - hole; x <= cx + r + hole; x++) {
       const d = Math.hypot(x - cx, y - cy)
-      if (d <= r + 2) {
-        // 点外圈用底色挖空,再画实心圆
-        set(x, y, 0x14, 0x15, 0x19, 255)
-        if (d <= r - 4) set(x, y, 0xe8, 0xe9, 0xec, alpha)
-      }
+      if (d > r + hole) continue
+      if (d >= r && d <= r + hole) set(x, y, B.r, B.g, B.b, 255)
+      if (d <= r) set(x, y, color.r, color.g, color.b, 255)
     }
   }
 }
-dot(160, 255)
-dot(256, 168)
-dot(352, 84)
+dot(160, INK)
+dot(256, { r: 0xa6, g: 0xab, b: 0xb5 }) // ink-2
+dot(352, { r: 0x4a, g: 0x4e, b: 0x58 }) // 渐隐的历史
 
-const out = path.resolve('icons')
-fs.mkdirSync(out, { recursive: true })
-fs.writeFileSync(path.join(out, 'icon.png'), encodePng(px, SIZE, SIZE))
-console.log('icons/icon.png written,', SIZE, 'x', SIZE)
+// ---------- 盒式降采样 4x → 1x ----------
+const out = Buffer.alloc(SIZE * SIZE * 4)
+for (let y = 0; y < SIZE; y++) {
+  for (let x = 0; x < SIZE; x++) {
+    let r = 0
+    let g = 0
+    let b = 0
+    let a = 0
+    for (let sy = 0; sy < SS; sy++) {
+      for (let sx = 0; sx < SS; sx++) {
+        const i = ((y * SS + sy) * N + (x * SS + sx)) * 4
+        r += px[i]
+        g += px[i + 1]
+        b += px[i + 2]
+        a += px[i + 3]
+      }
+    }
+    const n = SS * SS
+    const o = (y * SIZE + x) * 4
+    out[o] = Math.round(r / n)
+    out[o + 1] = Math.round(g / n)
+    out[o + 2] = Math.round(b / n)
+    out[o + 3] = Math.round(a / n)
+  }
+}
+
+const dir = path.resolve('icons')
+fs.mkdirSync(dir, { recursive: true })
+fs.writeFileSync(path.join(dir, 'icon.png'), encodePng(out, SIZE, SIZE))
+console.log('icons/icon.png written (4x supersampled),', SIZE, 'x', SIZE)
