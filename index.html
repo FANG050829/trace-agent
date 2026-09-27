@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="留痕 Agent 是运行在你 Windows 电脑上的桌面自动化智能体：文件、命令、截图、浏览器，每一步操作都追加写入审计日志，随时批准、拒绝、取消。">
 <meta name="theme-color" content="#0d0e11">
-<title>留痕 Agent — 桌面自动化，全程可审计</title>
+<title>留痕 Agent · 桌面自动化，全程可审计</title>
 <link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="%230d0e11"/><path d="M12 4v16" stroke="%23e8e9ec" stroke-width="1.6"/><circle cx="12" cy="7.4" r="1.7" fill="%23e8e9ec"/><circle cx="12" cy="12" r="1.7" fill="%23e8e9ec" opacity=".66"/><circle cx="12" cy="16.6" r="1.7" fill="%23e8e9ec" opacity=".33"/></svg>'>
 <style>
 /* ============================================================
@@ -34,6 +34,7 @@
   --radius: 6px;
   --radius-lg: 8px;
   --font: 'Segoe UI Variable Text', 'Segoe UI', 'Microsoft YaHei UI', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-display: 'Segoe UI Variable Display', 'Segoe UI Variable Text', 'Segoe UI', 'Microsoft YaHei UI', 'Microsoft YaHei', system-ui, sans-serif;
   --mono: 'Cascadia Code', 'Cascadia Mono', Consolas, 'Courier New', monospace;
 }
 
@@ -95,6 +96,13 @@ a:hover { text-decoration: underline; }
 .nav-links { display: flex; gap: 22px; margin-left: auto; }
 .nav-links a { color: var(--ink-2); font-size: 13.5px; }
 .nav-links a:hover { color: var(--ink); text-decoration: none; }
+.nav-gh {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--ink-2); font-size: 13px;
+  border: 1px solid var(--line); border-radius: 5px; padding: 5px 11px;
+  transition: color .12s ease-out, border-color .12s ease-out;
+}
+.nav-gh:hover { color: var(--ink); border-color: var(--line-strong); text-decoration: none; }
 .nav .btn { margin-left: 0; }
 .nav-links + .btn { margin-left: 4px; }
 
@@ -118,6 +126,7 @@ a:hover { text-decoration: underline; }
 /* ---------- 区块节奏 ---------- */
 section { border-top: 1px solid var(--line); }
 section.pad { padding-block: clamp(68px, 9vw, 116px); }
+h1, h2 { font-family: var(--font-display); }
 h1, h2, h3 { text-wrap: balance; font-weight: 650; }
 h2 { font-size: clamp(26px, 3.4vw, 36px); line-height: 1.3; letter-spacing: -0.01em; }
 h3 { font-size: 17px; }
@@ -327,7 +336,8 @@ h3 { font-size: 17px; }
 .feats li:first-child { padding-top: 0; }
 .feats .ic { color: var(--ok); margin-top: 5px; }
 .feats b { color: var(--ink); font-weight: 600; }
-.feats .btn { margin-top: 16px; }
+.feats .feats-btn { display: block; margin-top: 16px; }
+.feats .feats-btn .btn { margin-top: 0; }
 .codecard { border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--bg-code); overflow: hidden; }
 .codecard-head {
   display: flex; align-items: center; gap: 9px;
@@ -532,9 +542,11 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
      两个动作；下方整宽演示窗——左对话流、右审计时间线，窗体标题栏含状态点与
      重播，时间线头部含类型过滤与"导出报告"。
      FORM: surface 轮盘 dealt #1(活体审计时间线首屏)，seed 491a7410。
-     V2: 背景留痕画布(静态轨迹图样 + 鼠标尾迹 + 点击涟漪,纯 Canvas 2D,扁平石墨
-     点线,无发光/无渐变)、阅读进度发丝线、导航滚动定位、区块发丝线落位、
-     事件留痕脉冲(trail-settle)、浏览留痕计数——全部纯 HTML/CSS/JS 本地实现。
+     V2: 阅读进度发丝线、导航滚动定位、区块发丝线落位、事件留痕脉冲
+     (trail-settle)、浏览留痕计数——全部纯 HTML/CSS/JS 本地实现。
+     V3: 背景画布精简为垂直台账细线 + 落点 + 单条青色执行轨迹(近鼠标显影,
+     移除鼠标尾迹与全部涟漪);GitHub 仓库进导航与首屏;快速开始含完整
+     git clone 序列;正文破折号清零;展示字体启用 Display 光学字号。
      FINISH: unreviewed and undocumented is unfinished; this build ends with the
      finish review, the verdict, DESIGN.md, and every shipping raster carrying
      its provenance.
@@ -617,6 +629,10 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
       <a href="#ability">能力</a>
       <a href="#edge">边界</a>
     </nav>
+    <a class="nav-gh" href="https://github.com/FANG050829/trace-agent" target="_blank" rel="noopener noreferrer">
+      <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-external"/></svg>
+      GitHub
+    </a>
     <a class="btn primary sm" href="#start">五分钟跑起来</a>
   </div>
   <div class="read-progress" id="readProgress"></div>
@@ -636,6 +652,10 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
           五分钟跑起来
         </a>
         <a class="btn" href="#gate">先看审批门怎么工作</a>
+        <a class="btn" href="https://github.com/FANG050829/trace-agent" target="_blank" rel="noopener noreferrer">
+          <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-external"/></svg>
+          GitHub 仓库
+        </a>
       </div>
       <p class="hero-meta">本地运行 · 数据写在你自己的磁盘 · Electron + React</p>
 
@@ -721,7 +741,7 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
     <div class="wrap">
       <div class="sec-head">
         <h2>三档审批门：该自动的自动，该问的必问。</h2>
-        <p class="lead">每个动作都按风险分级，策略分宽松、标准（默认）、严格三档，随时切换。危险路径不靠策略——直接拒绝。</p>
+        <p class="lead">每个动作都按风险分级，策略分宽松、标准（默认）、严格三档，随时切换。危险路径不靠策略：直接拒绝。</p>
       </div>
       <div class="ledger">
         <div class="ledger-row">
@@ -757,7 +777,7 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
             <span class="chips"><span class="chip">删除</span><span class="chip">格式化</span><span class="chip">注册表</span><span class="chip">系统目录</span></span>
           </div>
         </div>
-        <p class="lead" style="margin-top: 22px;">需要你确认的操作，还可以<b>推送到同一局域网的手机</b>——人不在电脑前也批得了。地址自带访问令牌，请勿外传。</p>
+        <p class="lead" style="margin-top: 22px;">需要你确认的操作，还可以<b>推送到同一局域网的手机</b>，人不在电脑前也批得了。地址自带访问令牌，请勿外传。</p>
       </div>
     </div>
   </section>
@@ -772,15 +792,16 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
         <ul class="feats">
           <li>
             <svg class="ic" width="15" height="15" aria-hidden="true"><use href="#i-check"/></svg>
-            <span><b>实时滚动</b>——所有事件按发生顺序追加，按类型过滤、关键词搜索。</span>
+            <span><b>实时滚动</b>：所有事件按发生顺序追加，按类型过滤、关键词搜索。</span>
           </li>
           <li>
             <svg class="ic" width="15" height="15" aria-hidden="true"><use href="#i-check"/></svg>
-            <span><b>逐条可查</b>——点击任意事件展开 JSON 详情，截图直接内嵌预览。</span>
+            <span><b>逐条可查</b>：点击任意事件展开 JSON 详情，截图直接内嵌预览。</span>
           </li>
           <li>
             <svg class="ic" width="15" height="15" aria-hidden="true"><use href="#i-check"/></svg>
-            <span><b>一键导出</b>——自包含的 HTML 审计报告，截图以 base64 内嵌，单个文件即可归档、转发。<span class="feats-btn" style="display:block"><button class="btn sm" id="exportBtn2" type="button"><svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-download"/></svg>导出演示报告</button></span></span>
+            <span><b>一键导出</b>：自包含的 HTML 审计报告，截图以 base64 内嵌，单个文件即可归档、转发。</span>
+            <span class="feats-btn"><button class="btn sm" id="exportBtn2" type="button"><svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-download"/></svg>导出演示报告</button></span>
           </li>
         </ul>
         <div class="codecard">
@@ -817,7 +838,7 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
       <div class="ledger tools">
         <div class="ledger-row">
           <div class="ledger-key"><span class="zh-only">对话驱动</span></div>
-          <div class="ledger-val">用一句话下达任务。文件读写与搜索、PowerShell 命令、屏幕截图、浏览器控制（Edge / Chrome CDP）、窗口枚举，以及<b>原生键鼠</b>——鼠标移动 / 点击 / 滚动、组合按键、文字键入，直接作用于真实桌面，共 <b><span class="count-up" data-to="24">24</span> 个工具</b>。</div>
+          <div class="ledger-val">用一句话下达任务。文件读写与搜索、PowerShell 命令、屏幕截图、浏览器控制（Edge / Chrome CDP）、窗口枚举，以及<b>原生键鼠</b>（鼠标移动 / 点击 / 滚动、组合按键、文字键入），直接作用于真实桌面，共 <b><span class="count-up" data-to="24">24</span> 个工具</b>。</div>
         </div>
         <div class="ledger-row">
           <div class="ledger-key"><span class="zh-only">模型双通道</span></div>
@@ -829,15 +850,15 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
         </div>
         <div class="ledger-row">
           <div class="ledger-key"><span class="zh-only">技能沉淀</span></div>
-          <div class="ledger-val">完成过的任务一键存成技能，随时编辑、一键重跑——上面的演示会话里就可以试一次。</div>
+          <div class="ledger-val">完成过的任务一键存成技能，随时编辑、一键重跑，上面的演示会话里就可以试一次。</div>
         </div>
         <div class="ledger-row">
           <div class="ledger-key"><span class="zh-only">定时执行</span></div>
-          <div class="ledger-val">技能可以设定时计划——<b>每天定时、按间隔重复或只跑一次</b>。开启「关闭到托盘」后应用常驻后台，到点自动在全新会话里执行，完成发系统通知。</div>
+          <div class="ledger-val">技能可以设定时计划：<b>每天定时、按间隔重复或只跑一次</b>。开启「关闭到托盘」后应用常驻后台，到点自动在全新会话里执行，完成发系统通知。</div>
         </div>
         <div class="ledger-row">
           <div class="ledger-key"><span class="zh-only">远程审批</span></div>
-          <div class="ledger-val">高风险操作可以推送到<b>同一局域网的手机 / 平板</b>——打开令牌门禁的审批页，看清参数原文，一键批准或拒绝，决定同样写入审计。</div>
+          <div class="ledger-val">高风险操作可以推送到<b>同一局域网的手机 / 平板</b>：打开令牌门禁的审批页，看清参数原文，一键批准或拒绝，决定同样写入审计。</div>
         </div>
       </div>
 
@@ -874,19 +895,21 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
           <div class="term-head">
             <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-terminal"/></svg>
             Windows PowerShell
-            <button class="btn sm copy-btn" data-copy="npm install&#10;npm run dev" type="button">
+            <button class="btn sm copy-btn" data-copy="git clone https://github.com/FANG050829/trace-agent.git&#10;cd trace-agent&#10;npm install&#10;npm run dev" type="button">
               <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-copy"/></svg>
               复制
             </button>
           </div>
-          <pre><span class="cm"># 克隆或下载本仓库后，在项目目录执行</span>
-<span class="ps">PS E:\trace-agent&gt;</span> <span class="cmd">npm install</span>
-<span class="ps">PS E:\trace-agent&gt;</span> <span class="cmd">npm run dev</span></pre>
+          <pre><span class="cm"># 克隆仓库，安装依赖，启动开发模式</span>
+<span class="cmd">git clone</span> <span class="s">https://github.com/FANG050829/trace-agent.git</span>
+<span class="cmd">cd trace-agent</span>
+<span class="cmd">npm install</span>
+<span class="cmd">npm run dev</span></pre>
         </div>
         <div>
           <ol class="steps">
             <li><span>启动后，左下角打开<b>「设置」</b>。</span></li>
-            <li><span>添加服务商——智谱 GLM、DeepSeek、Kimi、通义、OpenAI 或本地 Ollama——填入 API Key，测试连接后选择模型。</span></li>
+            <li><span>添加服务商（智谱 GLM、DeepSeek、Kimi、通义、OpenAI 或本地 Ollama），填入 API Key，测试连接后选择模型。</span></li>
             <li><span>保存，回到对话页开聊。<b>右侧审计时间线从第一句话开始留痕。</b></span></li>
           </ol>
           <p class="start-note">
@@ -924,7 +947,7 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
         </div>
         <div class="ledger-row">
           <div class="ledger-key"><span class="zh-only">真实的键鼠</span></div>
-          <div class="ledger-val">原生键鼠工具直接操作你正在使用的桌面——每一次移动、点击、按键都<b>先经你确认</b>；agent 被要求先截图看清、走一小步、再验证。</div>
+          <div class="ledger-val">原生键鼠工具直接操作你正在使用的桌面：每一次移动、点击、按键都<b>先经你确认</b>；agent 被要求先截图看清、走一小步、再验证。</div>
         </div>
         <div class="ledger-row">
           <div class="ledger-key"><span class="zh-only">令牌勿外传</span></div>
@@ -943,7 +966,6 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
         留痕 Agent
       </a>
       <span class="meta">桌面自动化，全程可审计</span>
-      <span class="meta">© 2026 youxi · MIT License</span>
       <nav class="foot-links" aria-label="页脚链接">
         <a href="https://github.com/FANG050829/trace-agent" target="_blank" rel="noopener noreferrer">
           <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-external"/></svg>GitHub 仓库
@@ -960,8 +982,8 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
       </nav>
     </div>
     <div class="foot-row2">
-      <span class="meta">v0.1.0 · MIT License · © 2026 FANG050829</span>
-      <span class="foot-audit mono">本次浏览已留痕 <b id="cntAll">0</b> 条事件（移动 <span id="cntMoves">0</span> · 点击 <span id="cntClicks">0</span> · 浏览 <span id="cntViews">0</span>）· 仅记录于本页内存，不上传</span>
+      <span class="meta">v0.1.0 · MIT License · © 2026 youxi</span>
+      <span class="foot-audit mono">本次浏览已留痕 <b id="cntAll">0</b> 条事件（点击 <span id="cntClicks">0</span> · 浏览 <span id="cntViews">0</span>）· 仅记录于本页内存，不上传</span>
       <span class="foot-tag mono">audit.jsonl · 只追加，永不覆盖</span>
     </div>
   </div>
@@ -1168,7 +1190,7 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
 
       await pause(700);
       chatApproveCard();
-      addEvent('approval', 'fs.move ×8 — 待你批准', { type: 'approval.wait', action: 'fs.move', count: 8, policy: 'confirm' });
+      addEvent('approval', 'fs.move ×8 · 待你批准', { type: 'approval.wait', action: 'fs.move', count: 8, policy: 'confirm' });
       setStatus('wait');
       startFlash();
 
@@ -1186,7 +1208,7 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
           card.classList.add('resolved');
           $('.approval-foot', card).outerHTML = `<div class="verdict ok"><svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-check"/></svg>已批准 · 等待 ${waited} 秒</div>`;
         }
-        addEvent('approval', `fs.move ×8 — 已批准（等待 ${waited} 秒）`, { type: 'approval.ok', by: 'user', waited: waited + 's' });
+        addEvent('approval', `fs.move ×8 · 已批准（等待 ${waited} 秒）`, { type: 'approval.ok', by: 'user', waited: waited + 's' });
 
         const moves = [
           ['报价单2024.pdf', '2024'],
@@ -1201,7 +1223,7 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
         addEvent('op', 'fs.move 会议纪要-2026-01.pdf → 2026\\（另有 4 个文件已移动）', { type: 'fs.move', from: `${DL}/会议纪要-2026-01.pdf`, to: `${DL}/2026/`, moved: 8 });
 
         await pause(600);
-        chatTool(`<svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-folder"/></svg><span><b>fs.move</b> — 8 个文件已按年份移动，0 覆盖</span>`);
+        chatTool(`<svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-folder"/></svg><span><b>fs.move</b> · 8 个文件已按年份移动，0 覆盖</span>`);
         await pause(900);
         const skillBtn = document.createElement('button');
         skillBtn.type = 'button';
@@ -1216,7 +1238,7 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
         addChat(skillBtn);
         chatMsg('bot', '完成。<b>8 个 PDF 已按年份归档</b>，没有覆盖任何已有文件。要把这个任务沉淀为技能吗？');
         await pause(500);
-        addEvent('op', 'fs.verify — 8 个文件全部就位，0 覆盖', { type: 'fs.verify', expect: 8, ok: 8, overwritten: 0 });
+        addEvent('op', 'fs.verify · 8 个文件全部就位，0 覆盖', { type: 'fs.verify', expect: 8, ok: 8, overwritten: 0 });
       } else {
         S.denied = true;
         setStatus('idle');
@@ -1224,7 +1246,7 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
           card.classList.add('resolved');
           $('.approval-foot', card).outerHTML = `<div class="verdict no">已拒绝 · 未移动任何文件</div>`;
         }
-        addEvent('approval', 'fs.move ×8 — 已拒绝，未移动任何文件', { type: 'approval.denied', by: 'user' });
+        addEvent('approval', 'fs.move ×8 · 已拒绝，未移动任何文件', { type: 'approval.denied', by: 'user' });
         await pause(800);
         chatMsg('bot', '好的，一个文件都没有动。方案保留在对话里，你可以调整规则后再让我执行。');
         addEvent('msg', '助手：已停止，等待用户调整方案。', { type: 'message', role: 'assistant', stopped: true });
@@ -1290,7 +1312,7 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
 <h1>留痕 Agent · 审计报告（演示）</h1>
 <p class="meta">会话 demo · 共 ${S.events.length} 个事件 · 时间范围 ${esc(S.events[0]?.ts || '--')} – ${esc(S.events[S.events.length - 1]?.ts || '--')} · 导出于 ${esc(stamp.toLocaleString('zh-CN'))}</p>
 <table>${rows}</table>
-<p class="foot">audit.jsonl — 只追加，永不覆盖 · 本报告由介绍页的演示会话生成，数据均为演示内容</p>
+<p class="foot">audit.jsonl · 只追加，永不覆盖 · 本报告由介绍页的演示会话生成，数据均为演示内容</p>
 </main></body></html>`;
   }
   function exportReport() {
@@ -1337,29 +1359,28 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
   const toast = window.__toast || (() => {});
 
   /* ---------------- 浏览留痕计数(仅内存,不上传) ---------------- */
-  const cnt = { all: $('#cntAll'), moves: $('#cntMoves'), clicks: $('#cntClicks'), views: $('#cntViews') };
-  const sess = { moves: 0, clicks: 0, views: 0 };
+  const cnt = { all: $('#cntAll'), clicks: $('#cntClicks'), views: $('#cntViews') };
+  const sess = { clicks: 0, views: 0 };
   let countScheduled = false;
   function renderCount() {
     countScheduled = false;
     if (!cnt.all) return;
-    cnt.moves.textContent = String(sess.moves);
     cnt.clicks.textContent = String(sess.clicks);
     cnt.views.textContent = String(sess.views);
-    cnt.all.textContent = String(sess.moves + sess.clicks + sess.views);
+    cnt.all.textContent = String(sess.clicks + sess.views);
   }
   function scheduleCount() {
     if (!countScheduled) { countScheduled = true; requestAnimationFrame(renderCount); }
   }
 
   /* ---------------- 留痕背景画布 ----------------
-     静态层:数条缓弯的竖向轨迹线 + 落点(品牌轨迹母题),靠近鼠标处显影;
-     动态层:指针移动写入墨点尾迹并连线成"笔迹",随时间衰减;
-     交互层:点击落一枚扩散圈,进入区块落一枚涟漪。全部扁平点线,无发光无渐变。 */
+     静态层:数条垂直台账细线 + 落点(品牌轨迹母题),靠近鼠标处显影;
+     其中一条为工具青「执行中」轨迹,头部点缓慢下移脉动。
+     扁平点线,无发光无渐变;reduced-motion 与粗指针环境仅静态单帧。 */
   const canvas = $('#traceCanvas');
   const ctx = canvas.getContext('2d');
-  let W = 0, H = 0, traces = [], dots = [], ripples = [];
-  let mx = -1e4, my = -1e4, lastSpawn = null;
+  let W = 0, H = 0, traces = [];
+  let mx = -1e4, my = -1e4;
   let running = false;
 
   function mulberry(seed) {
@@ -1376,12 +1397,12 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
     traces = [];
     const n = Math.max(4, Math.round(W / 340));
     for (let i = 0; i < n; i++) {
-      const baseX = W * (0.06 + 0.88 * (i + rnd() * 0.6) / n);
+      const x = Math.round(W * (0.06 + 0.88 * (i + rnd() * 0.6) / n));
       const pts = [];
       const top = H * (0.04 + rnd() * 0.06);
       const bottom = H * (0.58 + rnd() * 0.34);
       for (let y = top; y <= bottom; y += Math.round(70 + rnd() * 60)) {
-        pts.push({ x: baseX + (rnd() - 0.5) * 30, y, dot: rnd() > 0.42 });
+        pts.push({ x, y, dot: rnd() > 0.42 });
       }
       traces.push({ pts, live: i === Math.floor(rnd() * n), phase: rnd() * Math.PI * 2 });
     }
@@ -1394,7 +1415,7 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
     canvas.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     buildTraces();
-    if (reduced) paint(performance.now());
+    if (reduced || !finePointer) paint(performance.now());
   }
 
   function near(x, y) {
@@ -1406,17 +1427,16 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
     ctx.clearRect(0, 0, W, H);
     ctx.lineWidth = 1;
     for (const tr of traces) {
-      for (let i = 1; i < tr.pts.length; i++) {
-        const a = tr.pts[i - 1], b = tr.pts[i];
-        const al = 0.05 + Math.max(near(a.x, a.y), near(b.x, b.y));
-        if (al <= 0.004) continue;
+      const a = tr.pts[0], b = tr.pts[tr.pts.length - 1];
+      const al = 0.05 + Math.max(near(a.x, a.y), near(b.x, b.y));
+      if (al > 0.004) {
         ctx.strokeStyle = 'rgba(127, 132, 144, ' + al.toFixed(3) + ')';
         ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
       }
       for (const p of tr.pts) {
         if (!p.dot) continue;
-        const al = 0.10 + near(p.x, p.y);
-        ctx.fillStyle = 'rgba(127, 132, 144, ' + al.toFixed(3) + ')';
+        const dal = 0.10 + near(p.x, p.y);
+        ctx.fillStyle = 'rgba(127, 132, 144, ' + dal.toFixed(3) + ')';
         ctx.beginPath(); ctx.arc(p.x, p.y, 1.8, 0, 7); ctx.fill();
       }
       if (tr.live) {
@@ -1426,34 +1446,11 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
         ctx.beginPath(); ctx.arc(p.x, p.y, 2.2, 0, 7); ctx.fill();
       }
     }
-    for (let i = dots.length - 1; i >= 0; i--) {
-      const d = dots[i];
-      const age = (t - d.t) / d.life;
-      if (age >= 1) { dots.splice(i, 1); continue; }
-      ctx.fillStyle = 'rgba(127, 132, 144, ' + (d.a * (1 - age) * (1 - age)).toFixed(3) + ')';
-      ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, 7); ctx.fill();
-      const prev = dots[i - 1];
-      if (prev) {
-        const ag2 = (t - prev.t) / prev.life;
-        if (ag2 < 1) {
-          ctx.strokeStyle = 'rgba(127, 132, 144, ' + (0.12 * (1 - Math.max(age, ag2))).toFixed(3) + ')';
-          ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(d.x, d.y); ctx.stroke();
-        }
-      }
-    }
-    for (let i = ripples.length - 1; i >= 0; i--) {
-      const rp = ripples[i];
-      const age = (t - rp.t) / 700;
-      if (age >= 1) { ripples.splice(i, 1); continue; }
-      const ease = 1 - Math.pow(1 - age, 3);
-      ctx.strokeStyle = 'rgba(53, 56, 63, ' + (0.55 * (1 - age)).toFixed(3) + ')';
-      ctx.beginPath(); ctx.arc(rp.x, rp.y, 4 + 34 * ease, 0, 7); ctx.stroke();
-    }
   }
 
   function loop(t) {
     paint(t);
-    if (!finePointer && !dots.length && !ripples.length) { running = false; return; }
+    if (!finePointer) { running = false; return; }
     requestAnimationFrame(loop);
   }
   function ensure() { if (!running) { running = true; requestAnimationFrame(loop); } }
@@ -1463,51 +1460,29 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
 
   if (!reduced) {
     if (finePointer) {
-      addEventListener('pointermove', e => {
-        mx = e.clientX; my = e.clientY;
-        if (lastSpawn) {
-          const d = Math.hypot(mx - lastSpawn.x, my - lastSpawn.y);
-          if (d < 16) return;
-        }
-        lastSpawn = { x: mx, y: my };
-        dots.push({ x: mx, y: my, t: performance.now(), life: 3400, r: 1.6, a: 0.30 });
-        if (dots.length > 140) dots.splice(0, dots.length - 140);
-        sess.moves++; scheduleCount();
-        ensure();
-      }, { passive: true });
+      // 指针只负责显影:靠近的台账线与落点缓缓变清晰
+      addEventListener('pointermove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
       document.addEventListener('pointerout', e => {
         if (!e.relatedTarget) { mx = -1e4; my = -1e4; }
       });
-    }
-    addEventListener('click', e => {
-      ripples.push({ x: e.clientX, y: e.clientY, t: performance.now() });
-      dots.push({ x: e.clientX, y: e.clientY, t: performance.now(), life: 6000, r: 2, a: 0.4 });
-      sess.clicks++; scheduleCount();
       ensure();
+    }
+    addEventListener('click', () => {
+      sess.clicks++; scheduleCount();
     }, { passive: true });
-    ensure();
   }
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) running = false;
-    else if (!reduced) ensure();
+    else if (!reduced && finePointer) ensure();
   });
 
-  /* 浏览留痕:每进入一个区块,标题旁落一枚涟漪 */
+  /* 浏览留痕:每进入一个区块计一次 */
   if ('IntersectionObserver' in window) {
     const vio = new IntersectionObserver(entries => {
       entries.forEach(en => {
         if (!en.isIntersecting) return;
         vio.unobserve(en.target);
-        sess.views++; renderCount();
-        if (reduced) return;
-        const h = en.target.querySelector('h1, h2');
-        if (h) {
-          const r = h.getBoundingClientRect();
-          if (r.bottom > 0 && r.top < innerHeight) {
-            ripples.push({ x: r.left + 24, y: r.top + r.height / 2, t: performance.now() });
-            ensure();
-          }
-        }
+        sess.views++; scheduleCount();
       });
     }, { threshold: 0.18 });
     $$('main section').forEach(s => vio.observe(s));
