@@ -51,7 +51,7 @@ const server = http.createServer((req, res) => {
         ...toolCallChunks(1, 'v2-move', 'mouse_move', JSON.stringify({ x: 640, y: 400 }))
       ])
     } else if (toolResults === 2) {
-      sse(res, [textChunk('端到端 v2 完成:屏幕尺寸已读取,鼠标移动已获局域网批准并执行。'), stopChunk])
+      sse(res, [textChunk('已完成:屏幕分辨率 2560 × 1440,鼠标已移动到 (640, 400),移动前经过局域网审批确认。'), stopChunk])
     } else {
       sse(res, [emptyToolEnd])
     }

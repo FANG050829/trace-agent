@@ -135,17 +135,12 @@ npm_config_electron_config_cache="E:\ai-project\ZCode\trace-agent\.cache\electro
 | `node tests/smoke2.mjs` | UI 冒烟(需先 `npm run dev` 开调试口) |
 | `node tests/fake-llm2.mjs` | 本地假模型,端到端验收键鼠 / 审批 / 定时链路 |
 
-## 🗺 路线图
+---
 
-- [x] 任务沉淀成技能:一键保存,可编辑、可重跑
-- [x] 审计记录导出:自包含 HTML 报告(含内嵌截图)
-- [x] 原生键鼠自动化引擎(nut.js,N-API 预编译):鼠标 / 滚轮 / 按键 / 打字,全部走审批门
-- [x] 打包安装程序(electron-builder NSIS),数据目录可选(env / 启动参数 / data-dir.txt / 设置页)
-- [x] 技能定时执行(每天 / 按间隔 / 单次,托盘常驻后台)
-- [x] 局域网内多人审批(高风险操作推送到手机浏览器确认,令牌门禁)
+<div align="center">
+  <img src="icons/icon.png" width="40" alt=""><br>
+  <b>留痕 Agent</b>
+  <p>Copyright © 2026 <b>youxi</b> · 以 <a href="LICENSE">MIT License</a> 开源发布<br>
+  本项目由人工与智能体协作构建——每一次提交,同样有迹可循。</p>
+</div>
 
-> 下一步的候选方向:技能导入导出与参数化、审计报告定时自动归档、多显示器截屏支持。
-
-## License
-
-[MIT](LICENSE)
