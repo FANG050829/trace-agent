@@ -6,7 +6,7 @@
 <meta name="description" content="留痕 Agent 是运行在你 Windows 电脑上的桌面自动化智能体：文件、命令、截图、浏览器，每一步操作都追加写入审计日志，随时批准、拒绝、取消。">
 <meta name="theme-color" content="#0d0e11">
 <title>留痕 Agent · 桌面自动化，全程可审计</title>
-<link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="%230d0e11"/><path d="M12 4v16" stroke="%23e8e9ec" stroke-width="1.6"/><circle cx="12" cy="7.4" r="1.7" fill="%23e8e9ec"/><circle cx="12" cy="12" r="1.7" fill="%23e8e9ec" opacity=".66"/><circle cx="12" cy="16.6" r="1.7" fill="%23e8e9ec" opacity=".33"/></svg>'>
+<link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="%230d0e11"/><path d="M12 5.8v11.2" stroke="%23e8e9ec" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="5.8" r="1" fill="%23e8e9ec" opacity=".3"/><circle cx="12" cy="17" r="3" fill="%23e8e9ec"/></svg>'>
 <style>
 /* ============================================================
    留痕 Agent · 介绍页 — 工程石墨·深色(继承应用既有世界)
@@ -14,6 +14,14 @@
    主按钮反色(白底黑字) · 统一 1.5px SVG 线性图标 · 等宽只用于数据
    对标:VS Code / Linear 深色主题的工艺水准
    ============================================================ */
+/* 展示字体内嵌(单文件,无外链,离线可用):JetBrains Mono 800 latin 子集,28KB。
+   数字/编号/字标用它;中文回落系统黑体,靠字重与字号立层级。 */
+@font-face {
+  font-family: 'JBM';
+  font-style: normal; font-weight: 800; font-display: swap;
+  src: url(data:font/woff2;base64,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) format('woff2');
+}
+
 :root {
   --bg0: #0d0e11;
   --bg1: #141519;
@@ -34,26 +42,299 @@
   --radius: 6px;
   --radius-lg: 8px;
   --font: 'Segoe UI Variable Text', 'Segoe UI', 'Microsoft YaHei UI', 'Microsoft YaHei', system-ui, sans-serif;
-  --font-display: 'Segoe UI Variable Display', 'Segoe UI Variable Text', 'Segoe UI', 'Microsoft YaHei UI', 'Microsoft YaHei', system-ui, sans-serif;
-  --mono: 'Cascadia Code', 'Cascadia Mono', Consolas, 'Courier New', monospace;
+  /* v6:展示字体 = 内嵌 JetBrains Mono 800(拉丁/数字)+ 系统黑体(中文)。
+     产品本体是日志,等宽展示字就是它的声音;中文靠字重与字号立层级。 */
+  --font-display: 'JBM', 'Cascadia Code', 'Segoe UI Variable Display', 'Microsoft YaHei', system-ui, sans-serif;
+  --mono: 'JBM', 'Cascadia Code', 'Cascadia Mono', Consolas, 'Courier New', monospace;
+
+  /* ============================================================
+     渐变：受控解禁（原"无渐变"世界禁令已打破，规则见下）
+     每个渐变必须能回答"它承担什么职责"，答不出就删掉。
+     硬约束：≤3 色标 · 相邻色相 · 亮度跨度 ≤12%（G1/G3 为跨亮度设计，已单列说明）
+     禁止：紫→蓝→粉多色渐变 / 网格渐变(aurora) / 霓虹光晕 / 多色标彩虹
+           / 标题以外的渐变文字 / 按钮边框上的高饱和渐变 / 模糊色块玻璃拟态
+     ============================================================ */
+  /* G1 页面基调：自上而下极轻亮度差，给纯黑一个"光从顶部来"的体积感 */
+  --g-page: linear-gradient(180deg, #101218 0%, #0d0e11 45%, #0a0b0d 100%);
+  /* G2 焦点暗角：当前块上方微亮，视线收拢 */
+  --g-focus: radial-gradient(120% 68% at 50% 0%, rgba(232, 233, 236, .045) 0%, rgba(232, 233, 236, 0) 62%);
+  /* G3 首屏标题：金属亮度差，全站仅此一处（配合下方 hero 渐变背景使用） */
+  --g-type: linear-gradient(180deg, #f6f7f9 0%, #c8cdd6 55%, #9aa0aa 100%);
+  /* G4 进度轨：当前刻度点亮并向右淡出 = "你在这里" */
+  --g-rail: linear-gradient(90deg, var(--accent) 0%, rgba(108, 158, 230, 0) 100%);
+  /* G5 执行态：teal 极弱径向，仅演示窗处于"执行中"时出现 */
+  --g-run: radial-gradient(70% 100% at 50% 100%, rgba(95, 179, 163, .10) 0%, rgba(95, 179, 163, 0) 70%);
+  /* 首屏：重上到下的白黑渐变（用户指定）。全站唯一的大跨度亮度渐变。
+     压到 3 个色标以守住"无 AI 味"的硬约束（多色标正是渐变显得廉价的主因）：
+     白 → 灰（明暗分界）→ 黑。
+     分界点定在 78% 而非中点：首屏内容重心落在视口 30%–70%，
+     若在中点分界，正文会落进中灰死区（深墨/亮墨都只有 2.3:1）。
+     推后分界让全部文字都落在亮区，用近黑即可达 AA。 */
+  --g-hero: linear-gradient(180deg, #ffffff 0%, #f7f9fb 58%, #171a1f 88%, #050608 100%);
+  /* G6/G7/G8 空间洗光：空白处的光方向感。alpha ≤.07,单一色相,
+     读作"光的衰减"而非霓虹;按块交替使用,同一视口至多一层。 */
+  --g-wash-steel: radial-gradient(52% 44% at 82% 12%, rgba(108, 158, 230, .055) 0%, rgba(108, 158, 230, 0) 72%);
+  --g-wash-teal: radial-gradient(48% 42% at 12% 82%, rgba(95, 179, 163, .05) 0%, rgba(95, 179, 163, 0) 72%);
+  --g-wash-out: radial-gradient(70% 60% at 50% 40%, rgba(108, 158, 230, .07) 0%, rgba(108, 158, 230, 0) 74%);
+  /* v6 黑匣子材料:渐变发丝线 / 幽灵编号 / 收尾书挡 */
+  --g-hair: linear-gradient(90deg, rgba(232, 233, 236, .55) 0%, rgba(232, 233, 236, .05) 40%, rgba(232, 233, 236, 0) 75%);
+  --g-hair-dim: linear-gradient(90deg, rgba(232, 233, 236, .34) 0%, rgba(232, 233, 236, 0) 80%);
+  --g-ghost: linear-gradient(180deg, rgba(232, 233, 236, .14) 0%, rgba(232, 233, 236, 0) 78%);
+  --g-outro: linear-gradient(180deg, #05060a 0%, #0d0e11 30%, #e9edf3 88%, #f7f9fb 100%);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-padding-top: 76px; }
-@media (prefers-reduced-motion: no-preference) {
-  html { scroll-behavior: smooth; }
+/* ---------- deck 骨架：每块一屏，受控整块滚动 ----------
+   翻块由 JS 统一接管（滚轮 / 键盘 / 锚点都走同一条 animateTo 缓动曲线）。
+   不用原生 scroll-snap 的原因：鼠标滚轮下它的手感是"滚一点被拽回"，
+   mandatory + snap-stop 还会在动画经过中间块时把滚动截停——卡顿感的两个来源。
+   scroll-behavior 必须为 auto：rAF 里每帧 scrollTo 若被浏览器再平滑一次，
+   动画会叠加失速。触屏不劫持（触摸滚动走原生），滚动条拖拽同样自由。 */
+html { scroll-padding-top: 0; }
+html.deck { scroll-snap-type: none; scroll-behavior: auto; }
+.block {
+  min-height: 100svh;
+  position: relative;
+  display: flex; flex-direction: column; justify-content: center;
+  padding-block: clamp(56px, 8vh, 96px);
+  border-top: 0;
+}
+.block > .wrap { width: 100%; }
+.block-pad { padding-block: clamp(68px, 9vw, 116px); }
+
+/* ---------- 01 开场：极简 + 白黑渐变 ----------
+   这一块是全站唯一的大跨度亮度渐变，因此文字颜色按所在位置分带：
+   上（亮底）用深墨，下（暗底）用墨白，跨越明暗分界处用 --ink-2。 */
+.hero-01 {
+  background: var(--g-hero);
+}
+/* flex:1 让 wrap 撑满块高(百分比 height 对 min-height 父级无效);
+   品牌行钉顶,hero-main 用 margin-top:auto 贴底——对角张力,全部流内 */
+.hero-01 .wrap { flex: 1; display: flex; flex-direction: column; }
+.hero-01 .hero-main { margin-top: auto; padding-bottom: clamp(24px, 4vh, 48px); }
+/* 品牌行的版本徽标(亮区配色,流内) */
+.hero-01 .ver { font-family: var(--mono); font-size: 11px; color: #565b64; border: 1px solid rgba(16, 17, 20, .18); border-radius: 4px; padding: 1px 6px; }
+.hero-01 .block-mark, .hero-01 .hero-name { color: #101114; }
+.hero-01 .hero-thesis {
+  /* 深色金属渐变字:亮区里的主角,与背景同向衰减 */
+  background: linear-gradient(180deg, #101114 0%, #3a3f47 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.hero-01 .hero-tail { color: #2b2f36; }
+/* 提示行落在底部暗色收束带里:它是"继续进入暗色 deck"的引路符,亮色 */
+.hero-01 .hero-hint { color: #b6bbc3; }
+.hero-01 .hero-hint .kbd { border-color: rgba(232, 233, 236, .3); color: #dfe2e7; }
+.hero-01 .hero-rule { background: rgba(16, 17, 20, .18); }
+
+
+/* 首屏 01 的版式：标记 + 名字 + 主张 + 继续提示，逐行淡入 */
+.hero-01 .wrap { max-width: 1000px; }
+.hero-markrow { display: flex; align-items: center; gap: 12px; }
+.hero-name {
+  font-family: var(--font-display); font-size: clamp(22px, 2.6vw, 30px);
+  font-weight: 600; letter-spacing: -.01em; line-height: 1.2;
+}
+.hero-thesis {
+  font-family: var(--font-display);
+  font-size: clamp(46px, 8.2vw, 118px);
+  line-height: 1.02; letter-spacing: -.035em; font-weight: 800;
+  margin-top: clamp(20px, 3.4vh, 34px);
+  max-width: 12em;
+}
+.hero-tail { margin-top: clamp(14px, 2vh, 22px); font-size: clamp(15px, 1.5vw, 17px); max-width: 40ch; }
+.hero-rule { height: 1px; margin-top: clamp(24px, 4vh, 40px); max-width: 220px; }
+.hero-hint {
+  margin-top: clamp(20px, 3.4vh, 34px);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 12px; color: var(--ink-3);
+}
+.hero-hint .kbd {
+  display: inline-flex; align-items: center; gap: 5px;
+  border: 1px solid var(--line); border-radius: 4px; padding: 2px 7px;
+}
+.hero-hint .arrow { animation: nudge 2.4s ease-in-out infinite; }
+@keyframes nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+
+/* ---------- 超高兜底：内容装不下时块内可滚，绝不困住用户 ----------
+   08 块追求"每块正好一屏"，但模板表、24 格工具网格这类内容在 720p 下
+   客观上装不下。此时不牺牲内容，而是让块自身成为滚动容器：
+   吸附点仍在块首，滚到底后滚动链交还页面（overscroll-behavior-y: auto），
+   因此 mandatory 吸附依然安全。 */
+.block.overflowing { overflow-y: auto; overscroll-behavior-y: auto; }
+/* ---------- 块内自适应：让内容尽量装进一屏 ----------
+   08 块的目标是"每块正好一屏"。视口越矮，越要收紧节奏：
+   演示窗是 02 块超高的主因，按视口高度缩放；其余块收紧区块留白。 */
+.block .sec-head { margin-bottom: clamp(22px, 3.6vh, 48px); }
+/* ---------- v6.1 排版节奏:标签 → 金属标题 → 导语 → 内容 ----------
+   mono 结构标签给每块"仪器面板"的铭牌;标题放大到能压住巨幅背景,
+   用单色亮度渐变填充(与幽灵编号同一材料)。 */
+.sec-label {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: .14em;
+  color: var(--ink-3);
+  margin-bottom: 16px;
+}
+.sec-label::before {
+  content: ""; width: 26px; height: 1px; flex: none;
+  background: var(--g-hair);
+}
+.block h2 {
+  font-size: clamp(32px, 4.6vw, 58px);
+  line-height: 1.1; letter-spacing: -.02em; font-weight: 800;
+  background: linear-gradient(180deg, #ffffff 0%, #9aa0aa 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.block .sec-head .lead { margin-top: 14px; max-width: 42ch; }
+/* 02:标题与实时状态条同行,不再竖着堆 */
+#demo .sec-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; margin-bottom: clamp(16px, 2.4vh, 30px); }
+#demo .sec-head .sec-text { min-width: 0; }
+#demo .hero-pulse { margin-top: 0; padding-bottom: 6px; }
+@media (max-width: 1100px) { #demo .sec-head { flex-direction: column; align-items: flex-start; } }
+
+.block .sec-head .lead { margin-top: 14px; line-height: 1.8; }
+.block .demo-cap { max-width: 76ch; line-height: 1.7; }
+.block .tier .acts { line-height: 1.65; }
+.block .demo-body { height: clamp(280px, 43svh, 440px); }
+.block .demo-outer { margin-top: clamp(14px, 2.2vh, 30px); }
+.block .tiers, .block .toolgrid, .block .edgem { margin-top: clamp(12px, 1.8vh, 22px); }
+.block .tool-cell { padding: 8px 10px; }
+.block .edgem-row { padding: 11px 0; }
+.block .shots { margin-top: clamp(16px, 2.4vh, 32px); }
+.block .split, .block .start-grid { gap: clamp(20px, 3vw, 44px); }
+.block .steps li { padding: 11px 0; }
+.block .steps { margin-top: 0; }
+.block .start-note { margin-top: 14px; line-height: 1.75; }
+.block .tbl td { padding: 7px 12px; }
+.block .tbl th { padding-bottom: 8px; }
+.block .templ { margin-top: clamp(16px, 2.4vh, 32px); }
+.block .templ .sub { margin-bottom: 12px; }
+.block .ledger-row { padding: 16px 0; }
+/* 首屏副句:大标题下的定调句,加重 */
+.hero-01 .hero-tail {
+  color: #101114; font-weight: 600;
+  font-size: clamp(16px, 1.8vw, 19px);
+  max-width: 36ch; line-height: 1.7;
+}
+/* 04 能力清单:间距与字号 */
+.block .feats li { padding: 14px 0; font-size: 15.5px; line-height: 1.7; }
+/* 04 留痕块：压缩说明与代码卡，让截图轨道成为视觉主体 */
+.block .feats li { padding: 10px 0; }
+.block .codecard pre { padding: 12px 14px; line-height: 1.7; }
+/* 能力块的工具网格在矮屏收成更紧凑的列 */
+@media (max-height: 800px) {
+  .block .tools-grid { grid-template-columns: repeat(auto-fill, minmax(122px, 1fr)); }
+  .block .demo-body { height: clamp(260px, 42svh, 420px); }
+}
+.block:not(.hero-01) { background: var(--bg0); }
+#outro { background: var(--g-outro); --g-wash: none; }
+
+/* 幽灵编号:每块的铭牌,白→透明的亮度渐变,JBM 800。
+   它同时承担"你在第几屏"的位置感与界面的记忆点。 */
+.block-ghost {
+  position: absolute; top: clamp(4px, 3vh, 28px); right: clamp(12px, 4vw, 56px);
+  z-index: 0; pointer-events: none; user-select: none;
+  font-family: 'JBM', 'Cascadia Code', monospace; font-weight: 800;
+  font-size: clamp(130px, 22vw, 300px); line-height: .92; letter-spacing: -.05em;
+  background: var(--g-ghost);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+
+/* 渐变发丝线:块与块的地平线,自左向右衰减——替代平面灰边 */
+.block::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: var(--g-hair); pointer-events: none; z-index: 2;
+}
+.hero-01::after { background: linear-gradient(90deg, rgba(255, 255, 255, .5) 0%, rgba(255, 255, 255, 0) 70%); }
+
+/* 空白处洗光:每块至多一层,方向交替,避免同一视口内叠光 */
+#demo { --g-wash: var(--g-wash-steel); }
+#timeline { --g-wash: var(--g-wash-teal); }
+#ability { --g-wash: var(--g-wash-steel); }
+#start { --g-wash: var(--g-wash-teal); }
+.block:not(.hero-01) { --g-wash: none; }
+.block:not(.hero-01)::before {
+  content: ""; position: absolute; inset: 0;
+  background: var(--g-wash), var(--g-focus); pointer-events: none;
+}
+/* z-index 直接作用于 flex 子项,不需要 position:relative——
+   relative 会让 .wrap 成为子元素绝对定位的包含块(品牌行会掉进内容流) */
+.block > .wrap { z-index: 1; }
+
+/* 右侧刻度轨：当前块点亮并向右淡出（G4 承担"你在这里"的职责） */
+.rail {
+  position: fixed; right: 18px; top: 50%; transform: translateY(-50%);
+  z-index: 55; display: flex; flex-direction: column; gap: 9px;
+}
+.rail button {
+  display: block; width: 22px; height: 1px; padding: 0; cursor: pointer;
+  background: var(--line-strong); border: 0;
+  transition: width .2s ease-out, background .2s ease-out;
+}
+.rail button:hover { background: var(--ink-3); width: 28px; }
+.rail button[aria-current="true"] { width: 34px; background: var(--g-rail); }
+.rail button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 900px) { .rail { display: none; } }
+
+/* 演示窗处于"执行中"时叠加 G5 */
+.demo.is-run::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: var(--g-run); z-index: 2;
+}
+.demo { position: relative; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-hint .arrow { animation: none; }
+  html.deck { scroll-snap-type: none; }
+}
+
+/* ---------- 块切换:方向感知的滑入滑出(deck 的署名动效) ----------
+   幅度必须肉眼可见:整块内容沿滚动方向滑入 96px + 全程淡入,子层 70ms 级联;
+   离场块反向 80px + 淡到 0(离场快于入场)。--dir 由 JS 注入(+1 下翻 / -1 上翻)。
+   幽灵编号走更长的视差(140px / 1s),比内容慢半拍,出纵深。 */
+html.js .block.entering > .wrap > * { animation: blk-in .78s cubic-bezier(.16, 1, .3, 1) var(--bd, 0ms) both; }
+html.js .block.entering > .wrap > *:nth-child(2) { --bd: 70ms; }
+html.js .block.entering > .wrap > *:nth-child(3) { --bd: 140ms; }
+html.js .block.entering > .wrap > *:nth-child(4) { --bd: 210ms; }
+html.js .block.entering > .wrap > *:nth-child(n+5) { --bd: 280ms; }
+@keyframes blk-in { from { opacity: 0; transform: translateY(calc(96px * var(--dir, 1))); } }
+html.js .block.leaving > .wrap { animation: blk-out .5s cubic-bezier(.55, 0, .72, .4) both; }
+@keyframes blk-out { to { opacity: 0; transform: translateY(calc(-80px * var(--dir, 1))); } }
+html.js .block.entering .block-ghost { animation: ghost-in 1.05s cubic-bezier(.16, 1, .3, 1) both; }
+@keyframes ghost-in { from { opacity: 0; transform: translateY(calc(150px * var(--dir, 1))); } }
+/* 整块滑入期间,目标块的逐元素入场由 JS 直接标记为已见(.seen),
+   不与 blk-in 抢 animation 通道;行级发丝线绘入不受影响 */
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .block.entering > .wrap > *, html.js .block.leaving > .wrap, html.js .block.entering .block-ghost { animation: none; }
+}
+
+/* 触屏没有滚轮劫持,把"一块一屏"还给原生 snap(接近吸附,不会困住长内容) */
+@media (pointer: coarse) {
+  html.deck { scroll-snap-type: y proximity; }
+  .block { scroll-snap-align: start; }
 }
 
 body {
   font-family: var(--font);
-  background: var(--bg0);
+  /* G1 页面基调：块与块的缝隙、overscroll 露出的底不再是无信息纯黑 */
+  background: var(--bg0) var(--g-page);
   color: var(--ink);
   font-size: 15.5px;
   line-height: 1.75;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   scrollbar-color: #2c2f36 transparent;
+}
+/* 颗粒质感:SVG feTurbulence 数据 URI,平铺 160px,不透明度 5%。
+   给大面积渐变底加"材料",消掉纯色的塑料感;纯静态,零开销。 */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 80; pointer-events: none;
+  opacity: .05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
 }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb {
@@ -145,19 +426,49 @@ h3 { font-size: 17px; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
 .hero-meta { margin-top: 26px; font-family: var(--mono); font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 
+/* 实时轨迹条(02):一条渐变轨道 + 四个操作节点,演示推进时青色填充。
+   与演示窗事件流同步,__pulse(op) 点亮节点并推进填充线。 */
+.hero-pulse {
+  position: relative;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 2px;
+  font-family: var(--mono); font-size: 12.5px; color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.hero-pulse::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px;
+  background: var(--g-hair-dim);
+}
+.hero-pulse .fill {
+  position: absolute; left: 0; top: 50%; height: 1px; width: 0;
+  background: linear-gradient(90deg, var(--teal) 0%, rgba(95, 179, 163, .2) 100%);
+  transition: width .45s ease-out;
+}
+.hero-pulse .lp {
+  position: relative; display: inline-flex; align-items: center; gap: 7px;
+  background: var(--bg0); padding: 0 12px;
+}
+.hero-pulse .lp:first-child { padding-left: 0; }
+.hero-pulse .lp:last-child { padding-right: 0; }
+.hero-pulse .sd { width: 7px; height: 7px; border-radius: 50%; background: #3a3e46; flex: none; transition: background .2s ease-out; }
+.hero-pulse .lp.run .sd { background: var(--teal); }
+.hero-pulse .lp.wait .sd { background: var(--warn); }
+.hero-pulse .lp .op { transition: color .2s ease-out; }
+.hero-pulse .lp.run .op, .hero-pulse .lp.wait .op { color: var(--ink); }
+
 /* ---------- 演示窗 ---------- */
 .demo-outer { margin-top: clamp(36px, 5vw, 52px); }
 .demo {
-  border: 1px solid var(--line-strong);
   border-radius: var(--radius-lg);
   background: var(--bg1);
   overflow: hidden;
 }
+.demo::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--g-hair); z-index: 3; }
 .demo-chrome {
   display: flex; align-items: center; gap: 12px;
   height: 46px; padding-inline: 14px;
   background: var(--bg2);
-  border-bottom: 1px solid var(--line);
+  background: var(--bg2) var(--g-hair-dim) bottom / 100% 1px no-repeat;
 }
 .demo-chrome .title { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; }
 .demo-chrome .tag { font-family: var(--mono); font-size: 11px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 4px; padding: 1px 7px; font-weight: 400; }
@@ -170,7 +481,16 @@ h3 { font-size: 17px; }
 @keyframes pulse { 50% { opacity: .35; } }
 
 .demo-body { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); height: 500px; }
-.pane { position: relative; overflow-y: auto; overscroll-behavior: contain; }
+/* auto 而非 contain:面板滚到尽头后把滚动交还页面,
+   否则鼠标悬停演示窗时滑轮会被吞掉,整页无法滚动。 */
+.pane { position: relative; overflow-y: auto; overscroll-behavior-y: auto; }
+/* deck 模式下演示窗不可内部滚动：若面板还能内部滚，鼠标悬停时滚轮会被面板吃掉，
+   与"滚轮翻块"直接冲突。这里让内容封顶、只保留最近若干条，面板不再是滚动容器。 */
+html.deck .pane { overflow-y: hidden; }
+html.deck .pane-chat { justify-content: flex-end; }
+html.deck .pane-chat > *:nth-last-child(n+8) { display: none; }
+html.deck .evlist > .ev-item:nth-child(-n+4) { display: none; }
+html.deck .to-bottom { display: none; }
 .pane-chat { border-right: 1px solid var(--line); padding: 18px 18px 22px; display: flex; flex-direction: column; gap: 14px; }
 .pane-audit { display: flex; flex-direction: column; overflow: hidden; }
 .pane::-webkit-scrollbar { width: 8px; }
@@ -297,19 +617,51 @@ h3 { font-size: 17px; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
+/* 演示图注:与 .sec-note 同语言的带刻线注记 */
 .demo-cap {
-  margin-top: 14px;
-  font-family: var(--mono); font-size: 12px; color: var(--ink-3);
-  font-variant-numeric: tabular-nums;
+  position: relative;
+  margin-top: 16px; padding-left: 38px;
+  font-size: 13.5px; color: var(--ink-3); line-height: 1.7;
+  text-wrap: pretty;
+}
+.demo-cap::before {
+  content: ""; position: absolute; left: 0; top: .72em; width: 26px; height: 1px;
+  background: var(--g-hair);
 }
 .demo-cap b { color: var(--ink-2); font-weight: 600; }
-
 /* ---------- 台账式行(审批门 / 边界) ---------- */
 .ledger { border-top: 1px solid var(--line); }
 .ledger-row {
   display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 20px 40px;
   padding: 26px 0; border-bottom: 1px solid var(--line);
 }
+/* 方案三:台账行可展开为"证据行"——与演示窗事件行同构的 grid-rows 展开 */
+.ledger-row.ev-row-open { cursor: pointer; }
+.ledger-row .ev-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-3);
+  margin-top: 8px;
+  transition: color .12s ease-out;
+}
+.ledger-row:hover .ev-toggle { color: var(--accent); }
+.ledger-row .ev-toggle .chev { transition: transform .15s ease-out; display: inline-flex; }
+.ledger-row.open .ev-toggle .chev { transform: rotate(90deg); }
+.ledger-row .ev-proof {
+  display: grid; grid-template-rows: 0fr; opacity: 0;
+  transition: grid-template-rows .18s ease-out, opacity .18s ease-out;
+}
+.ledger-row.open .ev-proof { grid-template-rows: 1fr; opacity: 1; }
+.ledger-row .ev-proof-inner { overflow: hidden; min-height: 0; }
+.ledger-row .ev-proof pre {
+  font-family: var(--mono); font-size: 12px; line-height: 1.8;
+  color: var(--ink-2); font-variant-numeric: tabular-nums;
+  background: var(--bg-code); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 11px 13px; margin: 4px 0 2px;
+  white-space: pre; overflow-x: auto;
+}
+.ledger-row .ev-proof pre .c { color: var(--ink-3); }
+.ledger-row .ev-proof pre .k { color: var(--ink); }
+.ledger-row .ev-proof pre .s { color: var(--teal); }
 .ledger-key { display: flex; align-items: baseline; gap: 10px; }
 .ledger-key .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; transform: translateY(-1px); }
 .ledger-key .en { font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
@@ -318,7 +670,8 @@ h3 { font-size: 17px; }
 .ledger-val { color: var(--ink-2); font-size: 15px; max-width: 62ch; text-wrap: pretty; }
 .ledger-val b { color: var(--ink); font-weight: 600; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-.chip { font-family: var(--mono); font-size: 12px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 4px; padding: 2px 9px; font-variant-numeric: tabular-nums; }
+.chip { font-family: var(--mono); font-size: 12px; color: var(--ink-2); padding: 2px 0; font-variant-numeric: tabular-nums; }
+.chips .chip + .chip::before { content: "·"; color: var(--ink-3); margin: 0 10px; }
 .dot-safe { background: var(--ok); }
 .dot-confirm { background: var(--warn); }
 .dot-dangerous { background: var(--err); }
@@ -329,19 +682,163 @@ h3 { font-size: 17px; }
 .ledger-note { padding: 20px 0 0; color: var(--ink-3); font-size: 13.5px; display: flex; gap: 9px; align-items: baseline; }
 .ledger-note .mono { font-size: 12.5px; }
 
+/* ---------- 分档示意条(方案一:gate 节的视觉断点) ----------
+   把三档审批门压成一条可视对照:档位色沿用既有 dot-safe/confirm/dangerous,
+   不新增色相。点击某档在下方打出该档对应的真实 audit.jsonl 事件行。 */
+/* ---------- 分档栏(03):无盒子,内容长在黑底上 ----------
+   每档一列:档位色渐变刻线 + 大号 mono 档名 + 中文释义 + 一句说明。
+   选中态用亮度区分(选中 100%,未选 45%,hover 75%),不再用描边和底色。 */
+.tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(18px, 3vw, 40px); margin: clamp(14px, 2.4vh, 28px) 0 0; }
+.tier {
+  text-align: left; font-family: inherit; cursor: pointer;
+  background: none; border: 0; padding: 18px 0 0;
+  position: relative;
+  display: flex; flex-direction: column; gap: 8px;
+  opacity: .45;
+  transition: opacity .16s ease-out;
+}
+.tier::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, var(--tc) 0%, transparent 82%);
+  opacity: .55;
+  transition: opacity .16s ease-out;
+}
+.tier:hover { opacity: .78; }
+.tier[aria-pressed="true"] { opacity: 1; }
+.tier[aria-pressed="true"]::before { opacity: 1; }
+.tier[data-tier="safe"] { --tc: var(--ok); }
+.tier[data-tier="confirm"] { --tc: var(--warn); }
+.tier[data-tier="dangerous"] { --tc: var(--err); }
+.tier-en {
+  font-family: var(--mono); font-weight: 800;
+  font-size: clamp(20px, 2.2vw, 28px); letter-spacing: -.01em;
+  color: var(--tc);
+}
+.tier-zh { font-size: 15px; font-weight: 700; color: var(--ink); }
+.tier .acts { font-size: 13px; line-height: 1.7; color: var(--ink-2); text-wrap: pretty; }
+.tier[aria-pressed="false"] .acts { color: var(--ink-3); }
+
+/* 事件井:只留一根档位色渐变顶线,不再围框 */
+.tier-ev {
+  margin-top: clamp(20px, 3vh, 34px); position: relative;
+  background: var(--bg-code); overflow: hidden;
+}
+.tier-ev::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, var(--evc, var(--ok)) 0%, transparent 78%);
+}
+.tier-ev-head {
+  display: flex; align-items: center; gap: 9px;
+  padding: 11px 16px 9px;
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-3);
+}
+.tier-ev-head .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--evc, var(--ok)); flex: none; }
+.tier-ev-head .lock { margin-left: auto; letter-spacing: .06em; }
+.tier-ev pre {
+  font-family: var(--mono); font-size: 12.5px; line-height: 1.85;
+  color: var(--ink-2); font-variant-numeric: tabular-nums;
+  padding: 6px 16px 14px; overflow-x: auto; white-space: pre; margin: 0;
+}
+.tier-ev pre .k { color: var(--ink); }
+.tier-ev pre .s { color: var(--teal); }
+@media (max-width: 760px) { .tiers { grid-template-columns: 1fr; gap: 14px; } }
+
+/* 块尾注记行:一根渐变刻线 + 一行字,替代灰段落 */
+.sec-note {
+  display: flex; align-items: baseline; gap: 12px;
+  margin-top: clamp(18px, 3vh, 30px);
+  font-size: 13.5px; color: var(--ink-3); line-height: 1.7;
+}
+.sec-note::before {
+  content: ""; width: 26px; height: 1px; flex: none; align-self: center;
+  background: var(--g-hair);
+}
+.sec-note b { color: var(--ink-2); font-weight: 600; }
+
+
+/* ---------- 工具网格(方案一:ability 节的视觉断点) ---------- */
+.toolgrid { margin-top: 22px; }
+.toolgrid-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.toolgrid-head h3 { font-size: 15px; }
+.toolgrid-head .cap { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+.tools-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 1px; background: var(--line);
+  overflow: hidden;
+}
+.tool-cell {
+  background: var(--bg0); padding: 11px 12px;
+  display: flex; flex-direction: column; gap: 4px;
+  transition: background .12s ease-out;
+}
+.tool-cell:hover { background: var(--bg2); }
+.tool-cell .zh { font-size: 13px; color: var(--ink); font-weight: 600; }
+.tool-cell .en { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+
+/* ---------- 事实行(05 块):一行一事,渐变发丝线托底 ---------- */
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 2vw, 28px); }
+.fact {
+  display: flex; flex-direction: column; gap: 8px;
+  padding-top: 14px;
+  background: linear-gradient(90deg, rgba(232, 233, 236, .3) 0%, rgba(232, 233, 236, 0) 85%) top / 100% 1px no-repeat;
+}
+.fact .fk { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); letter-spacing: .04em; }
+.fact .fv { font-size: 14.5px; line-height: 1.65; color: var(--ink-2); text-wrap: pretty; }
+@media (max-width: 860px) { .facts { grid-template-columns: 1fr; } }
+.fact-more {
+  width: 100%; text-align: left; font-family: inherit; cursor: pointer;
+  background: transparent; border: 0; color: var(--ink-3);
+  margin-top: 4px; padding: 10px 0 0;
+  font-size: 13px;
+}
+.fact-more:hover { color: var(--ink-2); }
+.fact-more .ev-proof pre { text-align: left; }
+.fact-more[aria-expanded="true"] { color: var(--ink-2); }
+
+/* ---------- 边界矩阵(07):无盒子,渐变刻线分行,键列直接排 ---------------- */
+.edgem { margin-top: clamp(14px, 2.4vh, 28px); }
+.edgem-row {
+  display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 8px 28px;
+  padding: 15px 0;
+  position: relative;
+}
+.edgem-row::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: var(--g-hair); opacity: .8;
+}
+.edgem-k {
+  font-size: 14px; font-weight: 700; color: var(--ink);
+  display: flex; align-items: center; gap: 9px;
+}
+.edgem-k .ic { color: var(--ink-3); }
+.edgem-v { display: flex; flex-wrap: wrap; gap: 7px; }
+.edgem-v .chip { color: var(--ink-2); font-size: 12.5px; }
+@media (max-width: 760px) {
+  .edgem-row { grid-template-columns: 1fr; gap: 8px; }
+}
+
 /* ---------- 时间线与报告 ---------- */
 .split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(36px, 5vw, 64px); align-items: start; }
-.feats { list-style: none; display: flex; flex-direction: column; }
-.feats li { display: flex; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); color: var(--ink-2); font-size: 15px; }
+.feats { list-style: none; display: flex; flex-direction: column; counter-reset: ft; }
+.feats li { counter-increment: ft; }
+.feats li::before {
+  content: counter(ft, decimal-leading-zero);
+  font-family: var(--mono); font-weight: 800; font-size: 11px;
+  color: var(--ink-3); letter-spacing: .05em; margin-top: 6px; flex: none;
+}
+.feats li { display: flex; gap: 12px; padding: 13px 0; color: var(--ink-2); font-size: 15px; background: var(--g-hair-dim) bottom / 100% 1px no-repeat; }
 .feats li:first-child { padding-top: 0; }
 .feats .ic { color: var(--ok); margin-top: 5px; }
 .feats b { color: var(--ink); font-weight: 600; }
 .feats .feats-btn { display: block; margin-top: 16px; }
 .feats .feats-btn .btn { margin-top: 0; }
-.codecard { border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--bg-code); overflow: hidden; }
+.codecard { position: relative; background: var(--bg-code); overflow: hidden; }
+.codecard::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--g-hair); }
 .codecard-head {
   display: flex; align-items: center; gap: 9px;
-  padding: 9px 14px; border-bottom: 1px solid var(--line);
+  padding: 11px 14px 9px;
+}
+.codecard-head .fn, .term-head .fn { color: var(--ink); font-weight: 700; letter-spacing: .02em; }
   font-family: var(--mono); font-size: 12px; color: var(--ink-2);
   font-variant-numeric: tabular-nums;
 }
@@ -374,10 +871,11 @@ h3 { font-size: 17px; }
 
 /* ---------- 快速开始 ---------- */
 .start-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(36px, 5vw, 64px); align-items: start; }
-.term { border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--bg-code); overflow: hidden; }
+.term { position: relative; background: var(--bg-code); overflow: hidden; }
+.term::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--g-hair); }
 .term-head {
   display: flex; align-items: center; gap: 9px;
-  padding: 9px 14px; border-bottom: 1px solid var(--line);
+  padding: 11px 14px 9px;
   font-family: var(--mono); font-size: 11.5px; color: var(--ink-3);
 }
 .term pre {
@@ -392,7 +890,7 @@ h3 { font-size: 17px; }
 .steps li {
   counter-increment: st;
   display: flex; gap: 14px; padding: 15px 0;
-  border-bottom: 1px solid var(--line);
+  background: var(--g-hair-dim) bottom / 100% 1px no-repeat;
   color: var(--ink-2); font-size: 15px;
 }
 .steps li::before {
@@ -401,14 +899,36 @@ h3 { font-size: 17px; }
   flex: none; margin-top: 3px;
 }
 .steps b { color: var(--ink); font-weight: 600; }
-.start-note {
-  margin-top: 22px; font-family: var(--mono); font-size: 12px; line-height: 2;
-  color: var(--ink-3); font-variant-numeric: tabular-nums;
+/* 结构化注记行:标签列 + 说明列,替代挤在一段的三行 */
+.start-note { margin-top: 20px; display: flex; flex-direction: column; }
+.note-row {
+  display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 4px 14px;
+  padding: 9px 0; font-size: 12.5px; line-height: 1.7; color: var(--ink-3);
 }
-.start-note b { color: var(--ink-2); font-weight: 600; }
+.note-row + .note-row { background: var(--g-hair-dim) top / 100% 1px no-repeat; }
+.note-row .nk { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); font-weight: 600; padding-top: 2px; }
+@media (max-width: 640px) { .note-row { grid-template-columns: 1fr; gap: 2px; } }
 
-/* ---------- 页脚 ---------- */
-footer { border-top: 1px solid var(--line); padding: 34px 0 44px; }
+/* 页脚是 08 收尾块的贴底部分(margin-top:auto 吸收剩余空间):
+   deck 总高恰为 8 屏,End 键即可见页脚,不再有第 9 屏。
+   08 的背景是黑→白书挡渐变,页脚落在亮区,颜色整体翻成深墨。 */
+#outro footer {
+  margin-top: auto;
+  border-top: 1px solid rgba(16, 17, 20, .16);
+  padding-block: clamp(20px, 3.4vh, 32px) clamp(22px, 3.6vh, 36px);
+  color: #3a3f47;
+}
+#outro footer .wrap { padding-block: 0; }
+#outro footer .brand { color: #101114; }
+#outro footer .meta, #outro footer .foot-audit, #outro footer .foot-tag { color: #565b64; }
+#outro footer .foot-audit b { color: #2b2f36; }
+#outro footer .foot-links a { color: #4a4f58; }
+#outro footer .foot-links a:hover { color: #101114; }
+#outro .sec-head h2 {
+  background: linear-gradient(180deg, #ffffff 0%, #9aa0aa 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
 .foot-in { display: flex; align-items: baseline; gap: 14px 24px; flex-wrap: wrap; }
 .foot-in .brand { font-size: 13.5px; }
 .foot-in .meta { color: var(--ink-3); font-size: 12.5px; }
@@ -440,11 +960,19 @@ footer { border-top: 1px solid var(--line); padding: 34px 0 44px; }
 @media (max-width: 980px) {
   .nav-links { display: none; }
   .demo-body { grid-template-columns: 1fr; height: auto; }
+  /* 块内自适应规则会给 demo-body 一个 46svh 定高,双栏堆叠后会把两块面板压扁,这里放开 */
+  html.deck .block .demo-body { height: auto; }
   .pane-chat { border-right: 0; border-bottom: 1px solid var(--line); height: 380px; }
   .pane-audit { height: 460px; }
   .split, .start-grid { grid-template-columns: 1fr; }
   .ledger-row, .tools .ledger-row { grid-template-columns: 1fr; gap: 8px; }
   .ledger-key { flex-wrap: wrap; }
+  .hero-thesis { max-width: none; }
+}
+@media (max-width: 640px) {
+  .nav-gh { display: none; }   /* 390px 宽度下导航只留品牌 + 主按钮 */
+  .nav .btn.sm { padding: 5px 10px; }
+  .hero-actions .btn { width: 100%; justify-content: center; }
 }
 @media (max-width: 520px) {
   body { font-size: 15px; }
@@ -470,24 +998,7 @@ footer { border-top: 1px solid var(--line); padding: 34px 0 44px; }
   z-index: -1; pointer-events: none;
 }
 
-.read-progress {
-  position: absolute; left: 0; bottom: -1px; height: 1px; width: 0;
-  background: var(--ink-3); pointer-events: none;
-}
 .nav-links a.current { color: var(--accent); }
-
-.back-top {
-  position: fixed; right: 22px; bottom: 22px; z-index: 60;
-  font-family: inherit; font-size: 12.5px; color: var(--ink-2);
-  background: var(--bg2); border: 1px solid var(--line-strong); border-radius: 999px;
-  padding: 7px 14px; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 6px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
-  opacity: 0; transform: translateY(8px); pointer-events: none;
-  transition: opacity .18s ease-out, transform .18s ease-out;
-}
-.back-top.show { opacity: 1; transform: none; pointer-events: auto; }
-.back-top:hover { color: var(--ink); background: var(--bg3); }
 
 /* 新事件落位的留痕脉冲(与应用的 trail-settle 同源:钢蓝弱化底沉降) */
 .ev-item.dyn-anim .ev-row { animation: trail-settle 1s ease-out; }
@@ -497,33 +1008,61 @@ footer { border-top: 1px solid var(--line); padding: 34px 0 44px; }
 .copy-btn.copied { color: var(--ok); border-color: rgba(88, 179, 128, 0.4); }
 
 /* 区块发丝线随滚动落位(JS 下边框交给伪元素绘制) */
-html.js section.pad { position: relative; border-top: 0; }
-html.js footer { position: relative; border-top: 0; }
-html.js section.pad::before, html.js footer::before {
-  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: var(--line);
-  transform: scaleX(0); transform-origin: 0 50%;
-  transition: transform .8s cubic-bezier(.22, .61, .21, 1);
-}
-html.js section.pad.drawn::before, html.js footer.drawn::before { transform: scaleX(1); }
 
 /* 首屏一次性入场(CSS 原生,无 JS 也成立) */
 @media (prefers-reduced-motion: no-preference) {
-  .hero .wrap > * { animation: rise .55s ease-out backwards; }
-  .hero .wrap > *:nth-child(2) { animation-delay: .06s; }
-  .hero .wrap > *:nth-child(3) { animation-delay: .12s; }
-  .hero .wrap > *:nth-child(4) { animation-delay: .18s; }
-  .hero .wrap > *:nth-child(5) { animation-delay: .24s; }
-  .hero .wrap > *:nth-child(6) { animation-delay: .3s; }
+  .hero-01 .hero-reveal { animation: rise .6s cubic-bezier(.22,.61,.21,1) var(--d, 0ms) both; }
 }
 @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
 
 @media (prefers-reduced-motion: reduce) {
-  html.js section.pad::before, html.js footer::before { transform: none; transition: none; }
   .ev-item.dyn-anim .ev-row { animation: none; }
-  .back-top { transition: none; }
-  .hero .wrap > * { animation: none; }
+  .hero-01 .hero-reveal { animation: none; }
   .ev-detail { transition: none; }
+}
+
+/* ============================================================
+   v4 动效编排:分节入场 + 行级发丝线绘入
+   母题仍是"线"——区块顶线的 scaleX 绘入下沉到每个台账行,
+   行随线一同被"读"出来。全站统一落位曲线 cubic-bezier(.22,.61,.21,1)。
+   不新增任何颜色/阴影/渐变:只用 --line;reduced-motion 全部关闭。
+   ============================================================ */
+/* 可见性默认由 CSS 保证;仅"已就位"的元素才播放入场,
+   关键帧显式声明 to,fill-mode both:延迟期间(before)处于透明起始帧,
+   结束后(after)锁在可见终态。因此观察器漏回调时内容依然可见
+   (html.js 由脚本首行添加;无 JS 亦直接可见) */
+html.js .rise { opacity: 1; }
+html.js .rise.drawn { animation: rise-in .6s cubic-bezier(.22, .61, .21, 1) var(--d, 0ms) both; }
+/* 已见:块切换入场时由 JS 打上,跳过逐元素动画(整块滑入已接管) */
+html.js .rise.seen { animation: none; opacity: 1; transform: none; }
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* 行级发丝线:原生下边框退为透明(保留 1px 占位,避免落线时布局跳动),
+   改由伪元素在原边框所在的像素行自左向右绘入;同样默认绘满,drawn 才退回空线 */
+html.js .line-draw { position: relative; border-bottom-color: transparent; }
+html.js .line-draw::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
+  background: var(--line);
+  transform: scaleX(1); transform-origin: 0 50%;
+}
+html.js .line-draw.drawn::after {
+  animation: line-in .7s cubic-bezier(.22, .61, .21, 1) var(--d, 0ms) both;
+}
+@keyframes line-in { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* 聊天流入场:此前 .dyn 无任何样式,消息是直接出现的 */
+.dyn { animation: rise-in .28s ease-out both; }
+/* 审批卡入场时边框闪一次钢蓝再褪去(复用既有强调色,不新增 token) */
+.dyn.approval { animation: rise-in .28s ease-out both, gate-flash .8s ease-out .28s forwards; }
+@keyframes gate-flash { from { border-color: rgba(108, 158, 230, .55); } to { border-color: var(--line-strong); } }
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .rise, html.js .rise.drawn { animation: none; opacity: 1; transform: none; }
+  html.js .line-draw::after, html.js .line-draw.drawn::after { transform: scaleX(1); }
+  .dyn, .dyn.approval { animation: none; }
 }
 </style>
 </head>
@@ -557,7 +1096,9 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
 <svg hidden aria-hidden="true" style="display:none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <symbol id="i-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 3v18"/><circle cx="12" cy="6.2" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" opacity=".66"/><circle cx="12" cy="17.8" r="1.6" fill="currentColor" stroke="none" opacity=".33"/>
+      <path d="M12 5.8v11.2"/>
+      <circle cx="12" cy="5.8" r="1" fill="currentColor" stroke="none" opacity=".3"/>
+      <circle cx="12" cy="17" r="3" fill="currentColor" stroke="none"/>
     </symbol>
     <symbol id="i-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="4.5" width="18" height="15" rx="1.5"/><path d="M7 9l3 3-3 3M12.5 15H17"/>
@@ -623,6 +1164,7 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
       留痕 Agent <span class="ver">v0.1.0</span>
     </a>
     <nav class="nav-links" aria-label="页面导航">
+      <a href="#intro">首页</a>
       <a href="#demo-window">演示</a>
       <a href="#gate">审批门</a>
       <a href="#timeline">时间线与报告</a>
@@ -635,29 +1177,50 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
     </a>
     <a class="btn primary sm" href="#start">五分钟跑起来</a>
   </div>
-  <div class="read-progress" id="readProgress"></div>
 </header>
 
 <main id="top">
 
-  <!-- ============ 首屏：活体审计时间线 ============ -->
-  <section class="hero" id="demo">
+  <!-- ============ 01 开场：极简 + 白黑渐变 ============ -->
+  <section class="block hero-01" id="intro">
     <div class="wrap">
-      <h1>替你操作电脑，<br>每一步都留痕。</h1>
-      <p class="sub">留痕 Agent 是运行在你 Windows 电脑上的桌面自动化智能体：操作文件、执行命令、截屏、控浏览器。它做的每一件事，都以事件流的形式追加写入审计日志，随时批准、拒绝、取消。</p>
-      <p class="thesis">你亲眼核对它做过的每一件事，而不是相信它。</p>
-      <div class="hero-actions">
-        <a class="btn primary" href="#start">
-          <svg class="ic" width="15" height="15" aria-hidden="true"><use href="#i-terminal"/></svg>
-          五分钟跑起来
-        </a>
-        <a class="btn" href="#gate">先看审批门怎么工作</a>
-        <a class="btn" href="https://github.com/FANG050829/trace-agent" target="_blank" rel="noopener noreferrer">
-          <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-external"/></svg>
-          GitHub 仓库
-        </a>
+      <div class="hero-markrow hero-reveal" style="--d:0ms">
+        <svg class="ic block-mark" width="22" height="22" aria-hidden="true"><use href="#i-mark"/></svg>
+        <span class="hero-name">留痕 Agent</span>
+        <span class="ver">v0.1.0</span>
       </div>
-      <p class="hero-meta">本地运行 · 数据写在你自己的磁盘 · Electron + React</p>
+      <div class="hero-main hero-reveal" style="--d:80ms">
+        <h1 class="hero-thesis">替你操作电脑，<br>每一步都留痕。</h1>
+        <p class="hero-tail">你亲眼核对它做过的每一件事，而不是相信它。</p>
+        <div class="hero-rule"></div>
+        <p class="hero-hint">
+          <span class="kbd">↓</span><span class="kbd">滚轮</span>
+          <span>继续</span>
+          <span class="arrow" aria-hidden="true">↓</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 机制演示 ============ -->
+  <section class="block" id="demo">
+    <span class="block-ghost" aria-hidden="true">02</span>
+    <div class="wrap">
+      <div class="sec-head rise">
+        <div class="sec-text">
+          <p class="sec-label" aria-hidden="true">机制演示 / live-demo</p>
+          <h2>它做的每一件事，都在这里发生。</h2>
+          <p class="lead">真实节奏的演示：执行、审批、留痕。你可以亲手批准或拒绝。</p>
+        </div>
+
+        <div class="hero-pulse" id="heroPulse" aria-live="polite">
+          <span class="fill" aria-hidden="true"></span>
+          <span class="lp"><span class="sd"></span><span class="op">fs.list</span></span>
+          <span class="lp"><span class="sd"></span><span class="op">approval.wait</span></span>
+          <span class="lp"><span class="sd"></span><span class="op">fs.move</span></span>
+          <span class="lp"><span class="sd"></span><span class="op">fs.verify</span></span>
+        </div>
+      </div>
 
       <div class="demo-outer" id="demo-window">
         <figure class="demo" aria-label="留痕 Agent 界面演示（由本页面本地驱动）">
@@ -737,77 +1300,70 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
   </section>
 
   <!-- ============ 审批门 ============ -->
-  <section class="pad" id="gate">
+  <section class="block" id="gate">
+    <span class="block-ghost" aria-hidden="true">03</span>
     <div class="wrap">
-      <div class="sec-head">
+      <div class="sec-head rise">
+        <p class="sec-label" aria-hidden="true">审批门 / gate</p>
         <h2>三档审批门：该自动的自动，该问的必问。</h2>
-        <p class="lead">每个动作都按风险分级，策略分宽松、标准（默认）、严格三档，随时切换。危险路径不靠策略：直接拒绝。</p>
+        <p class="lead">每步按风险分级。点档位，看对应的审计事件。</p>
       </div>
-      <div class="ledger">
-        <div class="ledger-row">
-          <div class="ledger-key">
-            <span class="dot dot-safe" aria-hidden="true"></span>
-            <span class="en en-safe">safe</span>
-            <span class="zh">自动执行</span>
-          </div>
-          <div class="ledger-val">
-            读文件、截屏、打开网页这类<b>只读操作</b>直接执行，不打断你；事件照常落进时间线。
-            <span class="chips"><span class="chip">读文件</span><span class="chip">截屏</span><span class="chip">浏览网页</span></span>
-          </div>
+
+      <!-- 分档栏:点档位看对应的真实事件行 -->
+      <div class="tiers rise" role="group" aria-label="按档位查看对应的审计事件">
+          <button class="tier" type="button" data-tier="safe" aria-pressed="true">
+            <span class="tier-en" aria-hidden="true">safe</span>
+            <span class="tier-zh">自动执行</span>
+            <span class="acts">读文件、截屏、打开网页。只读操作直接执行，不打断你，事件照常落进时间线。</span>
+          </button>
+          <button class="tier" type="button" data-tier="confirm" aria-pressed="false">
+            <span class="tier-en" aria-hidden="true">confirm</span>
+            <span class="tier-zh">暂停待批</span>
+            <span class="acts">写文件、执行命令前把内容原文摊开等你批准；不批准，一个字节都不会动。</span>
+          </button>
+          <button class="tier" type="button" data-tier="dangerous" aria-pressed="false">
+            <span class="tier-en" aria-hidden="true">dangerous</span>
+            <span class="tier-zh">直接拒绝</span>
+            <span class="acts">删除、格式化、改注册表永远需要确认；系统目录、盘符根目录、用户主目录任何策略下都拒绝。</span>
+          </button>
         </div>
-        <div class="ledger-row">
-          <div class="ledger-key">
-            <span class="dot dot-confirm" aria-hidden="true"></span>
-            <span class="en en-confirm">confirm</span>
-            <span class="zh">暂停待批</span>
+        <div class="tier-ev" id="tierEv">
+          <div class="tier-ev-head">
+            <span class="dot" aria-hidden="true"></span>
+            <span id="tierEvLabel">safe · 只读操作照常留痕</span>
+            <span class="lock">audit.jsonl</span>
           </div>
-          <div class="ledger-val">
-            写文件、执行命令之前，把<b>内容原文摊开</b>等你批准；不批准，一个字节都不会动。任务栏图标会闪烁提醒，刚才标签页标题的闪烁就是同一件事。
-            <span class="chips"><span class="chip">写文件</span><span class="chip">移动文件</span><span class="chip">PowerShell</span></span>
-          </div>
+          <pre id="tierEvBody"></pre>
         </div>
-        <div class="ledger-row">
-          <div class="ledger-key">
-            <span class="dot dot-dangerous" aria-hidden="true"></span>
-            <span class="en en-dangerous">dangerous</span>
-            <span class="zh">直接拒绝</span>
-          </div>
-          <div class="ledger-val">
-            删除文件、格式化、改注册表这类高危命令永远需要确认；而<b>系统目录、盘符根目录、用户主目录</b>，在任何策略下都拒绝执行，拒绝本身也写入审计。
-            <span class="chips"><span class="chip">删除</span><span class="chip">格式化</span><span class="chip">注册表</span><span class="chip">系统目录</span></span>
-          </div>
-        </div>
-        <p class="lead" style="margin-top: 22px;">需要你确认的操作，还可以<b>推送到同一局域网的手机</b>，人不在电脑前也批得了。地址自带访问令牌，请勿外传。</p>
-      </div>
+      <p class="sec-note rise">需要你确认的操作，还可以<b>推送到同一局域网的手机</b>，人不在电脑前也批得了。地址自带访问令牌，请勿外传。</p>
     </div>
   </section>
 
   <!-- ============ 时间线与报告 ============ -->
-  <section class="pad" id="timeline">
+  <section class="block" id="timeline">
+    <span class="block-ghost" aria-hidden="true">04</span>
     <div class="wrap">
-      <div class="sec-head">
+      <div class="sec-head rise">
+        <p class="sec-label" aria-hidden="true">留痕与报告 / timeline</p>
         <h2>发生过的事，查得到，带得走。</h2>
       </div>
       <div class="split">
         <ul class="feats">
-          <li>
-            <svg class="ic" width="15" height="15" aria-hidden="true"><use href="#i-check"/></svg>
-            <span><b>实时滚动</b>：所有事件按发生顺序追加，按类型过滤、关键词搜索。</span>
+          <li class="rise line-draw">
+            <span>按发生顺序追加，可过滤、可搜索。</span>
           </li>
-          <li>
-            <svg class="ic" width="15" height="15" aria-hidden="true"><use href="#i-check"/></svg>
-            <span><b>逐条可查</b>：点击任意事件展开 JSON 详情，截图直接内嵌预览。</span>
+          <li class="rise line-draw">
+            <span>点开任意事件，JSON 原文俱在。</span>
           </li>
-          <li>
-            <svg class="ic" width="15" height="15" aria-hidden="true"><use href="#i-check"/></svg>
-            <span><b>一键导出</b>：自包含的 HTML 审计报告，截图以 base64 内嵌，单个文件即可归档、转发。</span>
+          <li class="rise line-draw">
+            <span>单文件 HTML 报告，截图内嵌，带走即归档。</span>
             <span class="feats-btn"><button class="btn sm" id="exportBtn2" type="button"><svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-download"/></svg>导出演示报告</button></span>
           </li>
         </ul>
         <div class="codecard">
           <div class="codecard-head">
             <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-file"/></svg>
-            audit.jsonl
+            <b class="fn">audit.jsonl</b>
             <span class="lock">只追加，永不覆盖</span>
             <button class="btn sm copy-btn" data-copy='{"ts":"19:25:02","type":"message","role":"user","text":"把下载文件夹里的 PDF 按年份整理"}
 {"ts":"19:25:04","type":"fs.list","path":"Downloads","count":12}
@@ -830,71 +1386,74 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
   </section>
 
   <!-- ============ 能力 ============ -->
-  <section class="pad" id="ability">
+  <section class="block" id="ability">
+    <span class="block-ghost" aria-hidden="true">05</span>
     <div class="wrap">
-      <div class="sec-head">
+      <div class="sec-head rise">
+        <p class="sec-label" aria-hidden="true">能力 / ability</p>
         <h2>一个智能体，二十四件工具。</h2>
       </div>
-      <div class="ledger tools">
-        <div class="ledger-row">
-          <div class="ledger-key"><span class="zh-only">对话驱动</span></div>
-          <div class="ledger-val">用一句话下达任务。文件读写与搜索、PowerShell 命令、屏幕截图、浏览器控制（Edge / Chrome CDP）、窗口枚举，以及<b>原生键鼠</b>（鼠标移动 / 点击 / 滚动、组合按键、文字键入），直接作用于真实桌面，共 <b><span class="count-up" data-to="24">24</span> 个工具</b>。</div>
+      <div class="facts rise">
+        <div class="fact"><span class="fk">模型双通道</span><span class="fv">OpenAI 兼容 / 本地 Ollama，截图回传视觉模型</span></div>
+        <div class="fact"><span class="fk">技能沉淀</span><span class="fv">一键存为技能 · 定时计划自动重跑</span></div>
+        <div class="fact"><span class="fk">远程审批</span><span class="fv">推送到局域网手机，看清原文再批准</span></div>
+      </div>
+      <button class="ledger-row rise ev-row-open fact-more" type="button">
+        <span class="ev-toggle" aria-hidden="true"><span class="chev"><svg width="11" height="11"><use href="#i-chevron"/></svg></span>内核可靠性：排队、修复、退避重试</span>
+        <div class="ev-proof"><div class="ev-proof-inner"><pre>[19:25:31] attempt 1/5 · 429 rate_limited · backoff 800ms
+[19:25:32] attempt 2/5 · 429 rate_limited · backoff 1600ms
+[19:25:34] attempt 3/5 · <span class="k">200 ok</span> · resumed
+<span class="c">// 退避重试的每一次尝试都写入审计,不静默吞掉</span></pre></div></div>
+      </button>
+      <!-- 24 件工具的紧凑网格,让"二十四件工具"从数字变成看得见的东西 -->
+      <div class="toolgrid rise">
+        <div class="toolgrid-head">
+          <span class="cap">二十四件工具 · 全部作用于真实桌面 · 逐次经过审批门</span>
         </div>
-        <div class="ledger-row">
-          <div class="ledger-key"><span class="zh-only">模型双通道</span></div>
-          <div class="ledger-val">接任何 OpenAI 兼容的云端服务（智谱 GLM、DeepSeek、Kimi、通义、OpenAI 或自定义端点），也能一键切到<b>本地 Ollama</b>。截图自动回传视觉模型，思考型模型的思考过程实时可见。</div>
-        </div>
-        <div class="ledger-row">
-          <div class="ledger-key"><span class="zh-only">内核可靠</span></div>
-          <div class="ledger-val">任务执行中发来的消息<b>自动排队</b>，当前任务结束后依次发送；取消留下的未完成调用<b>自动修复</b>，对话记录永远可用；限流、服务端故障、网络抖动<b>自动退避重试</b>；上下文超预算自动压缩；随时中止。</div>
-        </div>
-        <div class="ledger-row">
-          <div class="ledger-key"><span class="zh-only">技能沉淀</span></div>
-          <div class="ledger-val">完成过的任务一键存成技能，随时编辑、一键重跑，上面的演示会话里就可以试一次。</div>
-        </div>
-        <div class="ledger-row">
-          <div class="ledger-key"><span class="zh-only">定时执行</span></div>
-          <div class="ledger-val">技能可以设定时计划：<b>每天定时、按间隔重复或只跑一次</b>。开启「关闭到托盘」后应用常驻后台，到点自动在全新会话里执行，完成发系统通知。</div>
-        </div>
-        <div class="ledger-row">
-          <div class="ledger-key"><span class="zh-only">远程审批</span></div>
-          <div class="ledger-val">高风险操作可以推送到<b>同一局域网的手机 / 平板</b>：打开令牌门禁的审批页，看清参数原文，一键批准或拒绝，决定同样写入审计。</div>
+        <div class="tools-grid">
+          <div class="tool-cell"><span class="zh">读文件</span><span class="en">fs.read</span></div>
+          <div class="tool-cell"><span class="zh">写文件</span><span class="en">fs.write</span></div>
+          <div class="tool-cell"><span class="zh">列目录</span><span class="en">fs.list</span></div>
+          <div class="tool-cell"><span class="zh">移动文件</span><span class="en">fs.move</span></div>
+          <div class="tool-cell"><span class="zh">重命名</span><span class="en">fs.rename</span></div>
+          <div class="tool-cell"><span class="zh">搜索文件</span><span class="en">fs.search</span></div>
+          <div class="tool-cell"><span class="zh">执行命令</span><span class="en">cmd.exec</span></div>
+          <div class="tool-cell"><span class="zh">PowerShell</span><span class="en">cmd.powershell</span></div>
+          <div class="tool-cell"><span class="zh">屏幕截图</span><span class="en">screen.capture</span></div>
+          <div class="tool-cell"><span class="zh">枚举窗口</span><span class="en">win.enumerate</span></div>
+          <div class="tool-cell"><span class="zh">打开网页</span><span class="en">browser.open</span></div>
+          <div class="tool-cell"><span class="zh">点击元素</span><span class="en">browser.click</span></div>
+          <div class="tool-cell"><span class="zh">填写表单</span><span class="en">browser.type</span></div>
+          <div class="tool-cell"><span class="zh">提取正文</span><span class="en">browser.extract</span></div>
+          <div class="tool-cell"><span class="zh">网页截图</span><span class="en">browser.screenshot</span></div>
+          <div class="tool-cell"><span class="zh">鼠标移动</span><span class="en">mouse.move</span></div>
+          <div class="tool-cell"><span class="zh">鼠标点击</span><span class="en">mouse.click</span></div>
+          <div class="tool-cell"><span class="zh">鼠标滚动</span><span class="en">mouse.scroll</span></div>
+          <div class="tool-cell"><span class="zh">组合按键</span><span class="en">key.combo</span></div>
+          <div class="tool-cell"><span class="zh">文字键入</span><span class="en">key.type</span></div>
+          <div class="tool-cell"><span class="zh">切换窗口</span><span class="en">win.focus</span></div>
+          <div class="tool-cell"><span class="zh">最小化窗口</span><span class="en">win.minimize</span></div>
+          <div class="tool-cell"><span class="zh">校验结果</span><span class="en">fs.verify</span></div>
+          <div class="tool-cell"><span class="zh">保存技能</span><span class="en">skill.save</span></div>
         </div>
       </div>
 
-      <div class="templ">
-        <h3>内置 <span class="count-up" data-to="8">8</span> 个场景模板</h3>
-        <p class="sub">开箱即用，覆盖浏览器、文件整理与国产办公。</p>
-        <table class="tbl">
-          <thead>
-            <tr><th>分类</th><th>模板</th><th>说明</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>浏览器</td><td>打开网页并截图存档</td><td>自动化浏览器打开网址，截图进审计记录</td></tr>
-            <tr><td>浏览器</td><td>网页正文采集存档</td><td>提取正文，存成 Markdown</td></tr>
-            <tr><td>文件整理</td><td>下载文件夹整理</td><td>先给分类方案，确认后才移动文件</td></tr>
-            <tr><td>文件整理</td><td>批量重命名文件</td><td>先给预览对照表，确认后执行</td></tr>
-            <tr><td>国产办公</td><td>Word/WPS 批量转 PDF</td><td>PowerShell COM，优先 Word，失败用 WPS</td></tr>
-            <tr><td>国产应用</td><td>微信给联系人发消息（实验性）</td><td>模拟键盘操作，失败即停</td></tr>
-            <tr><td>系统</td><td>电脑体检报告</td><td>只读收集磁盘 / 内存 / 启动项，生成报告</td></tr>
-            <tr><td>屏幕</td><td>看屏问答</td><td>截屏，视觉模型回答</td></tr>
-          </tbody>
-        </table>
-      </div>
     </div>
   </section>
 
   <!-- ============ 快速开始 ============ -->
-  <section class="pad" id="start">
+  <section class="block" id="start">
+    <span class="block-ghost" aria-hidden="true">06</span>
     <div class="wrap">
-      <div class="sec-head">
+      <div class="sec-head rise">
+        <p class="sec-label" aria-hidden="true">快速开始 / quick-start</p>
         <h2>五分钟，跑在你自己的电脑上。</h2>
       </div>
       <div class="start-grid">
         <div class="term">
           <div class="term-head">
             <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-terminal"/></svg>
-            Windows PowerShell
+            <b class="fn">Windows PowerShell</b>
             <button class="btn sm copy-btn" data-copy="git clone https://github.com/FANG050829/trace-agent.git&#10;cd trace-agent&#10;npm install&#10;npm run dev" type="button">
               <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-copy"/></svg>
               复制
@@ -908,92 +1467,134 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
         </div>
         <div>
           <ol class="steps">
-            <li><span>启动后，左下角打开<b>「设置」</b>。</span></li>
-            <li><span>添加服务商（智谱 GLM、DeepSeek、Kimi、通义、OpenAI 或本地 Ollama），填入 API Key，测试连接后选择模型。</span></li>
-            <li><span>保存，回到对话页开聊。<b>右侧审计时间线从第一句话开始留痕。</b></span></li>
+            <li class="rise line-draw"><span>启动后，左下角打开<b>「设置」</b>。</span></li>
+            <li class="rise line-draw"><span>添加服务商（智谱 GLM、DeepSeek、Kimi、通义、OpenAI 或本地 Ollama），填入 API Key，测试连接后选择模型。</span></li>
+            <li class="rise line-draw"><span>保存，回到对话页开聊。<b>右侧审计时间线从第一句话开始留痕。</b></span></li>
           </ol>
-          <p class="start-note">
-            <b>本地模型</b>：安装并启动 Ollama（ollama pull qwen3:8b），在设置页选择「使用本地 Ollama」。<br>
-            <b>不想装环境？</b>运行 <span class="mono-inline">npm run dist</span> 打出 Windows 安装包（NSIS），装完即用。<br>
-            <b>数据位置</b>：全部数据写入项目目录 .data\，不写系统盘；打包版默认在程序旁，可用 data-dir.txt 标记文件或环境变量改到任意位置。
-          </p>
+          <div class="start-note">
+            <div class="note-row"><span class="nk">本地模型</span><span>安装并启动 Ollama（ollama pull qwen3:8b），在设置页选择「使用本地 Ollama」。</span></div>
+            <div class="note-row"><span class="nk">不想装环境？</span><span>运行 <span class="mono-inline">npm run dist</span> 打出 Windows 安装包（NSIS），装完即用。</span></div>
+            <div class="note-row"><span class="nk">数据位置</span><span>全部数据写入项目目录 .data\，不写系统盘；打包版默认在程序旁，可用 data-dir.txt 标记文件或环境变量改到任意位置。</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="templ">
+        <h3>内置 <span class="count-up" data-to="8">8</span> 个场景模板</h3>
+        <p class="sub">开箱即用。整理类模板先给方案、确认后才动文件；实验性模板失败即停。</p>
+        <div class="chips rise">
+          <span class="chip">打开网页并截图存档</span>
+          <span class="chip">网页正文采集存档</span>
+          <span class="chip">下载文件夹整理</span>
+          <span class="chip">批量重命名文件</span>
+          <span class="chip">Word/WPS 批量转 PDF</span>
+          <span class="chip">微信发消息（实验性）</span>
+          <span class="chip">电脑体检报告</span>
+          <span class="chip">看屏问答</span>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ============ 边界 ============ -->
-  <section class="pad" id="edge">
+  <section class="block" id="edge">
+    <span class="block-ghost" aria-hidden="true">07</span>
     <div class="wrap">
-      <div class="sec-head">
+      <div class="sec-head rise">
+        <p class="sec-label" aria-hidden="true">边界 / limits</p>
         <h2>边界，说在前面。</h2>
+        <p class="lead">它跑在真实系统上。这些地方它绝不碰。</p>
       </div>
-      <div class="ledger">
-        <div class="ledger-row">
-          <div class="ledger-key"><span class="zh-only">真实的电脑</span></div>
-          <div class="ledger-val">它运行在你的真实系统上，文件操作有完整审计；但请<b>自行备份重要数据</b>。</div>
+
+      <!-- 边界矩阵：把声明压成"哪些地方不碰"的可视对照 -->
+      <div class="edgem rise">
+        <div class="edgem-row">
+          <div class="edgem-k"><svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-folder"/></svg>绝不写入</div>
+          <div class="edgem-v">
+            <span class="chip">系统目录</span><span class="chip">盘符根目录</span>
+            <span class="chip">用户主目录</span><span class="chip">注册表</span>
+          </div>
         </div>
-        <div class="ledger-row">
-          <div class="ledger-key"><span class="zh-only">隔离的浏览器</span></div>
-          <div class="ledger-val">浏览器自动化使用<b>独立用户数据目录</b>，不带你日常浏览器的登录态，也不会碰你正开着的浏览器。</div>
+        <div class="edgem-row">
+          <div class="edgem-k"><svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-terminal"/></svg>命令硬限制</div>
+          <div class="edgem-v">
+            <span class="chip">60 秒超时</span><span class="chip">输出截断 64KB</span>
+            <span class="chip">拒绝覆盖已有目标</span><span class="chip">高危命令必确认</span>
+          </div>
         </div>
-        <div class="ledger-row">
-          <div class="ledger-key"><span class="zh-only">命令的硬边界</span></div>
-          <div class="ledger-val">默认 <b>60 秒超时</b>、输出截断 64KB；高危命令在任何策略下都要确认；文件移动、重命名<b>拒绝覆盖</b>已存在的目标。</div>
+        <div class="edgem-row">
+          <div class="edgem-k"><svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-globe"/></svg>隔离运行</div>
+          <div class="edgem-v">
+            <span class="chip">独立浏览器用户目录</span><span class="chip">不接管日常登录态</span>
+            <span class="chip">不碰你开着的浏览器</span>
+          </div>
         </div>
-        <div class="ledger-row">
-          <div class="ledger-key"><span class="zh-only">实验性即实验</span></div>
-          <div class="ledger-val">「微信发消息」依赖窗口焦点与模拟按键，<b>失败立即停止并汇报</b>，不会硬试到底。</div>
+        <div class="edgem-row">
+          <div class="edgem-k"><svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-shield"/></svg>对外暴露</div>
+          <div class="edgem-v">
+            <span class="chip">局域网审批自带令牌</span><span class="chip">无令牌访问一律拒绝</span>
+            <span class="chip">仅限可信网络</span>
+          </div>
         </div>
-        <div class="ledger-row">
-          <div class="ledger-key"><span class="zh-only">真实的键鼠</span></div>
-          <div class="ledger-val">原生键鼠工具直接操作你正在使用的桌面：每一次移动、点击、按键都<b>先经你确认</b>；agent 被要求先截图看清、走一小步、再验证。</div>
-        </div>
-        <div class="ledger-row">
-          <div class="ledger-key"><span class="zh-only">令牌勿外传</span></div>
-          <div class="ledger-val">局域网审批地址<b>自带访问令牌</b>，仅限可信网络使用；没有令牌的访问一律拒绝。</div>
-        </div>
+      </div>
+      <p class="lead rise" style="margin-top: 18px;">原生键鼠每一次移动、点击、按键都<b>先经你确认</b>；「微信发消息」这类依赖窗口焦点的操作<b>失败即停</b>，不会硬试到底。请自行备份重要数据。</p>
+    </div>
+  </section>
+
+  <!-- ============ 08 收尾 ============ -->
+  <section class="block" id="outro">
+    <span class="block-ghost" aria-hidden="true">EOF</span>
+    <div class="wrap">
+      <div class="sec-head rise">
+        <p class="sec-label" aria-hidden="true">收束 / end-of-file</p>
+        <h2>跑一次，比读十页说明有用。</h2>
+        <p class="lead">五分钟就能在你自己的电脑上试一遍。数据写在项目目录里，不上传，不外传。</p>
+      </div>
+      <div class="hero-actions rise" style="margin-top: 8px">
+        <a class="btn primary" href="https://github.com/FANG050829/trace-agent" target="_blank" rel="noopener noreferrer">
+          <svg class="ic" width="15" height="15" aria-hidden="true"><use href="#i-external"/></svg>
+          GitHub 仓库
+        </a>
+        <a class="btn" href="#start">看五分钟上手</a>
       </div>
     </div>
+
+    <footer>
+      <div class="wrap">
+        <div class="foot-in rise">
+          <a class="brand" href="#top">
+            <svg class="ic" width="18" height="18" aria-hidden="true"><use href="#i-mark"/></svg>
+            留痕 Agent
+          </a>
+          <span class="meta">桌面自动化，全程可审计</span>
+          <nav class="foot-links" aria-label="页脚链接">
+            <a href="https://github.com/FANG050829/trace-agent" target="_blank" rel="noopener noreferrer">
+              <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-external"/></svg>GitHub 仓库
+            </a>
+            <a href="https://github.com/FANG050829/trace-agent/issues" target="_blank" rel="noopener noreferrer">
+              <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-alert"/></svg>问题反馈
+            </a>
+            <a href="mailto:3364235758@qq.com">
+              <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-mail"/></svg>邮箱联系
+            </a>
+            <a href="#demo-window">演示</a>
+            <a href="#gate">审批门</a>
+            <a href="#start">快速开始</a>
+          </nav>
+        </div>
+        <div class="foot-row2 rise">
+          <span class="meta">v0.1.0 · MIT License · © 2026 youxi</span>
+          <span class="foot-audit mono">本次浏览已留痕 <b id="cntAll">0</b> 条事件（点击 <span id="cntClicks">0</span> · 浏览 <span id="cntViews">0</span>）· 仅记录于本页内存，不上传</span>
+          <span class="foot-tag mono">audit.jsonl · 只追加，永不覆盖</span>
+        </div>
+      </div>
+    </footer>
   </section>
 </main>
 
-<footer>
-  <div class="wrap">
-    <div class="foot-in">
-      <a class="brand" href="#top">
-        <svg class="ic" width="18" height="18" aria-hidden="true"><use href="#i-mark"/></svg>
-        留痕 Agent
-      </a>
-      <span class="meta">桌面自动化，全程可审计</span>
-      <nav class="foot-links" aria-label="页脚链接">
-        <a href="https://github.com/FANG050829/trace-agent" target="_blank" rel="noopener noreferrer">
-          <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-external"/></svg>GitHub 仓库
-        </a>
-        <a href="https://github.com/FANG050829/trace-agent/issues" target="_blank" rel="noopener noreferrer">
-          <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-alert"/></svg>问题反馈
-        </a>
-        <a href="mailto:3364235758@qq.com">
-          <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-mail"/></svg>邮箱联系
-        </a>
-        <a href="#demo-window">演示</a>
-        <a href="#gate">审批门</a>
-        <a href="#start">快速开始</a>
-      </nav>
-    </div>
-    <div class="foot-row2">
-      <span class="meta">v0.1.0 · MIT License · © 2026 youxi</span>
-      <span class="foot-audit mono">本次浏览已留痕 <b id="cntAll">0</b> 条事件（点击 <span id="cntClicks">0</span> · 浏览 <span id="cntViews">0</span>）· 仅记录于本页内存，不上传</span>
-      <span class="foot-tag mono">audit.jsonl · 只追加，永不覆盖</span>
-    </div>
-  </div>
-</footer>
+<!-- 右侧刻度轨：8 块导航，当前块点亮并向右淡出（G4） -->
+<nav class="rail" id="rail" aria-label="分块导航"></nav>
 
 <div class="toast" id="toast" role="status"></div>
-<button class="back-top" id="backTop" type="button">
-  <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-arrow-up"/></svg>
-  回到顶部
-</button>
 
 <script>
 (() => {
@@ -1071,20 +1672,13 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
     statusDot.className = 'status-dot' + (s === 'idle' ? '' : ' ' + s);
     statusText.textContent = s === 'run' ? '执行中' : s === 'wait' ? '待确认' : '空闲';
   }
-  function startFlash() {
-    if (reduced) { document.title = '【待确认】' + BASE_TITLE; return; }
-    let on = false;
-    stopFlash();
-    S.flashTimer = setInterval(() => {
-      on = !on;
-      document.title = (on ? '【待确认】' : '') + BASE_TITLE;
-    }, 900);
-    document.title = '【待确认】' + BASE_TITLE;
-  }
-  function stopFlash() {
-    clearInterval(S.flashTimer);
-    if (document.title !== BASE_TITLE) document.title = BASE_TITLE;
-  }
+  /* 标题闪烁已整体移除。
+     原实现是桌面 App 的"任务栏请求注意",搬到网页上等于劫持标签页标题:
+     演示脚本会一直等用户点批准,于是标题长期被改写/闪烁。网页没有这层语义,
+     提示改由演示窗内的状态灯(status-dot + 状态文字)承担——那里本来就是
+     机制可视化的正位。此处保留两个空函数是为了不改动调用点语义。 */
+  function startFlash() { /* 标题不再改写 */ }
+  function stopFlash() { /* 标题不再改写 */ }
 
   /* ---------------- 事件流渲染 ---------------- */
   function renderEvent(ev) {
@@ -1123,6 +1717,9 @@ html.js section.pad.drawn::before, html.js footer.drawn::before { transform: sca
     const ev = { ts: nowTs(), type, text, detail: detail || { type, text } };
     S.events.push(ev);
     renderEvent(ev);
+    // 方案四:把操作类事件同步到首屏状态条
+    const op = ev.detail && ev.detail.type;
+    if (window.__pulse && typeof op === 'string' && !op.startsWith('message')) window.__pulse(op);
   }
 
   function applyFilterTo(li) {
@@ -1409,7 +2006,8 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
   }
 
   function resize() {
-    const dpr = Math.min(2, devicePixelRatio || 1);
+    // DPR 上限 1.5:背景是 1px 线与 2px 落点,1.5 与 2 的肉眼差异为零,像素量少 44%
+    const dpr = Math.min(1.5, devicePixelRatio || 1);
     W = innerWidth; H = innerHeight;
     canvas.width = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
@@ -1448,12 +2046,14 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
     }
   }
 
+  /* 30fps 上限:画布只有极缓的脉动,60fps 是浪费的持续 GPU/CPU 占用 */
+  let lastPaint = 0;
   function loop(t) {
-    paint(t);
+    if (t - lastPaint >= 33) { lastPaint = t; paint(t); }
     if (!finePointer) { running = false; return; }
     requestAnimationFrame(loop);
   }
-  function ensure() { if (!running) { running = true; requestAnimationFrame(loop); } }
+  function ensure() { if (!running) { running = true; lastPaint = 0; requestAnimationFrame(loop); } }
 
   resize();
   addEventListener('resize', resize);
@@ -1487,24 +2087,6 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
     }, { threshold: 0.18 });
     $$('main section').forEach(s => vio.observe(s));
   }
-
-  /* ---------------- 阅读进度发丝线 + 回到顶部 ---------------- */
-  const prog = $('#readProgress');
-  const backTop = $('#backTop');
-  let scrollScheduled = false;
-  function onScroll() {
-    scrollScheduled = false;
-    const max = document.documentElement.scrollHeight - innerHeight;
-    if (prog) prog.style.width = (max > 0 ? (scrollY / max) * 100 : 0) + '%';
-    if (backTop) backTop.classList.toggle('show', scrollY > 720);
-  }
-  addEventListener('scroll', () => {
-    if (!scrollScheduled) { scrollScheduled = true; requestAnimationFrame(onScroll); }
-  }, { passive: true });
-  onScroll();
-  if (backTop) backTop.addEventListener('click', () => {
-    scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
-  });
 
   /* ---------------- 导航滚动定位 ---------------- */
   const linkBySection = {};
@@ -1543,6 +2125,44 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
     dividers.forEach(d => d.classList.add('drawn'));
   }
 
+  /* ---------------- v4 分节入场编排:行随线一同被"读"出来 ----------------
+     与已有的区块发丝线落位同源:同一个落位曲线、同为一次性触发。
+     组内按 DOM 顺序错峰 60ms(上限 8 级,避免长列表尾巴等太久)。
+
+     可见性绝不依赖观察器:IntersectionObserver 只按需补一个 drawn,
+     动画只负责"从透明起步",所有元素的无动画终态由 CSS 直接保证
+     (html.js .rise { opacity: 1 } + .rise.drawn 才降到 0 再动画回来)。
+     这样即便观察器因瞬时跳转从未回调,内容也始终可见——快速滚动、
+     锚点直落、后台标签页首帧都不会丢内容。 */
+  const STAGGER = 60, MAX_STEP = 7;
+  const stageGroups = [
+    ...$$('.ledger').map(l => $$('.ledger-row', l)),
+    $$('.feats'),
+    $$('.steps'),
+    ...$$('.tbl tbody'),
+    $$('.foot-row2'),
+  ].filter(g => g && g.length);
+  const riseTargets = $$('.rise');
+  if ('IntersectionObserver' in window) {
+    const rio = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        en.target.classList.add('drawn');
+        rio.unobserve(en.target);
+      });
+    }, { rootMargin: '0px 0px -6% 0px', threshold: 0.12 });
+    riseTargets.forEach(el => rio.observe(el));
+    // 错峰只在组内生效,逐组重置
+    stageGroups.forEach(group => {
+      group.forEach((el, i) => {
+        if (!el.classList.contains('rise')) return;
+        el.style.setProperty('--d', Math.min(i, MAX_STEP) * STAGGER + 'ms');
+      });
+    });
+  } else {
+    riseTargets.forEach(el => el.classList.add('drawn'));
+  }
+
   /* ---------------- 数字落定 ---------------- */
   function runCount(el) {
     const to = Number(el.dataset.to || '0');
@@ -1565,6 +2185,197 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
     $$('.count-up').forEach(el => cio.observe(el));
   } else {
     $$('.count-up').forEach(runCount);
+  }
+
+  /* ================= deck 交互：受控整块滚动 =================
+     滚轮 / 键盘 / 锚点 / 刻度轨全部走同一条 animateTo 缓动曲线，
+     一次滚动 = 精确落在块边界。动画期间滚轮事件被吞掉并把锁顺延，
+     因此触控板惯性不会连环翻块；块内还有内容可滚时（.overflowing）
+     滚轮让路给原生滚动，滚到边缘才继续翻块。 */
+  const deck = document.documentElement;
+  deck.classList.add('deck');
+  const blocks = $$('.block');
+  blocks.forEach(b => { b.tabIndex = -1; });   // 翻块后移交焦点，读屏可感知
+
+  /* ---- 超高兜底：任一块高于视口就打上 .overflowing（块内可滚） ---- */
+  function measureBlocks() {
+    const vh = innerHeight;
+    const overflow = blocks.filter(b => b.scrollHeight > vh + 8);
+    blocks.forEach(b => b.classList.remove('overflowing'));
+    overflow.forEach(b => b.classList.add('overflowing'));
+    return overflow.map(b => b.id);
+  }
+  let overflowIds = measureBlocks();
+  addEventListener('resize', () => { overflowIds = measureBlocks(); });
+  // 首次测量时部分动态内容(分档事件行等)尚未填充、字体尚未就位,载入后复测
+  addEventListener('load', measureBlocks);
+  setTimeout(measureBlocks, 450);
+
+  /* ---- 统一缓动动画：全部导航的唯一下注点 ---- */
+  const EASE = t => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  let animRaf = 0;
+  function animateTo(top, dur = 640) {
+    top = Math.max(0, Math.min(top, document.documentElement.scrollHeight - innerHeight));
+    const from = scrollY;
+    if (reduced || Math.abs(top - from) < 2) { scrollTo(0, top); return Promise.resolve(); }
+    cancelAnimationFrame(animRaf);
+    return new Promise(res => {
+      const t0 = performance.now();
+      const step = now => {
+        const k = Math.min(1, (now - t0) / dur);
+        scrollTo(0, Math.round(from + (top - from) * EASE(k)));
+        if (k < 1) animRaf = requestAnimationFrame(step);
+        else { animRaf = 0; res(); }
+      };
+      animRaf = requestAnimationFrame(step);
+    });
+  }
+
+  // 首块目标固定为 0:offsetTop 含 sticky 导航的 61px 文档偏移,
+  // 若直接用它,Home/回首屏会把首屏顶部藏到导航下面
+  const blockTop = i => {
+    const t = Math.max(0, Math.min(blocks.length - 1, i));
+    return t === 0 ? 0 : blocks[t].offsetTop;
+  };
+  function currentBlock() {
+    const y = scrollY + innerHeight * 0.35;
+    let idx = 0;
+    blocks.forEach((b, i) => { if (b.offsetTop <= y) idx = i; });
+    return idx;
+  }
+
+  /* ---- 块切换的滑入滑出:方向 + 进出类,动画结束即清理 ---- */
+  let transTimer = 0, transEpoch = 0;
+  function clearTransition() {
+    blocks.forEach(b => { b.classList.remove('entering', 'leaving'); b.style.removeProperty('--dir'); });
+  }
+  function playTransition(from, to) {
+    if (reduced || from === to) return;
+    clearTimeout(transTimer);
+    clearTransition();
+    const my = ++transEpoch;
+    const dir = to > from ? 1 : -1;
+    // 目标块的逐元素入场标记为已见:整块滑入接管,避免双重运动
+    $$('.rise', blocks[to]).forEach(el => el.classList.add('drawn', 'seen'));
+    blocks[from]?.classList.add('leaving');
+    blocks[to].classList.add('entering');
+    blocks[from]?.style.setProperty('--dir', String(dir));
+    blocks[to].style.setProperty('--dir', String(dir));
+    // 主清理:最长动画(幽灵编号视差)结束即清;定时器只做兜底。
+    // 定时器会被动画帧批量延迟,1450ms 实测拖到 1.7s+——不靠它。
+    const ghost = blocks[to].querySelector('.block-ghost');
+    if (ghost) ghost.addEventListener('animationend', () => { if (my === transEpoch) clearTransition(); }, { once: true });
+    transTimer = setTimeout(() => { if (my === transEpoch) clearTransition(); }, 2200);
+  }
+  function gotoBlock(i) {
+    const from = currentBlock();
+    const t = Math.max(0, Math.min(blocks.length - 1, i));
+    playTransition(from, t);
+    animateTo(blockTop(t));
+    setRail(t);
+    // 焦点跟随（preventScroll 避免和动画抢滚动位置）
+    blocks[t].focus({ preventScroll: true });
+  }
+
+  /* ---- 滚轮翻块：一次滚动 = 一块，锁 + 动量吸收 ---- */
+  let wheelLock = false, wheelIdle = 0, wheelAcc = 0;
+  function extendLock() {
+    clearTimeout(wheelIdle);
+    wheelIdle = setTimeout(() => { wheelLock = false; wheelAcc = 0; }, 160);
+  }
+  function canScrollInside(blk, dir) {
+    if (!blk.classList.contains('overflowing')) return false;
+    return dir > 0
+      ? blk.scrollTop + blk.clientHeight < blk.scrollHeight - 2
+      : blk.scrollTop > 2;
+  }
+  addEventListener('wheel', e => {
+    if (e.ctrlKey) return;                                   // Ctrl+滚轮 = 缩放，不碰
+    if (matchMedia('(pointer: coarse)').matches) return;     // 触屏走原生
+    const dir = e.deltaY;
+    if (wheelLock) { e.preventDefault(); extendLock(); return; }  // 动画/惯性期间吞掉
+    const blk = blocks[currentBlock()];
+    if (Math.abs(dir) < 2 && !e.deltaMode) { return; }       // 忽略微小抖动
+    if (canScrollInside(blk, dir)) return;                   // 块内还有内容：交给原生
+    wheelAcc += dir;
+    if (Math.abs(wheelAcc) < 40) { e.preventDefault(); return; } // 累积到位才翻
+    e.preventDefault();
+    wheelAcc = 0;
+    wheelLock = true;
+    extendLock();
+    gotoBlock(currentBlock() + (dir > 0 ? 1 : -1));
+  }, { passive: false });
+
+  /* ---- 键盘翻块：一次跳一块（animateTo 支持中途改目标） ---- */
+  addEventListener('keydown', e => {
+    // 输入态不劫持
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const i = currentBlock();
+    switch (e.key) {
+      case 'ArrowDown': case 'PageDown':
+        e.preventDefault(); gotoBlock(i + 1); break;
+      case 'ArrowUp': case 'PageUp':
+        e.preventDefault(); gotoBlock(i - 1); break;
+      case ' ':
+        e.preventDefault(); gotoBlock(e.shiftKey ? i - 1 : i + 1); break;
+      case 'Home':
+        e.preventDefault(); gotoBlock(0); break;
+      case 'End':
+        e.preventDefault(); gotoBlock(blocks.length - 1); break;
+      default: return;
+    }
+  });
+
+  /* ---- 站内锚点也走同一条曲线（#top 特判回首屏） ---- */
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const id = a.getAttribute('href').slice(1);
+    if (id === 'top') { e.preventDefault(); gotoBlock(0); return; }
+    const el = document.getElementById(id);
+    if (!el) return;
+    const blk = el.classList.contains('block') ? el : el.closest('.block');
+    if (!blk) return;
+    e.preventDefault();
+    gotoBlock(blocks.indexOf(blk));
+  });
+
+  /* ---- 刻度轨 ---- */
+  const rail = $('#rail');
+  if (rail && blocks.length) {
+    blocks.forEach((b, i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.setAttribute('aria-label', `第 ${i + 1} 块：${b.querySelector('h1, h2')?.textContent.trim() || b.id}`);
+      btn.addEventListener('click', () => gotoBlock(i));
+      rail.appendChild(btn);
+    });
+  }
+  const railBtns = rail ? $$('button', rail) : [];
+  function setRail(i) {
+    railBtns.forEach((b, k) => b.setAttribute('aria-current', String(k === i)));
+  }
+
+  /* ---- 当前块高亮（滚动时更新；rAF 节流） ---- */
+  let railScheduled = false;
+  function onScrollDeck() {
+    railScheduled = false;
+    setRail(currentBlock());
+  }
+  addEventListener('scroll', () => {
+    if (!railScheduled) { railScheduled = true; requestAnimationFrame(onScrollDeck); }
+  }, { passive: true });
+  setRail(currentBlock());
+
+  /* ---- 演示窗"执行中"叠加 G5 ---- */
+  const demoFig = $('.demo');
+  const statusTextEl = $('#statusText');
+  if (demoFig && statusTextEl && 'MutationObserver' in window) {
+    new MutationObserver(() => {
+      demoFig.classList.toggle('is-run', statusTextEl.textContent === '执行中');
+    }).observe(statusTextEl, { childList: true, characterData: true, subtree: true });
   }
 
   /* ---------------- 复制到剪贴板 ---------------- */
@@ -1593,6 +2404,91 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
       }, 1400);
     });
   });
+
+  /* ---------------- 方案一:三档审批门的示意条 ---------------- */
+  const TIER_EV = {
+    safe: {
+      label: 'safe · 只读操作照常留痕',
+      body: '{"ts":"19:25:04","type":"fs.list","path":"<span class="s">Downloads</span>","count":12,"policy":"<span class="k">safe</span>","auto":true}\n' +
+            '{"ts":"19:25:06","type":"screen.capture","target":"<span class="s">全屏</span>","policy":"<span class="k">safe</span>","auto":true}\n' +
+            '<span class="c">// 不打断你,但事件一条不落</span>',
+    },
+    confirm: {
+      label: 'confirm · 写操作暂停待批',
+      body: '{"ts":"19:25:09","type":"approval.wait","action":"fs.move","count":8,"policy":"<span class="s">confirm</span>"}\n' +
+            '{"ts":"19:25:31","type":"approval.ok","by":"<span class="k">user</span>","waited":"22s"}\n' +
+            '{"ts":"19:25:33","type":"fs.move","from":"<span class="s">报价单2024.pdf</span>","to":"<span class="s">2024/</span>","overwrote":false}\n' +
+            '<span class="c">// 不批准,一个字节都不会动</span>',
+    },
+    dangerous: {
+      label: 'dangerous · 拒绝也写进审计',
+      body: '{"ts":"19:25:12","type":"approval.wait","action":"cmd.exec","policy":"<span class="s">confirm</span>"}\n' +
+            '{"ts":"19:25:13","type":"<span class="k">guard.denied</span>","target":"<span class="s">C:\\Windows</span>","rule":"<span class="s">系统目录:任何策略下拒绝</span>"}\n' +
+            '{"ts":"19:25:13","type":"cmd.exec","result":"<span class="s">拒绝执行</span>","sideEffects":"<span class="k">none</span>"}\n' +
+            '<span class="c">// 拒绝不是静默失败,本身就是一条可查的事件</span>',
+    },
+  };
+  const tierBtns = $$('.tier');
+  const tierBody = $('#tierEvBody'), tierLabel = $('#tierEvLabel');
+  function renderTier(key) {
+    const t = TIER_EV[key];
+    if (!t || !tierBody) return;
+    tierBody.innerHTML = t.body;
+    if (tierLabel) tierLabel.textContent = t.label;
+    // 事件井的顶线与圆点跟随档位色
+    const panel = document.getElementById('tierEv');
+    if (panel) panel.style.setProperty('--evc',
+      key === 'safe' ? 'var(--ok)' : key === 'confirm' ? 'var(--warn)' : 'var(--err)');
+  }
+  if (tierBtns.length && tierBody) {
+    renderTier('safe');
+    tierBtns.forEach(btn => btn.addEventListener('click', () => {
+      tierBtns.forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+      renderTier(btn.dataset.tier);
+    }));
+  }
+
+  /* ---------------- 台账/事实行展开为证据行 ----------------
+     与演示窗事件行同构(grid-rows 0fr→1fr),点整行开合,键盘可达。
+     行本身可能是 <button>(facts 的"内核可靠性"),守卫只拦行内真实控件。 */
+  $$('.ledger-row.ev-row-open').forEach(row => {
+    const setOpen = open => {
+      row.classList.toggle('open', open);
+      row.setAttribute('aria-expanded', String(open));
+    };
+    row.setAttribute('aria-expanded', String(row.classList.contains('open')));
+    row.addEventListener('click', e => {
+      if (e.target.closest('a') || (e.target.closest('button') && e.target.closest('button') !== row)) return;
+      setOpen(!row.classList.contains('open'));
+    });
+    row.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(!row.classList.contains('open')); }
+    });
+  });
+
+  /* ---------------- 方案四:首屏实时状态条 ----------------
+     与演示窗事件流同步:每产生一条事件就点亮对应的那一步。 */
+  const heroPulse = $('#heroPulse');
+  if (heroPulse) {
+    const steps = $$('.lp', heroPulse);
+    const fill = heroPulse.querySelector('.fill');
+    const OPS = ['fs.list', 'approval.wait', 'fs.move', 'fs.verify'];
+    let reached = 0;
+    window.__pulse = (op) => {
+      const i = OPS.indexOf(op);
+      if (i < 0) return;
+      reached = Math.max(reached, i);
+      if (fill) fill.style.width = (reached / (OPS.length - 1)) * 100 + '%';
+      steps.forEach((s, k) => {
+        s.classList.toggle('run', k === reached && (op === 'fs.list' || op === 'fs.move'));
+        s.classList.toggle('wait', k === reached && op === 'approval.wait');
+        if (k === reached) s.querySelector('.op').style.color = 'var(--ink)';
+        else s.querySelector('.op').style.removeProperty('color');
+      });
+    };
+    // 演示未开始前也走一遍,让首屏一进来就是"活"的
+    setTimeout(() => window.__pulse('fs.list'), 700);
+  }
 })();
 </script>
 </body>

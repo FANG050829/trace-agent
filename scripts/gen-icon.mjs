@@ -88,16 +88,27 @@ for (let y = 0; y < N; y++) {
   }
 }
 
-// 时间线:竖线 + 三个圆点(白 → 亮灰 → 暗灰,阶梯记录感)
+// 时间线:一条留痕的竖线 + 末端实心落点(顶部远端小点融进线里)
+// 与站点 i-mark 同一几何(24 viewBox 归一 → ×512/24):线 5.8→17,点 r 1 / 3
 const cx = N / 2
 const lineHalf = 7.5 * SS
-for (let y = 96 * SS; y <= N - 96 * SS; y++) {
+const Y0 = 124 * SS, Y1 = 363 * SS // 5.8 / 17.0 × 512/24
+for (let y = Y0; y <= Y1; y++) {
   for (let dx = -Math.ceil(lineHalf); dx <= Math.ceil(lineHalf); dx++) {
     set(cx + dx, y, INK.r, INK.g, INK.b, 255)
   }
 }
-const dot = (cy512, color) => {
-  const r = 31 * SS
+// alpha 混合:点与其下的线重叠处要透出线的颜色,而不是被点盖死
+const blend = (x, y, c, a) => {
+  if (x < 0 || y < 0 || x >= N || y >= N) return
+  const i = (y * N + x) * 4
+  px[i] = Math.round(px[i] * (1 - a) + c.r * a)
+  px[i + 1] = Math.round(px[i + 1] * (1 - a) + c.g * a)
+  px[i + 2] = Math.round(px[i + 2] * (1 - a) + c.b * a)
+  px[i + 3] = 255
+}
+const dot = (cy512, r512, a) => {
+  const r = r512 * SS
   const cy = cy512 * SS
   const hole = 5 * SS // 点与线之间挖空一圈,呼应应用里的节奏
   for (let y = cy - r - hole; y <= cy + r + hole; y++) {
@@ -105,13 +116,12 @@ const dot = (cy512, color) => {
       const d = Math.hypot(x - cx, y - cy)
       if (d > r + hole) continue
       if (d >= r && d <= r + hole) set(x, y, B.r, B.g, B.b, 255)
-      if (d <= r) set(x, y, color.r, color.g, color.b, 255)
+      if (d <= r) blend(x, y, INK, a)
     }
   }
 }
-dot(160, INK)
-dot(256, { r: 0xa6, g: 0xab, b: 0xb5 }) // ink-2
-dot(352, { r: 0x4a, g: 0x4e, b: 0x58 }) // 渐隐的历史
+dot(123.7, 1.0, 0.30) // 5.8 / 24 × 512
+dot(362.7, 3.0, 1.00) // 17.0 / 24 × 512
 
 // ---------- 盒式降采样 4x → 1x ----------
 const out = Buffer.alloc(SIZE * SIZE * 4)
