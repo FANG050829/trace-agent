@@ -8,4 +8,9 @@ release/
 data-dir.txt
 tests/*.png
 tests/*.log
+tests/*.test-out.mjs
+tests/*.smoke-out.mjs
+tests/*-stub*.mjs
+tests/fs-guard-sandbox/
+tests/audit-write-sandbox/
 *.log

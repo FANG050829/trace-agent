@@ -221,6 +221,45 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
           <input type="checkbox" checked={draft.screenshotToVision} onChange={(e) => upd({ screenshotToVision: e.target.checked })} />
           截图自动回传给视觉模型(模型不支持看图时可关闭)
         </label>
+        <div className="roots-block">
+          <div className="roots-head">
+            允许的工作目录
+            <button
+              className="ghost small"
+              onClick={async () => {
+                const dir = await api.pickDirectory()
+                if (dir && !(draft.workspaceRoots ?? []).includes(dir)) {
+                  upd({ workspaceRoots: [...(draft.workspaceRoots ?? []), dir] })
+                }
+              }}
+            >
+              添加目录
+            </button>
+          </div>
+          <p className="roots-hint">
+            Agent 的文件工具只能读写这里列出的目录;留空则不限制范围(其余步骤仍按风险等级确认)。
+            应用数据目录(审计记录、加密密钥)始终禁止访问。
+          </p>
+          <div className="roots-list">
+            {(draft.workspaceRoots ?? []).map((r) => (
+              <div className="root-item" key={r}>
+                <span className="root-path" title={r}>
+                  {r}
+                </span>
+                <button
+                  className="ghost small danger-text"
+                  onClick={() => upd({ workspaceRoots: draft.workspaceRoots.filter((x) => x !== r) })}
+                  title="移除该目录"
+                >
+                  移除
+                </button>
+              </div>
+            ))}
+            {(draft.workspaceRoots ?? []).length === 0 && (
+              <div className="root-item dim">未设置 — 文件工具不限制目录范围</div>
+            )}
+          </div>
+        </div>
         <div className="check-row-wrap">
           <label className="check-row">
             单次任务最大步数

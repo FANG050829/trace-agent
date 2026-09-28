@@ -51,6 +51,35 @@ const sleep = (ms: number, signal?: AbortSignal): Promise<void> =>
     )
   })
 
+/** 等待用户确认的上限:超时即视为拒绝,避免任务永久挂起 */
+const APPROVAL_TIMEOUT_MS = 10 * 60_000
+
+/** 给一个可能永不 settle 的 promise 加超时;超时时调用 onTimeout 主动了结它 */
+async function withTimeout<T>(p: Promise<T>, ms: number, onTimeout: () => void): Promise<T> {
+  let done = false
+  return await new Promise<T>((resolve) => {
+    const timer = setTimeout(() => {
+      if (done) return
+      done = true
+      onTimeout()
+    }, ms)
+    p.then(
+      (v) => {
+        if (done) return
+        done = true
+        clearTimeout(timer)
+        resolve(v)
+      },
+      () => {
+        if (done) return
+        done = true
+        clearTimeout(timer)
+        resolve(undefined as T)
+      }
+    )
+  })
+}
+
 export class AgentRunner {
   static hooks: RunnerHooks
   private static runners = new Map<string, AgentRunner>()
@@ -83,6 +112,8 @@ export class AgentRunner {
   private meta: SessionMeta
   private abort: AbortController | null = null
   private pending: { req: ApprovalRequest; resolve: (ok: boolean) => void; source: 'local' | 'lan' } | null = null
+  /** 本次审批是否真的收到过用户答复(用于区分"超时"与"用户主动拒绝") */
+  private approvalAnswered = false
   private queue: string[] = [] // 任务执行期间用户追加的消息,任务结束后自动依次发送
   private powerSaveId: number | null = null
 
@@ -103,6 +134,7 @@ export class AgentRunner {
 
   respond(approvalId: string, approved: boolean, source: 'local' | 'lan' = 'local'): boolean {
     if (this.pending?.req.approvalId === approvalId) {
+      this.approvalAnswered = true
       this.pending.source = source
       this.pending.resolve(approved)
       return true
@@ -315,7 +347,12 @@ export class AgentRunner {
       })
       this.pending = { req, resolve: resolveApproval, source: 'local' }
       this.emitState()
-      const approved = await approvedPromise
+      // 超时保护:没人点确认时按拒绝处理,否则 Agent 会永久挂起(定时技能尤其明显)
+      const approved = await withTimeout(approvedPromise, APPROVAL_TIMEOUT_MS, () =>
+        resolveApproval(false)
+      )
+      const timedOut = !approved && !this.approvalAnswered
+      this.approvalAnswered = false
       const viaLan = this.pending?.source === 'lan'
       this.pending = null
       this.emitEvent(
@@ -324,9 +361,11 @@ export class AgentRunner {
             ? viaLan
               ? '已通过局域网批准该操作'
               : '用户批准了该操作'
-            : viaLan
-              ? '已通过局域网拒绝该操作'
-              : '用户拒绝了该操作',
+            : timedOut
+              ? `等待确认超过 ${Math.round(APPROVAL_TIMEOUT_MS / 60000)} 分钟,已自动按拒绝处理`
+              : viaLan
+                ? '已通过局域网拒绝该操作'
+                : '用户拒绝了该操作',
           refId: callEvent.id,
           status: approved ? 'approved' : 'denied'
         })
@@ -355,6 +394,10 @@ export class AgentRunner {
     this.finishTool(callEvent.id, tc, result, 'ok', settings)
   }
 
+  /**
+   * 收尾:追加一条带最终状态的 tool_result。
+   * 不再回头改写 tool_call 那一行 —— 审计日志只追加,状态由读取时归一得出。
+   */
   private finishTool(
     callEventId: string,
     tc: ToolCall,
@@ -362,7 +405,6 @@ export class AgentRunner {
     status: 'ok' | 'error' | 'denied',
     settings: AppSettings
   ): void {
-    this.audit.patch(callEventId, { status })
     const headline = result.textForModel.split('\n')[0].slice(0, 160)
     const event = this.audit.append('tool_result', {
       refId: callEventId,

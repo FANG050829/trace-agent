@@ -1,10 +1,23 @@
 import { spawn } from 'node:child_process'
 import os from 'node:os'
 import path from 'node:path'
-import type { ToolImpl } from './index'
+import { dataDir } from '../config'
+import { assertNotProtected, resolveInWorkspace } from '../guards'
+import type { ToolContext, ToolImpl } from './index'
 
+/**
+ * 高危命令识别。
+ *
+ * 正则黑名单挡不住刻意绕过(拼接变量、base64、-EncodedCommand 都要解码后才现形),
+ * 所以它只负责把明显危险的操作标成 dangerous、在 UI 上给出红色的"不可逆操作"标记。
+ * 真正的兜底是:run_command 无论风险策略如何都要求逐条确认(见 tools/index.ts)。
+ */
 const DANGEROUS_RE =
-  /(rm\s+-rf|Remove-Item\s+[^|]*-Recurse|del\s+\/[sq]|rmdir\s+\/s|format\s+[a-zA-Z]:|reg(add| delete)|regedit|shutdown|taskkill\s+\/f|diskpart|bcdedit|bcdboot|vssadmin|cipher\s+\/w|Set-ExecutionPolicy|Invoke-Expression|\biex\b|Remove-MpPreference|Set-MpPreference|Clear-Disk|Initialize-Disk|Format-Volume|net\s+user\s|net\s+localgroup|schtasks\s+\/create|powershell(\.exe)?\s+(-enc|-e |-encodedcommand))/i
+  /(rm\s+-rf|Remove-Item\s+[^|]*-Recurse|Recurse\s*:\s*\$?true|del\s+\/[sq]|rmdir\s+\/s|format\s+[a-zA-Z]:|reg(add| delete)|regedit|shutdown|taskkill\s+\/f|diskpart|bcdedit|bcdboot|vssadmin|cipher\s+\/w|Set-ExecutionPolicy|Invoke-Expression|\biex\b|Remove-MpPreference|Set-MpPreference|Clear-Disk|Initialize-Disk|Format-Volume|net\s+user\s|net\s+localgroup|schtasks\s+\/create|powershell(\.exe)?\s+(-enc|-e |-encodedcommand)|cmd(\.exe)?\s+\/c|certutil\s+(-decode|-urlcache)|bitsadmin|Stop-Computer|Restart-Computer)/i
+
+/** 明显只读的查询类命令:让"查系统信息"这类任务不至于被频繁打断 */
+const READ_ONLY_RE =
+  /^\s*(Get-\w+|gci|ls|dir|type|Test-Path|Measure-Object|Where-Object|Select-Object|Write-Host|Write-Output|echo|ipconfig|systeminfo|ver|hostname|whoami|tasklist|netstat|ping|tracert|nslookup)\b/i
 
 const MAX_CAPTURE = 64 * 1024
 
@@ -30,11 +43,19 @@ export const runCommand: ToolImpl = {
     },
     required: ['command']
   },
-  risk: (a) => (DANGEROUS_RE.test(String(a.command ?? '')) ? 'dangerous' : 'confirm'),
+  risk: (a) => {
+    const cmd = String(a.command ?? '')
+    if (DANGEROUS_RE.test(cmd)) return 'dangerous'
+    return READ_ONLY_RE.test(cmd) ? 'safe' : 'confirm'
+  },
   approvalSummary: (a) => `运行命令:${String(a.command ?? '').slice(0, 120)}`,
-  async run(args, ctx) {
+  async run(args, ctx: ToolContext) {
     const command = String(args.command ?? '')
-    const cwd = String(args.cwd ?? os.homedir())
+    // cwd 同样过守卫:否则 `cd .data` 就能绕开文件工具的目录限制
+    const cwd = assertNotProtected(
+      resolveInWorkspace(String(args.cwd ?? os.homedir()), ctx.settings.workspaceRoots ?? []),
+      dataDir
+    )
     const timeout = Math.min(Math.max(Number(args.timeout_sec) || 60, 5), 600) * 1000
     // 让 PowerShell 以 UTF-8 输出,避免中文乱码
     const wrapped = `[Console]::OutputEncoding=[System.Text.Encoding]::UTF8; ${command}`

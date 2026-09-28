@@ -2,11 +2,23 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { dataDir, projectRoot } from '../config'
-import type { ToolImpl } from './index'
+import { guardUserPath } from '../guards'
+import type { ToolContext, ToolImpl } from './index'
 
 const MAX_LIST = 500
 const MAX_READ_BYTES = 512 * 1024
 const MAX_SEARCH_RESULTS = 200
+
+/**
+ * 路径守卫:所有文件类工具的入口都必须过这里。
+ *   1. 解析成绝对路径,消除 `..` 造成的穿越
+ *   2. 拒绝应用数据目录(审计记录、会话数据、加密后的密钥)
+ *   3. 限制在用户设置的工作目录白名单内
+ * 守卫拒绝时抛错,由 agent loop 捕获成工具错误回喂给模型,并记入审计。
+ */
+function guard(target: string, ctx: ToolContext): string {
+  return guardUserPath(target, ctx.settings.workspaceRoots ?? [], dataDir)
+}
 
 /** 绝对不允许删除的路径:盘根/系统目录/用户主目录/本项目审计数据(小写比较) */
 function deleteGuard(p: string): string | null {
@@ -60,8 +72,8 @@ export const fsListDir: ToolImpl = {
   },
   risk: () => 'safe',
   approvalSummary: (a) => `查看目录 ${a.path}`,
-  async run(args) {
-    const p = String(args.path ?? '')
+  async run(args, ctx) {
+    const p = guard(String(args.path ?? ''), ctx)
     const entries = fs.readdirSync(p, { withFileTypes: true })
     const rows = entries.slice(0, MAX_LIST).map((e) => {
       const full = path.join(p, e.name)
@@ -94,8 +106,8 @@ export const fsReadFile: ToolImpl = {
   },
   risk: () => 'safe',
   approvalSummary: (a) => `读取文件 ${a.path}`,
-  async run(args) {
-    const p = String(args.path ?? '')
+  async run(args, ctx) {
+    const p = guard(String(args.path ?? ''), ctx)
     const stat = fs.statSync(p)
     if (stat.isDirectory()) throw new Error('这是一个目录,请用 fs_list_dir')
     const limit = Math.min(Number(args.max_bytes) || MAX_READ_BYTES, 4 * 1024 * 1024)
@@ -132,8 +144,8 @@ export const fsWriteFile: ToolImpl = {
   },
   risk: () => 'confirm',
   approvalSummary: (a) => `写入文件 ${a.path}`,
-  async run(args) {
-    const p = String(args.path ?? '')
+  async run(args, ctx) {
+    const p = guard(String(args.path ?? ''), ctx)
     const content = String(args.content ?? '')
     fs.mkdirSync(path.dirname(p), { recursive: true })
     fs.writeFileSync(p, content, 'utf-8')
@@ -155,8 +167,8 @@ export const fsMkdir: ToolImpl = {
   },
   risk: () => 'confirm',
   approvalSummary: (a) => `创建目录 ${a.path}`,
-  async run(args) {
-    const p = String(args.path ?? '')
+  async run(args, ctx) {
+    const p = guard(String(args.path ?? ''), ctx)
     fs.mkdirSync(p, { recursive: true })
     return { textForModel: `已创建目录 ${p}`, detail: { path: p } }
   }
@@ -176,9 +188,9 @@ export const fsMove: ToolImpl = {
   },
   risk: () => 'confirm',
   approvalSummary: (a) => `移动 ${a.src} → ${a.dst}`,
-  async run(args) {
-    const src = String(args.src ?? '')
-    const dst = String(args.dst ?? '')
+  async run(args, ctx) {
+    const src = guard(String(args.src ?? ''), ctx)
+    const dst = guard(String(args.dst ?? ''), ctx)
     // 不做静默覆盖:目标已存在时停下,让模型/用户决定改名还是先删除
     if (fs.existsSync(dst)) {
       return {
@@ -208,11 +220,11 @@ export const fsDelete: ToolImpl = {
   },
   risk: () => 'dangerous',
   approvalSummary: (a) => `删除 ${a.path}(不可恢复)`,
-  async run(args) {
-    const p = String(args.path ?? '')
-    const guard = deleteGuard(p)
-    if (guard) {
-      const msg = `已拒绝删除「${p}」:受保护路径(${guard})。系统目录、盘符根目录、用户主目录与本应用审计数据不允许被删除。`
+  async run(args, ctx) {
+    const p = guard(String(args.path ?? ''), ctx)
+    const blocked = deleteGuard(p)
+    if (blocked) {
+      const msg = `已拒绝删除「${p}」:受保护路径(${blocked})。系统目录、盘符根目录、用户主目录与本应用审计数据不允许被删除。`
       return { textForModel: msg, detail: { path: p, blocked: true } }
     }
     const stat = fs.statSync(p)
@@ -241,8 +253,8 @@ export const fsSearch: ToolImpl = {
   },
   risk: () => 'safe',
   approvalSummary: (a) => `在 ${a.dir} 中搜索 "${a.keyword}"`,
-  async run(args) {
-    const dir = String(args.dir ?? '')
+  async run(args, ctx) {
+    const dir = guard(String(args.dir ?? ''), ctx)
     const kw = String(args.keyword ?? '').toLowerCase()
     const inContent = args.in_content !== false
     const hits: string[] = []

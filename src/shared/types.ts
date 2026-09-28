@@ -227,4 +227,5 @@ export interface TraceApi {
   onAgentEvent(cb: (p: AgentEventPush) => void): () => void
   onAgentDelta(cb: (p: AgentDeltaPush) => void): () => void
   onAgentState(cb: (p: AgentStatePush) => void): () => void
+  onSessionTitle(cb: (p: { sessionId: string; title: string }) => void): () => void
 }

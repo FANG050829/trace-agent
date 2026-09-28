@@ -13,14 +13,64 @@ import { loadSettings, saveSettings } from './store'
 
 let server: http.Server | null = null
 
+/**
+ * 登录失败的限流:令牌走明文 HTTP,同网段可被抓包,没有失败锁定就等于可以无限试。
+ * 成功一次即清零,避免正常用户被自己的误操作锁住。
+ */
+const attempts = new Map<string, { fails: number; firstAt: number }>()
+const RATE_WINDOW_MS = 10 * 60_000
+const RATE_MAX_FAILS = 12
+
+function clientKey(req: http.IncomingMessage): string {
+  return req.socket.remoteAddress ?? 'unknown'
+}
+
+function isRateLimited(key: string): boolean {
+  const rec = attempts.get(key)
+  if (!rec) return false
+  if (Date.now() - rec.firstAt > RATE_WINDOW_MS) {
+    attempts.delete(key)
+    return false
+  }
+  return rec.fails >= RATE_MAX_FAILS
+}
+
+function noteFailure(key: string): void {
+  const rec = attempts.get(key)
+  if (!rec || Date.now() - rec.firstAt > RATE_WINDOW_MS) {
+    attempts.set(key, { fails: 1, firstAt: Date.now() })
+    return
+  }
+  rec.fails++
+}
+
+function noteSuccess(key: string): void {
+  attempts.delete(key)
+}
+
+function parseCookies(header?: string): Record<string, string> {
+  const out: Record<string, string> = {}
+  for (const part of (header ?? '').split(';')) {
+    const i = part.indexOf('=')
+    if (i > 0) out[part.slice(0, i).trim()] = decodeURIComponent(part.slice(i + 1).trim())
+  }
+  return out
+}
+
+function errorPage(msg: string): string {
+  const safe = esc(msg)
+  return `<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><body style="background:#0d0e11;color:#e07a7a;font-family:sans-serif;text-align:center;padding:60px">${safe}</body>`
+}
+
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
 export function lanToken(): string {
   const s = loadSettings()
-  if (s.lanApproval.token) return s.lanApproval.token
-  const token = randomBytes(8).toString('hex')
+  // 旧版只用了 8 字节(64 位);升级到 16 字节并保留已有令牌,避免正在用的手机链接突然失效
+  if (s.lanApproval.token && s.lanApproval.token.length >= 32) return s.lanApproval.token
+  const token = randomBytes(16).toString('hex')
   saveSettings({ ...s, lanApproval: { ...s.lanApproval, token } })
   return token
 }
@@ -47,7 +97,7 @@ function pendingList(): { sessionId: string; req: ApprovalRequest }[] {
   return AgentRunner.getAllPending()
 }
 
-function page(token: string): string {
+function page(token: string, nonce: string): string {
   const list = pendingList()
   const rows =
     list.length === 0
@@ -59,8 +109,8 @@ function page(token: string): string {
   <div class="summary">${esc(it.req.summary)}</div>
   <pre>${esc(it.req.argsText)}</pre>
   <div class="actions">
-    <form method="post" action="/respond"><input type="hidden" name="t" value="${esc(token)}"><input type="hidden" name="sessionId" value="${esc(it.sessionId)}"><input type="hidden" name="approvalId" value="${esc(it.req.approvalId)}"><input type="hidden" name="approved" value="1"><button class="ok" type="submit">批准执行</button></form>
-    <form method="post" action="/respond"><input type="hidden" name="t" value="${esc(token)}"><input type="hidden" name="sessionId" value="${esc(it.sessionId)}"><input type="hidden" name="approvalId" value="${esc(it.req.approvalId)}"><input type="hidden" name="approved" value="0"><button class="deny" type="submit">拒绝</button></form>
+    <form method="post" action="/respond"><input type="hidden" name="t" value="${esc(token)}"><input type="hidden" name="n" value="${esc(nonce)}"><input type="hidden" name="sessionId" value="${esc(it.sessionId)}"><input type="hidden" name="approvalId" value="${esc(it.req.approvalId)}"><input type="hidden" name="approved" value="1"><button class="ok" type="submit">批准执行</button></form>
+    <form method="post" action="/respond"><input type="hidden" name="t" value="${esc(token)}"><input type="hidden" name="n" value="${esc(nonce)}"><input type="hidden" name="sessionId" value="${esc(it.sessionId)}"><input type="hidden" name="approvalId" value="${esc(it.req.approvalId)}"><input type="hidden" name="approved" value="0"><button class="deny" type="submit">拒绝</button></form>
   </div>
   <div class="meta">来自会话 ${esc(it.sessionId.slice(0, 8))}…</div>
 </div>`
@@ -117,31 +167,66 @@ export function startLanApproval(): void {
       res.writeHead(404).end()
       return
     }
+    // 审批页不缓存:否则设备在批准/拒绝后仍会看到旧列表,甚至重放一次已完成的表单
+    const baseHeaders = { 'cache-control': 'no-store, no-cache, must-revalidate', 'x-content-type-options': 'nosniff' }
+    const client = clientKey(req)
+    if (isRateLimited(client)) {
+      res
+        .writeHead(429, { ...baseHeaders, 'content-type': 'text/html; charset=utf-8', 'retry-after': '60' })
+        .end(errorPage('尝试次数过多,请稍后再试。'))
+      return
+    }
     const token = settings.lanApproval.token
+    const reply = (code: number, body: string, extra: Record<string, string | number> = {}): void => {
+      res.writeHead(code, { ...baseHeaders, 'content-type': 'text/html; charset=utf-8', ...extra }).end(body)
+    }
     if (url.pathname === '/respond' && req.method === 'POST') {
+      // 限制请求体大小,避免被撑爆内存
       let body = ''
-      req.on('data', (c) => (body += c))
+      let tooLarge = false
+      req.on('data', (c) => {
+        body += c
+        if (body.length > 64 * 1024) {
+          tooLarge = true
+          req.destroy()
+        }
+      })
       req.on('end', () => {
+        if (tooLarge) return
         const form = new URLSearchParams(body)
         if (form.get('t') !== token) {
-          res.writeHead(403, { 'content-type': 'text/html; charset=utf-8' }).end('<meta charset="utf-8"><body style="background:#0d0e11;color:#e07a7a;font-family:sans-serif;text-align:center;padding:60px">令牌不正确,拒绝访问。</body>')
-          return
+          noteFailure(client)
+          return reply(403, errorPage('令牌不正确,拒绝访问。'))
+        }
+        // CSRF 防护:表单里的 nonce 必须与本次会话 cookie 一致。
+        // 单纯校验 URL 上的令牌挡不住"诱导已打开页面的浏览器自动提交表单"。
+        const cookies = parseCookies(req.headers.cookie)
+        if (form.get('n') !== cookies['trace_lan']) {
+          noteFailure(client)
+          return reply(403, errorPage('请求来源校验失败(CSRF),请重新打开审批页再操作。'))
         }
         const sessionId = form.get('sessionId') ?? ''
         const approvalId = form.get('approvalId') ?? ''
         const approved = form.get('approved') === '1'
-        const ok = AgentRunner.get(sessionId).respond(approvalId, approved, 'lan')
+        let ok = false
+        try {
+          ok = AgentRunner.get(sessionId).respond(approvalId, approved, 'lan')
+        } catch {
+          ok = false // 非法会话 id
+        }
         const respBody = `<meta name="viewport" content="width=device-width, initial-scale=1"><meta charset="utf-8"><body style="background:#0d0e11;color:#e8e9ec;font-family:sans-serif;text-align:center;padding:80px 20px"><div class="ok-msg"><b style="font-size:20px">${ok ? (approved ? '已批准' : '已拒绝') : '未找到该待确认操作(可能已被处理)'}</b><p style="color:#7f8490;margin-top:10px">3 秒后返回列表…</p></div></body>`
-        res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', refresh: `3; url=/?t=${encodeURIComponent(token)}` })
-        res.end(respBody)
+        reply(200, respBody, { refresh: `3; url=/?t=${encodeURIComponent(token)}` })
       })
       return
     }
     if (url.searchParams.get('t') !== token) {
-      res.writeHead(403, { 'content-type': 'text/html; charset=utf-8' }).end('<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><body style="background:#0d0e11;color:#e07a7a;font-family:sans-serif;text-align:center;padding:60px">令牌不正确,拒绝访问。</body>')
-      return
+      noteFailure(client)
+      return reply(403, errorPage('令牌不正确,拒绝访问。'))
     }
-    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }).end(page(token))
+    noteSuccess(client)
+    // 每个访问者一个 CSRF nonce,写进 HttpOnly cookie(明文 HTTP 下无法用 Secure 标记)
+    const nonce = randomBytes(16).toString('hex')
+    reply(200, page(token, nonce), { 'set-cookie': `trace_lan=${nonce}; Path=/; HttpOnly; SameSite=Strict` })
   })
   server.on('error', () => {
     /* 端口被占等错误:关闭状态,设置页会看到未生效 */

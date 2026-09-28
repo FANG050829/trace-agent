@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import type { ApprovalRequest, AuditEvent, AppSettings, SessionMeta, Skill } from '@shared/types'
 import { api } from './api'
+import { normalizeAudit } from '@shared/audit'
 import { Sidebar } from './components/Sidebar'
 import { ChatView, type RenderItem } from './components/ChatView'
 import { AuditPanel } from './components/AuditPanel'
@@ -136,7 +137,9 @@ export default function App(): React.ReactNode {
       if (event.type === 'user_message' || event.type === 'assistant_message' || event.type === 'tool_call') {
         liveRef.current = null
       }
-      setAuditEvents((prev) => [...prev, event])
+      // 与读取历史会话走同一套归一化:tool_call 的最终状态由 tool_result 推导,
+      // 否则实时时间线里的工具会一直停在 pending
+      setAuditEvents((prev) => normalizeAudit([...prev, event]))
       setItems((prev) => applyEvent(prev, event))
     })
     const offDelta = api.onAgentDelta(({ sessionId, kind, text }) => {
@@ -165,10 +168,14 @@ export default function App(): React.ReactNode {
         setItems((prev) => prev.map((p) => (p.kind === 'assistant' ? { ...p, streaming: false } : p)))
       }
     })
+    const offTitle = api.onSessionTitle(({ sessionId, title }) => {
+      setSessions((prev) => prev.map((s) => (s.id === sessionId ? { ...s, title } : s)))
+    })
     return () => {
       offEvent()
       offDelta()
       offState()
+      offTitle()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

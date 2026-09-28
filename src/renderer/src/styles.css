@@ -1462,6 +1462,52 @@ input[type='checkbox'] {
   gap: 16px;
   flex-wrap: wrap;
 }
+/* 允许的工作目录:安全边界,给它一点存在感 */
+.roots-block {
+  margin: 12px 0 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg2);
+}
+.roots-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.roots-hint {
+  margin: 6px 0 8px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+.roots-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.root-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11.5px;
+  color: var(--ink-2);
+  padding: 4px 0;
+  border-top: 1px solid var(--line);
+}
+.root-item.dim {
+  color: var(--ink-3);
+  border-top: none;
+}
+.root-path {
+  font-family: Consolas, monospace;
+  word-break: break-all;
+}
 .test-msg {
   margin-top: 8px;
   font-size: 11.5px;

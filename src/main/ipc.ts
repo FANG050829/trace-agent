@@ -8,6 +8,7 @@ import { completionsUrl } from './agent/llm'
 import { buildReportHtml } from './exportReport'
 import { dataDir, dataDirMarker, dataRoot, sessionsDir } from './config'
 import { primaryLanUrl, syncLanApproval, lanAddresses } from './lan'
+import { assertSessionId } from './guards'
 import { TEMPLATE_INFOS, instantiateTemplate } from './templates/builtin'
 import {
   listSessions,
@@ -75,10 +76,11 @@ export function registerIpc(): void {
   })
 
   ipcMain.handle('sessions:delete', (_e, id: string) => {
-    removeSession(id)
+    removeSession(id) // 内部已校验 id 为 UUID
   })
 
   ipcMain.handle('sessions:open', (_e, id: string) => {
+    assertSessionId(id)
     const meta = listSessions().find((m) => m.id === id) ?? { id, title: '会话', createdAt: 0, updatedAt: 0 }
     return { meta, messages: loadTranscript(id), audit: loadAudit(id) }
   })
@@ -185,6 +187,7 @@ export function registerIpc(): void {
   })
 
   ipcMain.handle('export:session', async (_e, id: string): Promise<ExportResult> => {
+    assertSessionId(id)
     const meta = listSessions().find((m) => m.id === id)
     if (!meta) return { ok: false, message: `会话不存在:${id}` }
     const events = loadAudit(id) as AuditEvent[]

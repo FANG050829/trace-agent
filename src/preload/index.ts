@@ -41,7 +41,9 @@ const api: TraceApi = {
 
   onAgentEvent: (cb) => subscribe('agent:event', cb),
   onAgentDelta: (cb) => subscribe('agent:delta', cb),
-  onAgentState: (cb) => subscribe('agent:state', cb)
+  onAgentState: (cb) => subscribe('agent:state', cb),
+  // 会话标题在首条用户消息后自动生成,主进程推这个频道刷新侧边栏
+  onSessionTitle: (cb) => subscribe('session:title', cb)
 }
 
 contextBridge.exposeInMainWorld('trace', api)

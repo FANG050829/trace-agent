@@ -1,6 +1,6 @@
 import { Notification } from 'electron'
 import { randomUUID } from 'node:crypto'
-import type { Skill } from '@shared/types'
+import type { Skill, SkillSchedule } from '@shared/types'
 import { AgentRunner } from './agent/loop'
 import { listSkills, loadSettings, upsertSession, upsertSkill } from './store'
 
@@ -60,13 +60,13 @@ export async function tick(): Promise<void> {
     try {
       runSkillNow(sk)
       const next = nextRunFor(sk, now)
-      // once 模式跑完即停;其余写回下次运行时间
-      upsertSkill({
-        id: sk.id,
-        name: sk.name,
-        prompt: sk.prompt,
-        schedule: sk.schedule!.kind === 'once' ? { ...sk.schedule!, enabled: false, nextRun: null as unknown as number } : { ...sk.schedule!, nextRun: next ?? undefined }
-      })
+      // once 模式跑完即停(清掉 nextRun 并关闭开关);其余写回下次运行时间
+      const base = sk.schedule!
+      const schedule: SkillSchedule =
+        base.kind === 'once'
+          ? { ...base, enabled: false }
+          : { ...base, nextRun: next ?? base.nextRun }
+      upsertSkill({ id: sk.id, name: sk.name, prompt: sk.prompt, schedule })
     } finally {
       running.delete(sk.id)
     }
