@@ -539,25 +539,22 @@ h3 { font-size: 17px; }
 .hero-pulse .lp .op { transition: color .2s ease-out; }
 .hero-pulse .lp.run .op, .hero-pulse .lp.wait .op { color: var(--ink); }
 
-/* ---------- 演示窗 ---------- */
+/* ---------- 演示台(02,v6.18 重做):去窗框 ----------
+   会话与审计台账不再装进窗口——标题栏/圆角/底色全部拆除,
+   两列直接长在黑底上(与 03/04 的"无盒子"语言对齐),列间只隔
+   一根向下渐隐的垂直发丝线;状态与重播进左列台头,计数与导出
+   进右列台头。figure.demo 仍是执行光 G5(.is-run)的挂点。 */
 .demo-outer { margin-top: clamp(36px, 5vw, 52px); }
-/* v6.18 通透调校:演示窗从实底改为半透——日轨辉光贴着窗底掠过时,
-   亮线从窗体里透出来;对话流/审批卡/JSON 证据同步降为半透叠层 */
-.demo {
-  border-radius: var(--radius-lg);
-  background: rgba(20, 21, 25, .75);
-  overflow: hidden;
+.pane-head {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding-bottom: 11px;
+  background: var(--g-hair) bottom / 100% 1px no-repeat;
 }
-.demo::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--g-hair); z-index: 3; }
-.demo-chrome {
-  display: flex; align-items: center; gap: 12px;
-  height: 46px; padding-inline: 14px;
-  background: rgba(26, 28, 33, .72);
-  background: rgba(26, 28, 33, .72) var(--g-hair-dim) bottom / 100% 1px no-repeat;
-}
-.demo-chrome .title { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; }
-.demo-chrome .tag { font-family: var(--mono); font-size: 11px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 4px; padding: 1px 7px; font-weight: 400; }
-.demo-chrome .spacer { flex: 1; }
+.pane-head .ph-label { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12.5px; color: var(--ink-3); letter-spacing: .02em; min-width: 0; }
+.pane-head .ph-label .ic { color: var(--ink-3); }
+.pane-head .ph-label b { color: var(--ink); font-weight: 700; }
+.pane-head .ph-side { margin-left: auto; display: inline-flex; align-items: center; gap: 12px; }
+.pane-head .count { font-family: var(--mono); font-size: 11px; color: var(--ink-2); background: var(--bg3); border-radius: 4px; padding: 1px 7px; font-variant-numeric: tabular-nums; }
 
 .status { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-2); }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); }
@@ -565,7 +562,7 @@ h3 { font-size: 17px; }
 .status-dot.wait { background: var(--warn); animation: pulse 1s ease-in-out infinite; }
 @keyframes pulse { 50% { opacity: .35; } }
 
-.demo-body { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); height: 500px; }
+.demo-body { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); height: 500px; column-gap: clamp(32px, 4.5vw, 56px); }
 /* auto 而非 contain:面板滚到尽头后把滚动交还页面,
    否则鼠标悬停演示窗时滑轮会被吞掉,整页无法滚动。 */
 .pane { position: relative; overflow-y: auto; overscroll-behavior-y: auto; }
@@ -579,7 +576,19 @@ html.deck .pane-chat > *:nth-last-child(n+8) { display: none; }
    永远不显示——计数在涨而列表全空,读作没加载完 */
 html.deck .evlist > .ev-item.old { display: none; }
 html.deck .to-bottom { display: none; }
-.pane-chat { border-right: 1px solid var(--line); padding: 18px 18px 22px; display: flex; flex-direction: column; gap: 14px; }
+.pane-chat { padding: 6px 0 8px; display: flex; flex-direction: column; gap: 14px; }
+/* 底端锚定的实时流:子项一律不收缩——审批卡(overflow:hidden 会把
+   弹性 min-size 归零)必须保持自然高度,超出的旧内容交给顶部裁剪 */
+.pane-chat > * { flex-shrink: 0; }
+.pane-col { position: relative; display: flex; flex-direction: column; min-height: 0; }
+.pane-col > .pane { flex: 1; min-height: 0; }
+/* 列间垂直发丝线:向下渐隐,立在两列的空隙正中 */
+.pane-col:first-child::after {
+  content: ""; position: absolute; top: 6px; bottom: 12px;
+  right: calc(clamp(32px, 4.5vw, 56px) / -2); width: 1px;
+  background: linear-gradient(180deg, rgba(232, 233, 236, .28) 0%, rgba(232, 233, 236, .06) 72%, rgba(232, 233, 236, 0) 100%);
+  pointer-events: none;
+}
 .pane-audit { display: flex; flex-direction: column; overflow: hidden; }
 .pane::-webkit-scrollbar { width: 8px; }
 .pane::-webkit-scrollbar-thumb { background: #2c2f36; border-radius: 4px; }
@@ -591,7 +600,7 @@ html.deck .to-bottom { display: none; }
 .msg { max-width: 86%; font-size: 13.5px; line-height: 1.65; }
 .msg.user {
   align-self: flex-end;
-  background: rgba(26, 28, 33, .6);
+  background: transparent;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-lg);
   padding: 9px 13px;
@@ -603,10 +612,7 @@ html.deck .to-bottom { display: none; }
   display: flex; align-items: center; gap: 9px;
   font-family: var(--mono); font-size: 12px; color: var(--ink-2);
   font-variant-numeric: tabular-nums;
-  background: rgba(10, 11, 13, .55);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 8px 11px; max-width: 96%;
+  padding: 2px 0 2px 12px; max-width: 96%;
 }
 .tool-chip .ic { color: var(--ink-3); }
 .tool-chip b { color: var(--ink); font-weight: 600; }
@@ -616,7 +622,7 @@ html.deck .to-bottom { display: none; }
   align-self: stretch;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-lg);
-  background: rgba(26, 28, 33, .72);
+  background: transparent;
   overflow: hidden;
 }
 .approval-head {
@@ -636,12 +642,8 @@ html.deck .to-bottom { display: none; }
 
 .skill-btn { align-self: flex-start; }
 
-/* 审计时间线 */
-.audit-head { padding: 12px 14px 10px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
-.audit-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
-.audit-title .count { font-family: var(--mono); font-size: 11px; color: var(--ink-2); background: var(--bg3); border-radius: 4px; padding: 1px 7px; font-variant-numeric: tabular-nums; }
-.audit-title .btn { margin-left: auto; }
-.filters { display: flex; gap: 6px; }
+/* 审计时间线(02):台头即标签行,无盒——与 04 的台账头同语言 */
+.filters { display: flex; gap: 6px; padding: 12px 0 2px; }
 .filters button {
   font-family: inherit; font-size: 12px;
   background: transparent; color: var(--ink-3);
@@ -652,14 +654,14 @@ html.deck .to-bottom { display: none; }
 .filters button:hover { color: var(--ink); background: var(--bg3); }
 .filters button[aria-pressed="true"] { color: var(--accent); background: var(--accent-dim); }
 
-.evlist { flex: 1; overflow-y: auto; list-style: none; padding: 6px 0; }
+.evlist { flex: 1; overflow-y: auto; list-style: none; padding: 6px 0 0; }
 .ev-item.dyn-anim { animation: evin .28s ease-out; }
 @keyframes evin { from { opacity: 0; transform: translateY(5px); } }
 .ev-row {
   width: 100%; display: flex; align-items: center; gap: 9px;
   background: transparent; border: 0; text-align: left;
   font-family: inherit; color: var(--ink-2);
-  padding: 6px 14px; cursor: pointer; font-size: 12.5px; line-height: 1.55;
+  padding: 7px 0; cursor: pointer; font-size: 12.5px; line-height: 1.55;
 }
 .ev-row:hover { background: var(--bg3); }
 .ev-item.open .ev-row { background: var(--bg2); }
@@ -672,7 +674,7 @@ html.deck .to-bottom { display: none; }
 .ev-row .chev svg { display: block; }
 .ev-detail {
   display: grid; grid-template-rows: 0fr; opacity: 0;
-  margin: 0 14px 0 75px;
+  margin: 0 0 8px 75px;
   transition: grid-template-rows .18s ease-out, opacity .18s ease-out;
 }
 .ev-item.open .ev-detail { grid-template-rows: 1fr; opacity: 1; }
@@ -698,8 +700,9 @@ html.deck .to-bottom { display: none; }
 .to-bottom:hover { color: var(--ink); background: var(--bg3); }
 
 .audit-foot {
-  border-top: 1px solid var(--line);
-  padding: 8px 14px;
+  margin-top: auto;
+  padding: 9px 0 0;
+  background: var(--g-hair-dim) top / 100% 1px no-repeat;
   font-family: var(--mono); font-size: 11px; color: var(--ink-3);
   font-variant-numeric: tabular-nums;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -1111,8 +1114,10 @@ html.deck .to-bottom { display: none; }
   .demo-body { grid-template-columns: 1fr; height: auto; }
   /* 块内自适应规则会给 demo-body 一个 46svh 定高,双栏堆叠后会把两块面板压扁,这里放开 */
   html.deck .block .demo-body { height: auto; }
-  .pane-chat { border-right: 0; border-bottom: 1px solid var(--line); height: 380px; }
-  .pane-audit { height: 460px; }
+  .pane-col { height: 380px; }
+  .pane-col + .pane-col { height: 460px; }
+  .pane-chat { padding-bottom: 14px; background: var(--g-hair-dim) bottom / 100% 1px no-repeat; }
+  .pane-col:first-child::after { display: none; }
   .start-grid { grid-template-columns: 1fr; }
   .ledger-row, .tools .ledger-row { grid-template-columns: 1fr; gap: 8px; }
   .ledger-key { flex-wrap: wrap; }
@@ -1458,41 +1463,47 @@ html.js .line-draw.drawn::after {
       </div>
 
       <div class="demo-outer" id="demo-window">
-        <figure class="demo" aria-label="留痕 Agent 界面演示（由本页面本地驱动）">
-          <div class="demo-chrome">
-            <span class="title">
-              <svg class="ic" width="16" height="16" aria-hidden="true"><use href="#i-mark"/></svg>
-              留痕 Agent
-            </span>
-            <span class="tag">演示会话</span>
-            <span class="spacer"></span>
-            <span class="status"><span class="status-dot" id="statusDot"></span><span id="statusText" aria-live="polite">空闲</span></span>
-            <button class="btn sm" id="replayBtn" type="button">
-              <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-replay"/></svg>
-              重播
-            </button>
-          </div>
-
-          <noscript><p style="padding:14px 16px;margin:0;color:#a6abb5;font-size:13px;border-bottom:1px solid #26282e">启用 JavaScript 后，这里会播放一段本地驱动的实时演示：任务执行、审批请求、事件追加。</p></noscript>
+        <figure class="demo" aria-label="留痕 Agent 实时演示（由本页面本地驱动）">
+          <noscript><p style="padding:0 0 12px;margin:0;color:#a6abb5;font-size:13px">启用 JavaScript 后，这里会播放一段本地驱动的实时演示：任务执行、审批请求、事件追加。</p></noscript>
 
           <div class="demo-body">
-            <div class="pane pane-chat" id="chatPane">
-              <p class="msg user" data-seed>帮我把「下载」文件夹里的 PDF 按年份整理进子文件夹</p>
-              <p class="msg bot" data-seed>好的，先看一下里面有什么。</p>
-              <button class="to-bottom" id="chatToBottom" hidden type="button">
-                <svg class="ic" width="12" height="12" aria-hidden="true"><use href="#i-arrow-dn"/></svg>回到底部
-              </button>
+            <div class="pane-col">
+              <div class="pane-head">
+                <span class="ph-label">
+                  <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-message"/></svg>
+                  <b>演示会话</b><span>/ live demo</span>
+                </span>
+                <span class="ph-side">
+                  <span class="status"><span class="status-dot" id="statusDot"></span><span id="statusText" aria-live="polite">空闲</span></span>
+                  <button class="btn sm" id="replayBtn" type="button">
+                    <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-replay"/></svg>
+                    重播
+                  </button>
+                </span>
+              </div>
+              <div class="pane pane-chat" id="chatPane">
+                <p class="msg user" data-seed>帮我把「下载」文件夹里的 PDF 按年份整理进子文件夹</p>
+                <p class="msg bot" data-seed>好的，先看一下里面有什么。</p>
+                <button class="to-bottom" id="chatToBottom" hidden type="button">
+                  <svg class="ic" width="12" height="12" aria-hidden="true"><use href="#i-arrow-dn"/></svg>回到底部
+                </button>
+              </div>
             </div>
 
-            <div class="pane pane-audit">
-              <div class="audit-head">
-                <div class="audit-title">
-                  审计时间线
-                  <span class="count" id="evCount">2</span>
-                  <button class="btn sm" id="exportBtn" type="button">
-                    <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-download"/></svg>
-                    导出报告
-                  </button>
+            <div class="pane-col">
+              <div class="pane pane-audit">
+                <div class="pane-head">
+                  <span class="ph-label">
+                    <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-file"/></svg>
+                    <b>审计时间线</b><span>/ audit</span>
+                  </span>
+                  <span class="ph-side">
+                    <span class="count" id="evCount">2</span>
+                    <button class="btn sm" id="exportBtn" type="button">
+                      <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-download"/></svg>
+                      导出报告
+                    </button>
+                  </span>
                 </div>
                 <div class="filters" role="group" aria-label="按类型过滤事件">
                   <button type="button" data-filter="all" aria-pressed="true">全部</button>
@@ -1500,8 +1511,7 @@ html.js .line-draw.drawn::after {
                   <button type="button" data-filter="msg" aria-pressed="false">消息</button>
                   <button type="button" data-filter="approval" aria-pressed="false">审批</button>
                 </div>
-              </div>
-              <ul class="evlist" id="evList">
+                <ul class="evlist" id="evList">
                 <li class="ev-item" data-seed data-type="msg">
                   <button class="ev-row" type="button" aria-expanded="false">
                     <span class="t">--:--:--</span>
@@ -1521,10 +1531,11 @@ html.js .line-draw.drawn::after {
                   <div class="ev-detail"><div class="ev-detail-inner"><pre>{"type":"message","role":"assistant"}</pre></div></div>
                 </li>
               </ul>
-              <button class="to-bottom" id="evToBottom" hidden type="button">
-                <svg class="ic" width="12" height="12" aria-hidden="true"><use href="#i-arrow-dn"/></svg>回到底部
-              </button>
-              <p class="audit-foot" id="auditFoot">所有事件已追加写入 .data/sessions/demo/audit.jsonl</p>
+                <button class="to-bottom" id="evToBottom" hidden type="button">
+                  <svg class="ic" width="12" height="12" aria-hidden="true"><use href="#i-arrow-dn"/></svg>回到底部
+                </button>
+                <p class="audit-foot" id="auditFoot">所有事件已追加写入 .data/sessions/demo/audit.jsonl</p>
+              </div>
             </div>
           </div>
         </figure>
