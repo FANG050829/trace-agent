@@ -308,7 +308,8 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
    用户判定 v6.9"杂乱"——每块位置不同的光斑在六屏连播时读作随机
    blobs，叠上呼吸光与加亮的画布线条，光源太多。收敛为唯一系统：
    ① 顶光 --g-focus：所有块同一方向（光从顶上来），只微调亮度
-   ② 曝光弧线 --dim：纯黑面纱 0→.30，逐块下沉（跨屏叙事，实测 43%）
+   ② 曝光弧线 --dim：纯黑面纱 0→.22，逐块下沉（跨屏叙事保留；
+      v6.18 通透调校放缓坡度，日轨辉光得以透块而出）
    ③ 07 四角 vignette：唯一保留的"灯位"，它是压暗不是光池
    ④ 画布台账线 / 颗粒：材料，不是光
    面纱用 background-color（在图像层之下），vignette 与 focus 在图像层。
@@ -316,14 +317,14 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
 /* v6.13 颜色点缀:每块铭牌刻线一枚语义色(--tick-c),只用世界已有的
    执行四色与品牌钢蓝,不引入新色相;outro/未设块回落白色 g-hair。 */
 #demo { --dim: 0; --tick-c: var(--teal); }
-#gate { --dim: .07; --tick-c: var(--warn); }
-#timeline { --dim: .12; --tick-c: var(--ok); }
-#ability { --dim: .17; --tick-c: var(--accent); }
-#start { --dim: .23; --tick-c: var(--teal); }
+#gate { --dim: .05; --tick-c: var(--warn); }
+#timeline { --dim: .08; --tick-c: var(--ok); }
+#ability { --dim: .12; --tick-c: var(--accent); }
+#start { --dim: .16; --tick-c: var(--teal); }
 /* 07 边界:最深面纱 + 四角压暗的反向 vignette("禁地") */
 #edge {
   --g-lamp: radial-gradient(130% 108% at 50% 44%, rgba(0, 0, 0, 0) 52%, rgba(0, 0, 0, .32) 100%);
-  --dim: .30;
+  --dim: .22;
   --tick-c: var(--err);
 }
 .block:not(.hero-01)::before {
@@ -436,9 +437,10 @@ a:hover { text-decoration: underline; }
 .ic { flex: none; display: block; }
 
 /* ---------- 顶栏 ---------- */
+/* v6.18 通透调校:顶栏半透——页面的天光与辉光从标题栏后透上来 */
 .nav {
   position: sticky; top: 0; z-index: 50;
-  background: var(--bg0);
+  background: rgba(13, 14, 17, .8);
   border-bottom: 1px solid var(--line);
 }
 .nav-in { display: flex; align-items: center; gap: 28px; height: 60px; }
@@ -539,17 +541,19 @@ h3 { font-size: 17px; }
 
 /* ---------- 演示窗 ---------- */
 .demo-outer { margin-top: clamp(36px, 5vw, 52px); }
+/* v6.18 通透调校:演示窗从实底改为半透——日轨辉光贴着窗底掠过时,
+   亮线从窗体里透出来;对话流/审批卡/JSON 证据同步降为半透叠层 */
 .demo {
   border-radius: var(--radius-lg);
-  background: var(--bg1);
+  background: rgba(20, 21, 25, .75);
   overflow: hidden;
 }
 .demo::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--g-hair); z-index: 3; }
 .demo-chrome {
   display: flex; align-items: center; gap: 12px;
   height: 46px; padding-inline: 14px;
-  background: var(--bg2);
-  background: var(--bg2) var(--g-hair-dim) bottom / 100% 1px no-repeat;
+  background: rgba(26, 28, 33, .72);
+  background: rgba(26, 28, 33, .72) var(--g-hair-dim) bottom / 100% 1px no-repeat;
 }
 .demo-chrome .title { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; }
 .demo-chrome .tag { font-family: var(--mono); font-size: 11px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 4px; padding: 1px 7px; font-weight: 400; }
@@ -587,7 +591,7 @@ html.deck .to-bottom { display: none; }
 .msg { max-width: 86%; font-size: 13.5px; line-height: 1.65; }
 .msg.user {
   align-self: flex-end;
-  background: var(--bg2);
+  background: rgba(26, 28, 33, .6);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-lg);
   padding: 9px 13px;
@@ -599,7 +603,7 @@ html.deck .to-bottom { display: none; }
   display: flex; align-items: center; gap: 9px;
   font-family: var(--mono); font-size: 12px; color: var(--ink-2);
   font-variant-numeric: tabular-nums;
-  background: var(--bg-code);
+  background: rgba(10, 11, 13, .55);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 8px 11px; max-width: 96%;
@@ -612,7 +616,7 @@ html.deck .to-bottom { display: none; }
   align-self: stretch;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-lg);
-  background: var(--bg2);
+  background: rgba(26, 28, 33, .72);
   overflow: hidden;
 }
 .approval-head {
@@ -676,7 +680,7 @@ html.deck .to-bottom { display: none; }
 .ev-detail pre {
   font-family: var(--mono); font-size: 11.5px; line-height: 1.7;
   color: var(--ink-2); font-variant-numeric: tabular-nums;
-  background: var(--bg-code); border: 1px solid var(--line);
+  background: rgba(10, 11, 13, .55); border: 1px solid var(--line);
   border-radius: var(--radius); padding: 10px 12px; margin: 0 0 8px;
   white-space: pre; overflow-x: auto;
 }
@@ -685,7 +689,7 @@ html.deck .to-bottom { display: none; }
   position: absolute; left: 50%; transform: translateX(-50%);
   bottom: 12px; z-index: 3;
   font-family: inherit; font-size: 12px; color: var(--ink-2);
-  background: var(--bg2); border: 1px solid var(--line-strong); border-radius: 999px;
+  background: rgba(26, 28, 33, .85); border: 1px solid var(--line-strong); border-radius: 999px;
   padding: 4px 12px; cursor: pointer;
   display: inline-flex; align-items: center; gap: 5px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
@@ -739,7 +743,7 @@ html.deck .to-bottom { display: none; }
 .ledger-row .ev-proof pre {
   font-family: var(--mono); font-size: 12px; line-height: 1.8;
   color: var(--ink-2); font-variant-numeric: tabular-nums;
-  background: var(--bg-code); border: 1px solid var(--line);
+  background: rgba(10, 11, 13, .55); border: 1px solid var(--line);
   border-radius: var(--radius); padding: 11px 13px; margin: 4px 0 2px;
   white-space: pre; overflow-x: auto;
 }
@@ -806,10 +810,10 @@ html.deck .to-bottom { display: none; }
 .tier .acts { font-size: 13.5px; line-height: 1.7; color: var(--ink-2); text-wrap: pretty; }
 .tier[aria-pressed="false"] .acts { color: var(--ink-3); }
 
-/* 事件井:只留一根档位色渐变顶线,不再围框 */
+/* 事件井:只留一根档位色渐变顶线,不再围框(v6.18:实底同步改半透) */
 .tier-ev {
   margin-top: clamp(20px, 3vh, 34px); position: relative;
-  background: var(--bg-code); overflow: hidden;
+  background: rgba(10, 11, 13, .55); overflow: hidden;
 }
 .tier-ev::before {
   content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
@@ -849,17 +853,21 @@ html.deck .to-bottom { display: none; }
 .toolgrid-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
 .toolgrid-head h3 { font-size: 15px; }
 .toolgrid-head .cap { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+/* 05 工具网格:格子全透明——黑匣子底与日轨辉光能穿过格子,
+   发丝网格改由每格左/上的 -1px 外阴影补进 1px 缝隙;第一行/列
+   出界的两圈阴影被 overflow:hidden 裁掉,内线保留、外框依旧没有 */
 .tools-grid {
   display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 1px; background: var(--line);
+  gap: 1px;
   overflow: hidden;
 }
 .tool-cell {
-  background: var(--bg0); padding: 12px 14px;
+  background: transparent; padding: 12px 14px;
+  box-shadow: -1px 0 0 var(--line), 0 -1px 0 var(--line);
   display: flex; flex-direction: column; gap: 4px;
   transition: background .12s ease-out;
 }
-.tool-cell:hover { background: var(--bg2); }
+.tool-cell:hover { background: rgba(232, 233, 236, .05); }
 .tool-cell .zh { font-size: 14.5px; color: var(--ink); font-weight: 600; }
 .tool-cell .en { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
 /* 24 件在任何断点都整除(6/8/4/3/2),网格永远不出现空缺格漏底 */
@@ -934,7 +942,7 @@ html.deck .to-bottom { display: none; }
   font-family: inherit; color: inherit;
   transition: background .12s ease-out;
 }
-.aud-row-btn:hover { background: var(--bg1); }
+.aud-row-btn:hover { background: rgba(20, 21, 25, .6); }
 .aud-row-btn .t { font-family: var(--mono); font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .aud-row-btn .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); }
 .aud-row-btn .dot.d-op { background: var(--teal); }
@@ -959,7 +967,7 @@ html.deck .to-bottom { display: none; }
   font-family: var(--mono); font-size: 12px; line-height: 1.8;
   color: var(--ink-2); font-variant-numeric: tabular-nums;
   white-space: pre-wrap; overflow-wrap: anywhere;
-  background: var(--bg-code); border-radius: 6px;
+  background: rgba(10, 11, 13, .55); border-radius: 6px;
   padding: 10px 14px; margin: 2px 0 10px;
 }
 .aud-notes {
@@ -1001,7 +1009,8 @@ html.deck .to-bottom { display: none; }
 
 /* ---------- 快速开始 ---------- */
 .start-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(36px, 5vw, 64px); align-items: start; }
-.term { position: relative; background: var(--bg-code); overflow: hidden; }
+/* v6.18:终端窗不再填实底——黑匣子底与日轨辉光透上来,顶缘发丝线保留 */
+.term { position: relative; background: transparent; overflow: hidden; }
 .term::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--g-hair); }
 .term-head {
   display: flex; align-items: center; gap: 9px;
@@ -1087,7 +1096,7 @@ html.deck .to-bottom { display: none; }
 /* ---------- Toast ---------- */
 .toast {
   position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 8px);
-  z-index: 90; background: var(--bg2); border: 1px solid var(--line-strong);
+  z-index: 90; background: rgba(26, 28, 33, .92); border: 1px solid var(--line-strong);
   border-radius: var(--radius); padding: 10px 18px;
   font-size: 13px; color: var(--ink);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
@@ -1139,13 +1148,14 @@ html.deck .to-bottom { display: none; }
 }
 
 /* ============================================================
-   日轨地平线(v6.17.3):全局唯一的光事件——日出,两层合成。
-   [#sun-halo 地平线层] 亮线热缘 ~2px/α.90 贴轨迹半径,3px 内
-   骤降至 .30 再入大气光——锋刃与辉光分离,边际如刀;大气光分层
-   (12px .19 → 40px .11 → 95px .05 → 340px 低空余晖);线下
-   16px 内压暗、留 7px 薄明地缘,暗面越实边际越利。锥角彗尾:
-   头部 ±6° 全亮热区,尾部自 .42 起坡;头角前方 8° 分级衰减,
-   太阳未到的天留着晨曦。
+   日轨地平线(v6.18 晴朗空旷调校):全局唯一的光事件——日出,两层合成。
+   [#sun-halo 地平线层] 亮线热缘 ~2px/α.90 贴轨迹半径,锋刃保留;
+   大气光向两侧放宽——天侧新开晨光带(16px .19 → 40px .11 → 95px
+   .05 → 190px .02 → 340px 0),线下降余晖拉长(12px .21 → 40px
+   .14 → 95px .08 → 190px .04 → 340px .015 → 620px 0):晴空贴线的
+   一段亮带,地平线上下都透光,而非一条孤线悬在纯黑里。锥角遮罩
+   同步展宽(37°→64°):尾部自 .30 起坡、头部前方 28° 分级衰减,
+   整条可见弧段全线有光,地平线两端伸出屏幕——空旷感来自"线比屏宽"。
    [#sun-core 日核层,不受遮罩] 暖白盘 ~20px 实心软边(v6.17.4:点
    状核读作星芒,盘状核才是太阳)→ 琥珀辉朵 85px;光柱紧杆 7px
    .18 + 柔鞘 26px .055;**日锚热斑**(520×68px 扁椭圆贴线,α.14)
@@ -1157,25 +1167,32 @@ html.deck .to-bottom { display: none; }
 #sun-halo {
   position: fixed; inset: 0; z-index: -2; pointer-events: none;
   background: radial-gradient(circle var(--sun-r, 2592px) at var(--sun-cx, 50%) var(--sun-cy, 3300px),
-    rgba(236, 148, 86, 0) calc(var(--sun-r, 2592px) - 16px),
-    rgba(255, 220, 168, .07) calc(var(--sun-r, 2592px) - 7px),
-    rgba(255, 231, 192, .24) calc(var(--sun-r, 2592px) - 3px),
-    rgba(255, 237, 208, .58) calc(var(--sun-r, 2592px) - 1px),
+    rgba(255, 236, 208, 0) calc(var(--sun-r, 2592px) - 340px),
+    rgba(255, 233, 200, .02) calc(var(--sun-r, 2592px) - 190px),
+    rgba(255, 231, 194, .05) calc(var(--sun-r, 2592px) - 95px),
+    rgba(255, 230, 192, .11) calc(var(--sun-r, 2592px) - 40px),
+    rgba(255, 231, 196, .19) calc(var(--sun-r, 2592px) - 16px),
+    rgba(255, 234, 202, .27) calc(var(--sun-r, 2592px) - 7px),
+    rgba(255, 236, 206, .35) calc(var(--sun-r, 2592px) - 3px),
+    rgba(255, 240, 214, .58) calc(var(--sun-r, 2592px) - 1px),
     rgba(255, 244, 222, .90) calc(var(--sun-r, 2592px) + 1px),
     rgba(255, 231, 196, .30) calc(var(--sun-r, 2592px) + 4px),
-    rgba(255, 214, 156, .19) calc(var(--sun-r, 2592px) + 12px),
-    rgba(252, 188, 122, .11) calc(var(--sun-r, 2592px) + 40px),
-    rgba(240, 158, 94, .05) calc(var(--sun-r, 2592px) + 95px),
-    rgba(232, 146, 86, .022) calc(var(--sun-r, 2592px) + 190px),
-    rgba(228, 138, 82, 0) calc(var(--sun-r, 2592px) + 340px));
+    rgba(255, 216, 160, .21) calc(var(--sun-r, 2592px) + 12px),
+    rgba(252, 190, 126, .14) calc(var(--sun-r, 2592px) + 40px),
+    rgba(241, 160, 96, .08) calc(var(--sun-r, 2592px) + 95px),
+    rgba(233, 148, 88, .04) calc(var(--sun-r, 2592px) + 190px),
+    rgba(229, 140, 84, .015) calc(var(--sun-r, 2592px) + 340px),
+    rgba(227, 137, 82, 0) calc(var(--sun-r, 2592px) + 620px));
   -webkit-mask-image: conic-gradient(from calc(var(--sun-phi, 0deg) - 36deg) at var(--sun-cx, 50%) var(--sun-cy, 3300px),
-    transparent 0deg, rgba(0, 0, 0, .28) 5deg, rgba(0, 0, 0, .42) 9deg, rgba(0, 0, 0, .55) 14deg,
-    rgba(0, 0, 0, .65) 19deg, rgba(0, 0, 0, .74) 23deg, rgba(0, 0, 0, .82) 27deg,
-    #000 30deg 36deg, rgba(0, 0, 0, .6) 38.5deg, rgba(0, 0, 0, .26) 41deg, transparent 44deg);
+    transparent 0deg, rgba(0, 0, 0, .30) 5deg, rgba(0, 0, 0, .46) 10deg, rgba(0, 0, 0, .58) 15deg,
+    rgba(0, 0, 0, .68) 20deg, rgba(0, 0, 0, .78) 25deg, rgba(0, 0, 0, .88) 29deg,
+    #000 32deg 36deg, rgba(0, 0, 0, .70) 40deg, rgba(0, 0, 0, .46) 45deg,
+    rgba(0, 0, 0, .26) 51deg, rgba(0, 0, 0, .11) 57deg, transparent 64deg);
   mask-image: conic-gradient(from calc(var(--sun-phi, 0deg) - 36deg) at var(--sun-cx, 50%) var(--sun-cy, 3300px),
-    transparent 0deg, rgba(0, 0, 0, .28) 5deg, rgba(0, 0, 0, .42) 9deg, rgba(0, 0, 0, .55) 14deg,
-    rgba(0, 0, 0, .65) 19deg, rgba(0, 0, 0, .74) 23deg, rgba(0, 0, 0, .82) 27deg,
-    #000 30deg 36deg, rgba(0, 0, 0, .6) 38.5deg, rgba(0, 0, 0, .26) 41deg, transparent 44deg);
+    transparent 0deg, rgba(0, 0, 0, .30) 5deg, rgba(0, 0, 0, .46) 10deg, rgba(0, 0, 0, .58) 15deg,
+    rgba(0, 0, 0, .68) 20deg, rgba(0, 0, 0, .78) 25deg, rgba(0, 0, 0, .88) 29deg,
+    #000 32deg 36deg, rgba(0, 0, 0, .70) 40deg, rgba(0, 0, 0, .46) 45deg,
+    rgba(0, 0, 0, .26) 51deg, rgba(0, 0, 0, .11) 57deg, transparent 64deg);
 }
 #sun-core {
   position: fixed; inset: 0; z-index: -2; pointer-events: none;
@@ -2534,9 +2551,10 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
 
   /* ---- 日轨地平线:日出——彗尾式弧段 + 头部日核(v6.17) ----
      轨迹 = 半径 1.8 倍页宽的大圆(弧顶在屏高 76%),本身不画线;
-     地平线辉光是沿弧的 37° 弧段(头亮尾淡),--sun-phi 由 02→07
-     滚动进度线性驱动(-14.5°→+14.5°),翻页时整段弓形地平线沿弧
-     滑行,到 07 亮头抵达右端、整条地平线铺满。
+     地平线辉光是沿弧的 64° 弧段(v6.18 晴朗空旷:全线透光,头亮
+     尾淡),--sun-phi 由 02→07 滚动进度线性驱动(-14.5°→+14.5°),
+     翻页时整段弓形地平线沿弧滑行,到 07 亮头抵达右端、整条地平
+     线铺满。
      --sun-x/--sun-y 是弧线头角的大圆坐标(抬离亮线 6→16px,随翻
      页爬升),驱动 #sun-core 日核层(不受彗尾遮罩,与 #sun-halo
      同 z 值、DOM 序在上);几何(cx/cy/r)在 resize/load 复测,
