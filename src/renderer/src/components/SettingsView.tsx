@@ -77,19 +77,21 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
 
   return (
     <div className="settings-view">
+      <div className="settings-inner">
       <h2>设置</h2>
-
       <section>
         <h3>模型服务</h3>
         <p className="dim">选择一个服务商并填入 API Key。只要是 OpenAI 兼容接口都能用(智谱、DeepSeek、Kimi、通义、OpenAI 等)。</p>
         <div className="preset-row">
           {PRESETS.map((p, i) => (
-            <button key={p.name} className="ghost small" onClick={() => addProvider(i)}>
-              ＋ {p.name}
+            <button key={p.name} className="small" onClick={() => addProvider(i)}>
+              <Icon name="plus" size={12} />
+              {p.name}
             </button>
           ))}
-          <button className="ghost small" onClick={() => addProvider(null)}>
-            ＋ 自定义
+          <button className="small" onClick={() => addProvider(null)}>
+            <Icon name="plus" size={12} />
+            自定义
           </button>
         </div>
         {draft.providers.length === 0 && <div className="dim">还没有添加服务商,点上面的按钮快速添加。</div>}
@@ -208,10 +210,11 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
 
       <section>
         <h3>安全与审计</h3>
-        <div className="policy-group">
+        <div className="policy-group" role="radiogroup" aria-label="风险策略">
           {(['relaxed', 'standard', 'strict'] as RiskPolicy[]).map((p) => (
             <label key={p} className={`policy-card ${draft.riskPolicy === p ? 'active' : ''}`}>
               <input type="radio" name="riskPolicy" checked={draft.riskPolicy === p} onChange={() => upd({ riskPolicy: p })} />
+              <span className="policy-radio" aria-hidden="true" />
               <span>{p === 'relaxed' ? '宽松' : p === 'standard' ? '标准' : '严格'}</span>
               <em>{POLICY_DESC[p]}</em>
             </label>
@@ -389,10 +392,17 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
       </section>
 
       <div className="save-row">
-        {dirty && !saved && <span className="dirty-hint">● 有未保存的修改</span>}
+        {dirty && !saved && <span className="dirty-hint">有未保存的修改</span>}
         <button className="primary save-btn" onClick={save}>
-          {saved ? '✓ 已保存' : '保存设置'}
+          {saved ? (
+            <>
+              <Icon name="check" size={13} /> 已保存
+            </>
+          ) : (
+            '保存设置'
+          )}
         </button>
+      </div>
       </div>
     </div>
   )

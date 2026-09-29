@@ -30,6 +30,7 @@ export function TemplatesView({ onUse }: { onUse: (prompt: string) => void }): R
 
   return (
     <div className="templates-view">
+      <div className="page-inner">
       <h2>模板库</h2>
       <p className="dim">挑一个场景,填几个参数,agent 会带着完整的审计记录去执行。</p>
       {err && <div className="notice st-error">{err}</div>}
@@ -107,6 +108,7 @@ export function TemplatesView({ onUse }: { onUse: (prompt: string) => void }): R
           </section>
         )
       })}
+      </div>
     </div>
   )
 }

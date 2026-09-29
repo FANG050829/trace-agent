@@ -294,7 +294,13 @@ export default function App(): React.ReactNode {
       <main className="main">
         <header className="topbar">
           <div className="crumb">
-            {view === 'chat' ? activeMeta?.title ?? '欢迎' : view === 'templates' ? '模板库' : view === 'skills' ? '技能库' : '设置'}
+            {view === 'chat'
+              ? (activeMeta?.title ?? '欢迎')
+              : view === 'templates'
+                ? '资源'
+                : view === 'skills'
+                  ? '资源'
+                  : '配置'}
           </div>
           <div className="topbar-right">
             {view === 'chat' && activeModel && <span className="model-badge" title="当前使用的模型">{activeModel}</span>}

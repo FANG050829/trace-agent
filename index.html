@@ -57,7 +57,7 @@
   /* G1 页面基调：自上而下极轻亮度差，给纯黑一个"光从顶部来"的体积感 */
   --g-page: linear-gradient(180deg, #101218 0%, #0d0e11 45%, #0a0b0d 100%);
   /* G2 焦点暗角：当前块上方微亮，视线收拢 */
-  --g-focus: radial-gradient(120% 68% at 50% 0%, rgba(232, 233, 236, .045) 0%, rgba(232, 233, 236, 0) 62%);
+  --g-focus: radial-gradient(120% 68% at 50% 0%, rgba(232, 233, 236, .06) 0%, rgba(232, 233, 236, 0) 62%);
   /* G3 首屏标题：金属亮度差，全站仅此一处（配合下方 hero 渐变背景使用） */
   --g-type: linear-gradient(180deg, #f6f7f9 0%, #c8cdd6 55%, #9aa0aa 100%);
   /* G4 进度轨：当前刻度点亮并向右淡出 = "你在这里" */
@@ -71,15 +71,11 @@
      若在中点分界，正文会落进中灰死区（深墨/亮墨都只有 2.3:1）。
      推后分界让全部文字都落在亮区，用近黑即可达 AA。 */
   --g-hero: linear-gradient(180deg, #ffffff 0%, #f7f9fb 58%, #171a1f 88%, #050608 100%);
-  /* G6/G7/G8 空间洗光：空白处的光方向感。alpha ≤.07,单一色相,
-     读作"光的衰减"而非霓虹;按块交替使用,同一视口至多一层。 */
-  --g-wash-steel: radial-gradient(52% 44% at 82% 12%, rgba(108, 158, 230, .055) 0%, rgba(108, 158, 230, 0) 72%);
-  --g-wash-teal: radial-gradient(48% 42% at 12% 82%, rgba(95, 179, 163, .05) 0%, rgba(95, 179, 163, 0) 72%);
-  --g-wash-out: radial-gradient(70% 60% at 50% 40%, rgba(108, 158, 230, .07) 0%, rgba(108, 158, 230, 0) 74%);
+  /* G6/G7 空间洗光已由 v6.9 逐块布光(--g-lamp)取代,令牌随之删除 */
   /* v6 黑匣子材料:渐变发丝线 / 幽灵编号 / 收尾书挡 */
   --g-hair: linear-gradient(90deg, rgba(232, 233, 236, .55) 0%, rgba(232, 233, 236, .05) 40%, rgba(232, 233, 236, 0) 75%);
   --g-hair-dim: linear-gradient(90deg, rgba(232, 233, 236, .34) 0%, rgba(232, 233, 236, 0) 80%);
-  --g-ghost: linear-gradient(180deg, rgba(232, 233, 236, .14) 0%, rgba(232, 233, 236, 0) 78%);
+  --g-ghost: linear-gradient(180deg, rgba(232, 233, 236, .19) 0%, rgba(232, 233, 236, 0) 78%);
   --g-outro: linear-gradient(180deg, #05060a 0%, #0d0e11 30%, #e9edf3 88%, #f7f9fb 100%);
 }
 
@@ -112,11 +108,18 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
 /* flex:1 让 wrap 撑满块高(百分比 height 对 min-height 父级无效);
    品牌行钉顶,hero-main 用 margin-top:auto 贴底——对角张力,全部流内 */
 .hero-01 .wrap { flex: 1; display: flex; flex-direction: column; }
-.hero-01 .hero-main { margin-top: auto; padding-bottom: clamp(24px, 4vh, 48px); }
+/* v6.11 四角构图:主张独占整行,副句/规线/提示走左列,右列(行2-5)给留痕流 */
+.hero-01 .hero-main {
+  margin-top: auto; padding-bottom: clamp(24px, 4vh, 48px);
+  display: grid; grid-template-columns: minmax(0, 1fr) 310px;
+  column-gap: clamp(24px, 3vw, 40px);
+}
+.hero-01 .hero-trail { grid-column: 2; grid-row: 2 / 5; align-self: end; width: 310px; }
 /* 品牌行的版本徽标(亮区配色,流内) */
 .hero-01 .ver { font-family: var(--mono); font-size: 11px; color: #565b64; border: 1px solid rgba(16, 17, 20, .18); border-radius: 4px; padding: 1px 6px; }
 .hero-01 .block-mark, .hero-01 .hero-name { color: #101114; }
 .hero-01 .hero-thesis {
+  grid-column: 1 / -1;
   /* 深色金属渐变字:亮区里的主角,与背景同向衰减 */
   background: linear-gradient(180deg, #101114 0%, #3a3f47 100%);
   -webkit-background-clip: text; background-clip: text;
@@ -127,6 +130,57 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
 .hero-01 .hero-hint { color: #b6bbc3; }
 .hero-01 .hero-hint .kbd { border-color: rgba(232, 233, 236, .3); color: #dfe2e7; }
 .hero-01 .hero-rule { background: rgba(16, 17, 20, .18); }
+
+/* ---------- v6.12 大字化证据(用户两轮否掉容器后的换法) ----------
+   诊断:11px 密集小字的"容器"(铭牌/羽化池)接不住 118px 主张的尺度,
+   描边与羽化只是在修饰贴片感。换法核心 = 把证据升维成排版:
+   右上:中尺度数字组——JBM 800 大数字 + mono 小标签,补上 118px 与
+   11px 之间的尺度中间层;金属渐变字与主张同族;纯文字零容器。
+   右下:留痕三行——无容器无底,直接印在暗带上;顶部背景实测 ≤91,
+   文字全部提亮到 #e8e9ec/#b6bbc3 家族,对比度 ≥4.6:1。 */
+.hero-stats {
+  align-self: flex-end;
+  margin-top: clamp(16px, 2.6vh, 28px);
+  display: flex; flex-direction: column; align-items: flex-end;
+  gap: 10px; text-align: right;
+}
+.hs-line { display: flex; gap: clamp(28px, 3.4vw, 48px); }
+.hs { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; }
+.hs .n {
+  font-family: var(--font-display); font-weight: 800;
+  font-size: clamp(40px, 4vw, 56px); line-height: .95; letter-spacing: -.03em;
+  /* 与主张同族的金属渐变字:证据和论点是同一种"字" */
+  background: linear-gradient(180deg, #101114 0%, #3a3f47 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.hs .l {
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em;
+  color: #565b64;
+}
+.hs-note { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: #565b64; }
+
+.hero-trail { display: flex; flex-direction: column; gap: 5px; }
+.ht-head {
+  display: flex; align-items: baseline; gap: 7px;
+  padding-bottom: 6px;
+  font-size: 11px; letter-spacing: .05em; color: #dfe2e7;
+  background: var(--g-hair-dim) bottom / 100% 1px no-repeat;
+}
+.ht-head b { color: #e8e9ec; font-weight: 700; font-size: 12px; }
+.ht-row { display: flex; align-items: center; gap: 9px; font-size: 11.5px; color: #c9ced6; white-space: nowrap; }
+.ht-row .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; background: var(--ink-3); }
+.ht-row .dot.d-wait { background: var(--warn); }
+.ht-row .dot.d-ok { background: var(--ok); }
+.ht-row .t { font-size: 11px; }
+.ht-row .op { color: #e8e9ec; font-weight: 600; }
+@media (max-width: 980px) {
+  .hero-01 .hero-main { grid-template-columns: minmax(0, 1fr); }
+  .hero-trail { display: none; }
+}
+@media (max-width: 560px) {
+  .hero-stats { display: none; }
+}
 
 
 /* 首屏 01 的版式：标记 + 名字 + 主张 + 继续提示，逐行淡入 */
@@ -178,7 +232,8 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
 }
 .sec-label::before {
   content: ""; width: 26px; height: 1px; flex: none;
-  background: var(--g-hair);
+  /* v6.13:刻线染该块的语义色(--tick-c),26px 渐隐——每屏至多一枚的颜色点缀 */
+  background: linear-gradient(90deg, var(--tick-c, rgba(232, 233, 236, .55)) 0%, rgba(232, 233, 236, 0) 100%);
 }
 .block h2 {
   font-size: clamp(32px, 4.6vw, 58px);
@@ -197,14 +252,14 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
 .block .sec-head .lead { margin-top: 14px; line-height: 1.8; }
 .block .demo-cap { max-width: 76ch; line-height: 1.7; }
 .block .tier .acts { line-height: 1.65; }
-.block .demo-body { height: clamp(280px, 43svh, 440px); }
+.block .demo-body { height: clamp(280px, 41svh, 440px); }
 .block .demo-outer { margin-top: clamp(14px, 2.2vh, 30px); }
 .block .tiers, .block .toolgrid, .block .edgem { margin-top: clamp(12px, 1.8vh, 22px); }
-.block .tool-cell { padding: 8px 10px; }
-.block .edgem-row { padding: 11px 0; }
+.block .tool-cell { padding: 13px 14px; }
+.block .edgem-row { padding: 16px 0; }
 .block .shots { margin-top: clamp(16px, 2.4vh, 32px); }
-.block .split, .block .start-grid { gap: clamp(20px, 3vw, 44px); }
-.block .steps li { padding: 11px 0; }
+.block .start-grid { gap: clamp(20px, 3vw, 44px); }
+.block .steps li { padding: 13px 0; }
 .block .steps { margin-top: 0; }
 .block .start-note { margin-top: 14px; line-height: 1.75; }
 .block .tbl td { padding: 7px 12px; }
@@ -218,23 +273,21 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
   font-size: clamp(16px, 1.8vw, 19px);
   max-width: 36ch; line-height: 1.7;
 }
-/* 04 能力清单:间距与字号 */
-.block .feats li { padding: 14px 0; font-size: 15.5px; line-height: 1.7; }
-/* 04 留痕块：压缩说明与代码卡，让截图轨道成为视觉主体 */
-.block .feats li { padding: 10px 0; }
-.block .codecard pre { padding: 12px 14px; line-height: 1.7; }
-/* 能力块的工具网格在矮屏收成更紧凑的列 */
+/* 能力块的工具网格在矮屏收成 8 列(24 整除,不留空缺格) */
 @media (max-height: 800px) {
-  .block .tools-grid { grid-template-columns: repeat(auto-fill, minmax(122px, 1fr)); }
+  .tools-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
   .block .demo-body { height: clamp(260px, 42svh, 420px); }
 }
-.block:not(.hero-01) { background: var(--bg0); }
-#outro { background: var(--g-outro); --g-wash: none; }
+/* 中间块不再压一层平黑:透明让 body 的 --g-page(自上而下极轻亮度差)整幅透上来,
+   每块共享同一束"从顶部来的光",而非六块各自平黑 */
+.block:not(.hero-01) { background: transparent; }
+#outro { background: var(--g-outro); }
 
 /* 幽灵编号:每块的铭牌,白→透明的亮度渐变,JBM 800。
    它同时承担"你在第几屏"的位置感与界面的记忆点。 */
 .block-ghost {
-  position: absolute; top: clamp(4px, 3vh, 28px); right: clamp(12px, 4vw, 56px);
+  /* top 下限必须高于 sticky 导航(60px + 1px 边),否则编号上缘被导航吞掉 */
+  position: absolute; top: clamp(64px, 8vh, 96px); right: clamp(12px, 4vw, 56px);
   z-index: 0; pointer-events: none; user-select: none;
   font-family: 'JBM', 'Cascadia Code', monospace; font-weight: 800;
   font-size: clamp(130px, 22vw, 300px); line-height: .92; letter-spacing: -.05em;
@@ -250,15 +303,34 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
 }
 .hero-01::after { background: linear-gradient(90deg, rgba(255, 255, 255, .5) 0%, rgba(255, 255, 255, 0) 70%); }
 
-/* 空白处洗光:每块至多一层,方向交替,避免同一视口内叠光 */
-#demo { --g-wash: var(--g-wash-steel); }
-#timeline { --g-wash: var(--g-wash-teal); }
-#ability { --g-wash: var(--g-wash-steel); }
-#start { --g-wash: var(--g-wash-teal); }
-.block:not(.hero-01) { --g-wash: none; }
+/* ============================================================
+   v6.10 光语言收敛：六盏灯与呼吸光已删，只留一种光
+   用户判定 v6.9"杂乱"——每块位置不同的光斑在六屏连播时读作随机
+   blobs，叠上呼吸光与加亮的画布线条，光源太多。收敛为唯一系统：
+   ① 顶光 --g-focus：所有块同一方向（光从顶上来），只微调亮度
+   ② 曝光弧线 --dim：纯黑面纱 0→.30，逐块下沉（跨屏叙事，实测 43%）
+   ③ 07 四角 vignette：唯一保留的"灯位"，它是压暗不是光池
+   ④ 画布台账线 / 颗粒：材料，不是光
+   面纱用 background-color（在图像层之下），vignette 与 focus 在图像层。
+   ============================================================ */
+/* v6.13 颜色点缀:每块铭牌刻线一枚语义色(--tick-c),只用世界已有的
+   执行四色与品牌钢蓝,不引入新色相;outro/未设块回落白色 g-hair。 */
+#demo { --dim: 0; --tick-c: var(--teal); }
+#gate { --dim: .07; --tick-c: var(--warn); }
+#timeline { --dim: .12; --tick-c: var(--ok); }
+#ability { --dim: .17; --tick-c: var(--accent); }
+#start { --dim: .23; --tick-c: var(--teal); }
+/* 07 边界:最深面纱 + 四角压暗的反向 vignette("禁地") */
+#edge {
+  --g-lamp: radial-gradient(130% 108% at 50% 44%, rgba(0, 0, 0, 0) 52%, rgba(0, 0, 0, .32) 100%);
+  --dim: .30;
+  --tick-c: var(--err);
+}
 .block:not(.hero-01)::before {
   content: ""; position: absolute; inset: 0;
-  background: var(--g-wash), var(--g-focus); pointer-events: none;
+  background-color: rgba(0, 0, 0, var(--dim, 0));
+  background-image: var(--g-lamp, none), var(--g-focus);
+  pointer-events: none;
 }
 /* z-index 直接作用于 flex 子项,不需要 position:relative——
    relative 会让 .wrap 成为子元素绝对定位的包含块(品牌行会掉进内容流) */
@@ -344,9 +416,9 @@ body::after {
 ::-webkit-scrollbar-thumb:hover { background: #3a3e46; background-clip: content-box; }
 ::-webkit-scrollbar-track { background: transparent; }
 /* 代码井内横向滚动条收窄回 8px,与窗格竖条一致 */
-.codecard pre::-webkit-scrollbar, .term pre::-webkit-scrollbar,
+.term pre::-webkit-scrollbar,
 .ev-detail pre::-webkit-scrollbar, .approval-body::-webkit-scrollbar { height: 8px; }
-.codecard pre::-webkit-scrollbar-thumb, .term pre::-webkit-scrollbar-thumb,
+.term pre::-webkit-scrollbar-thumb,
 .ev-detail pre::-webkit-scrollbar-thumb, .approval-body::-webkit-scrollbar-thumb {
   border-radius: 4px; border-width: 2px;
 }
@@ -374,9 +446,20 @@ a:hover { text-decoration: underline; }
 .brand:hover { text-decoration: none; }
 .brand .ic { color: var(--ink); }
 .brand .ver { font-family: var(--mono); font-size: 11px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; font-weight: 400; }
-.nav-links { display: flex; gap: 22px; margin-left: auto; }
-.nav-links a { color: var(--ink-2); font-size: 13.5px; }
+.nav-links { display: flex; gap: 4px; margin-left: auto; }
+.nav-links a {
+  color: var(--ink-2); font-size: 13.5px;
+  display: inline-flex; align-items: center; height: 60px;
+  padding-inline: 11px; position: relative;
+  transition: color .15s ease-out;
+}
 .nav-links a:hover { color: var(--ink); text-decoration: none; }
+/* 当前节:钢蓝文字 + 1px 下沿指示线盖住导航底边——仪表页签语义 */
+.nav-links a.current { color: var(--accent); }
+.nav-links a.current::after {
+  content: ""; position: absolute; left: 10px; right: 10px; bottom: -1px;
+  height: 1px; background: var(--accent);
+}
 .nav-gh {
   display: inline-flex; align-items: center; gap: 6px;
   color: var(--ink-2); font-size: 13px;
@@ -384,8 +467,6 @@ a:hover { text-decoration: underline; }
   transition: color .12s ease-out, border-color .12s ease-out;
 }
 .nav-gh:hover { color: var(--ink); border-color: var(--line-strong); text-decoration: none; }
-.nav .btn { margin-left: 0; }
-.nav-links + .btn { margin-left: 4px; }
 
 /* ---------- 按钮(与应用同款) ---------- */
 .btn {
@@ -431,8 +512,8 @@ h3 { font-size: 17px; }
 .hero-pulse {
   position: relative;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 13px 2px;
-  font-family: var(--mono); font-size: 12.5px; color: var(--ink-3);
+  padding: 15px 2px;
+  font-family: var(--mono); font-size: 13.5px; color: var(--ink-3);
   font-variant-numeric: tabular-nums;
 }
 .hero-pulse::before {
@@ -450,7 +531,7 @@ h3 { font-size: 17px; }
 }
 .hero-pulse .lp:first-child { padding-left: 0; }
 .hero-pulse .lp:last-child { padding-right: 0; }
-.hero-pulse .sd { width: 7px; height: 7px; border-radius: 50%; background: #3a3e46; flex: none; transition: background .2s ease-out; }
+.hero-pulse .sd { width: 8px; height: 8px; border-radius: 50%; background: #3a3e46; flex: none; transition: background .2s ease-out; }
 .hero-pulse .lp.run .sd { background: var(--teal); }
 .hero-pulse .lp.wait .sd { background: var(--warn); }
 .hero-pulse .lp .op { transition: color .2s ease-out; }
@@ -489,7 +570,10 @@ h3 { font-size: 17px; }
 html.deck .pane { overflow-y: hidden; }
 html.deck .pane-chat { justify-content: flex-end; }
 html.deck .pane-chat > *:nth-last-child(n+8) { display: none; }
-html.deck .evlist > .ev-item:nth-child(-n+4) { display: none; }
+/* deck 演示窗时间线只保留最近 8 条:旧条目由 JS 打 .old 类下沉隐藏。
+   原实现用 nth-child(-n+4) 按位置硬隐藏,演示刚开始时前 4 条(含全部种子)
+   永远不显示——计数在涨而列表全空,读作没加载完 */
+html.deck .evlist > .ev-item.old { display: none; }
 html.deck .to-bottom { display: none; }
 .pane-chat { border-right: 1px solid var(--line); padding: 18px 18px 22px; display: flex; flex-direction: column; gap: 14px; }
 .pane-audit { display: flex; flex-direction: column; overflow: hidden; }
@@ -694,7 +778,6 @@ html.deck .to-bottom { display: none; }
   background: none; border: 0; padding: 18px 0 0;
   position: relative;
   display: flex; flex-direction: column; gap: 8px;
-  opacity: .45;
   transition: opacity .16s ease-out;
 }
 .tier::before {
@@ -703,19 +786,24 @@ html.deck .to-bottom { display: none; }
   opacity: .55;
   transition: opacity .16s ease-out;
 }
-.tier:hover { opacity: .78; }
-.tier[aria-pressed="true"] { opacity: 1; }
+.tier:hover::before { opacity: .85; }
 .tier[aria-pressed="true"]::before { opacity: 1; }
+/* 亮度阶梯只落在档名与释义(大字,选中态 ≥3:1 达标);
+   说明文字不参与透明度混合,始终以 ink-3/ink-2 保底对比度 */
+.tier .tier-en, .tier .tier-zh { opacity: .58; transition: opacity .16s ease-out; }
+.tier:hover .tier-en, .tier:hover .tier-zh { opacity: .85; }
+.tier[aria-pressed="true"] .tier-en, .tier[aria-pressed="true"] .tier-zh { opacity: 1; }
 .tier[data-tier="safe"] { --tc: var(--ok); }
 .tier[data-tier="confirm"] { --tc: var(--warn); }
 .tier[data-tier="dangerous"] { --tc: var(--err); }
 .tier-en {
   font-family: var(--mono); font-weight: 800;
-  font-size: clamp(20px, 2.2vw, 28px); letter-spacing: -.01em;
+  /* 标本级尺度:三档档名是本块的主角,JBM 800 + 档位语义色 */
+  font-size: clamp(34px, 3.9vw, 56px); line-height: 1.05; letter-spacing: -.02em;
   color: var(--tc);
 }
-.tier-zh { font-size: 15px; font-weight: 700; color: var(--ink); }
-.tier .acts { font-size: 13px; line-height: 1.7; color: var(--ink-2); text-wrap: pretty; }
+.tier-zh { font-size: 16.5px; font-weight: 700; color: var(--ink); }
+.tier .acts { font-size: 13.5px; line-height: 1.7; color: var(--ink-2); text-wrap: pretty; }
 .tier[aria-pressed="false"] .acts { color: var(--ink-3); }
 
 /* 事件井:只留一根档位色渐变顶线,不再围框 */
@@ -762,18 +850,22 @@ html.deck .to-bottom { display: none; }
 .toolgrid-head h3 { font-size: 15px; }
 .toolgrid-head .cap { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
 .tools-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 1px; background: var(--line);
   overflow: hidden;
 }
 .tool-cell {
-  background: var(--bg0); padding: 11px 12px;
+  background: var(--bg0); padding: 12px 14px;
   display: flex; flex-direction: column; gap: 4px;
   transition: background .12s ease-out;
 }
 .tool-cell:hover { background: var(--bg2); }
-.tool-cell .zh { font-size: 13px; color: var(--ink); font-weight: 600; }
-.tool-cell .en { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+.tool-cell .zh { font-size: 14.5px; color: var(--ink); font-weight: 600; }
+.tool-cell .en { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+/* 24 件在任何断点都整除(6/8/4/3/2),网格永远不出现空缺格漏底 */
+@media (max-width: 1100px) { .tools-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .tools-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 420px) { .tools-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* ---------- 事实行(05 块):一行一事,渐变发丝线托底 ---------- */
 .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 2vw, 28px); }
@@ -798,7 +890,7 @@ html.deck .to-bottom { display: none; }
 /* ---------- 边界矩阵(07):无盒子,渐变刻线分行,键列直接排 ---------------- */
 .edgem { margin-top: clamp(14px, 2.4vh, 28px); }
 .edgem-row {
-  display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 8px 28px;
+  display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 8px 28px;
   padding: 15px 0;
   position: relative;
 }
@@ -807,50 +899,88 @@ html.deck .to-bottom { display: none; }
   background: var(--g-hair); opacity: .8;
 }
 .edgem-k {
-  font-size: 14px; font-weight: 700; color: var(--ink);
+  font-size: 16.5px; font-weight: 700; color: var(--ink);
   display: flex; align-items: center; gap: 9px;
 }
 .edgem-k .ic { color: var(--ink-3); }
-.edgem-v { display: flex; flex-wrap: wrap; gap: 7px; }
-.edgem-v .chip { color: var(--ink-2); font-size: 12.5px; }
+.edgem-v { display: flex; flex-wrap: wrap; gap: 8px; }
+.edgem-v .chip { color: var(--ink-2); font-size: 13.5px; }
+/* v6.13 点缀(07):四行都是"红线"语义,行图标染错误红;
+   引导句两个粗体关键词是审批/警示语义,染琥珀——与审批档同色 */
+#edge .edgem-k .ic { color: var(--err); }
+#edge .lead b { color: var(--warn); font-weight: 600; }
 @media (max-width: 760px) {
   .edgem-row { grid-template-columns: 1fr; gap: 8px; }
 }
 
-/* ---------- 时间线与报告 ---------- */
-.split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(36px, 5vw, 64px); align-items: start; }
-.feats { list-style: none; display: flex; flex-direction: column; counter-reset: ft; }
-.feats li { counter-increment: ft; }
-.feats li::before {
-  content: counter(ft, decimal-leading-zero);
-  font-family: var(--mono); font-weight: 800; font-size: 11px;
-  color: var(--ink-3); letter-spacing: .05em; margin-top: 6px; flex: none;
+/* ---------- 时间线与报告(04):台账标本——人读的事件行,点开即原文 ---------- */
+.audit-led { margin-top: clamp(4px, 0.8vh, 10px); }
+.aud-head {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding-bottom: 12px;
+  background: var(--g-hair) bottom / 100% 1px no-repeat;
 }
-.feats li { display: flex; gap: 12px; padding: 13px 0; color: var(--ink-2); font-size: 15px; background: var(--g-hair-dim) bottom / 100% 1px no-repeat; }
-.feats li:first-child { padding-top: 0; }
-.feats .ic { color: var(--ok); margin-top: 5px; }
-.feats b { color: var(--ink); font-weight: 600; }
-.feats .feats-btn { display: block; margin-top: 16px; }
-.feats .feats-btn .btn { margin-top: 0; }
-.codecard { position: relative; background: var(--bg-code); overflow: hidden; }
-.codecard::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--g-hair); }
-.codecard-head {
-  display: flex; align-items: center; gap: 9px;
-  padding: 11px 14px 9px;
+.aud-head .ic { color: var(--ink-3); }
+.aud-head .fn { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: .02em; }
+.aud-head .lock { font-family: var(--mono); font-size: 11px; color: var(--ink-3); letter-spacing: .05em; }
+.aud-head .copy-btn { margin-left: auto; }
+.aud-row + .aud-row { background: var(--g-hair-dim) top / 100% 1px no-repeat; }
+.aud-row-btn {
+  width: 100%; display: grid;
+  grid-template-columns: 66px 7px 124px minmax(0, 1fr) 14px;
+  align-items: center; gap: 14px;
+  padding: 14px 10px; margin-inline: -10px;
+  background: none; border: 0; cursor: pointer; text-align: left;
+  font-family: inherit; color: inherit;
+  transition: background .12s ease-out;
 }
-.codecard-head .fn, .term-head .fn { color: var(--ink); font-weight: 700; letter-spacing: .02em; }
-  font-family: var(--mono); font-size: 12px; color: var(--ink-2);
-  font-variant-numeric: tabular-nums;
+.aud-row-btn:hover { background: var(--bg1); }
+.aud-row-btn .t { font-family: var(--mono); font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.aud-row-btn .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); }
+.aud-row-btn .dot.d-op { background: var(--teal); }
+.aud-row-btn .dot.d-wait { background: var(--warn); }
+.aud-row-btn .dot.d-ok { background: var(--ok); }
+.aud-row-btn .op { font-family: var(--mono); font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+.aud-row-btn .x {
+  font-size: 14.5px; color: var(--ink-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: color .12s ease-out;
 }
-.codecard-head .lock { margin-left: auto; color: var(--ink-3); font-size: 11px; }
-.codecard pre {
-  font-family: var(--mono); font-size: 12.5px; line-height: 1.85;
+.aud-row-btn:hover .x, .aud-row-btn[aria-expanded="true"] .x { color: var(--ink); }
+.aud-row-btn .chev { display: flex; color: var(--ink-3); transition: transform .15s ease-out; }
+.aud-row-btn[aria-expanded="true"] .chev { transform: rotate(90deg); }
+.aud-detail {
+  display: grid; grid-template-rows: 0fr; opacity: 0;
+  transition: grid-template-rows .18s ease-out, opacity .18s ease-out;
+}
+.aud-row.open .aud-detail { grid-template-rows: 1fr; opacity: 1; }
+.aud-detail-inner { overflow: hidden; }
+.aud-detail pre {
+  font-family: var(--mono); font-size: 12px; line-height: 1.8;
   color: var(--ink-2); font-variant-numeric: tabular-nums;
-  padding: 16px 18px; overflow-x: auto; white-space: pre;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+  background: var(--bg-code); border-radius: 6px;
+  padding: 10px 14px; margin: 2px 0 10px;
 }
-.codecard pre .k { color: var(--ink); }
-.codecard pre .s { color: var(--teal); }
-.codecard pre .c { color: var(--ink-3); }
+.aud-notes {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 28px);
+  margin-top: clamp(22px, 3.2vh, 36px);
+}
+.aud-note {
+  display: flex; gap: 12px; padding-top: 14px;
+  font-size: 14px; line-height: 1.7; color: var(--ink-2);
+  background: linear-gradient(90deg, rgba(232, 233, 236, .3) 0%, rgba(232, 233, 236, 0) 85%) top / 100% 1px no-repeat;
+}
+.aud-note .nk {
+  font-family: var(--mono); font-weight: 800; font-size: 11.5px;
+  color: var(--ink-3); letter-spacing: .05em; margin-top: 5px; flex: none;
+}
+@media (max-width: 760px) {
+  .aud-row-btn { grid-template-columns: 60px 7px minmax(0, 1fr) 14px; }
+  .aud-row-btn .op { display: none; }
+  .aud-notes { grid-template-columns: 1fr; }
+}
 
 /* ---------- 能力 ---------- */
 .tools .ledger-key { flex-direction: column; align-items: flex-start; gap: 2px; }
@@ -878,9 +1008,10 @@ html.deck .to-bottom { display: none; }
   padding: 11px 14px 9px;
   font-family: var(--mono); font-size: 11.5px; color: var(--ink-3);
 }
+.term-head .fn { color: var(--ink); font-weight: 700; letter-spacing: .02em; }
 .term pre {
-  font-family: var(--mono); font-size: 13px; line-height: 2;
-  padding: 16px 18px; overflow-x: auto; white-space: pre;
+  font-family: var(--mono); font-size: 14.5px; line-height: 2;
+  padding: 18px 20px; overflow-x: auto; white-space: pre;
   font-variant-numeric: tabular-nums;
 }
 .term .ps { color: var(--teal); }
@@ -912,6 +1043,18 @@ html.deck .to-bottom { display: none; }
 /* 页脚是 08 收尾块的贴底部分(margin-top:auto 吸收剩余空间):
    deck 总高恰为 8 屏,End 键即可见页脚,不再有第 9 屏。
    08 的背景是黑→白书挡渐变,页脚落在亮区,颜色整体翻成深墨。 */
+/* ---------- v6.14 收束句(08):浏览留痕计数升格为正文 ----------
+   落在曝光带上部(暗区):#dfe2e7 在实测背景 (45→76) 上 ≥6:1;
+   数字 JBM 800 纯白,进入本块 0→当前值 0.8s 缓动落定(reduced 直出)。 */
+.outro-audit {
+  margin-top: clamp(30px, 5vh, 52px);
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+  font-size: clamp(17px, 1.9vw, 23px);
+  font-weight: 600; letter-spacing: .02em; line-height: 1.55;
+  color: #dfe2e7;
+}
+.outro-audit b { font-weight: 800; font-size: 1.22em; color: #ffffff; }
+
 #outro footer {
   margin-top: auto;
   border-top: 1px solid rgba(16, 17, 20, .16);
@@ -920,8 +1063,7 @@ html.deck .to-bottom { display: none; }
 }
 #outro footer .wrap { padding-block: 0; }
 #outro footer .brand { color: #101114; }
-#outro footer .meta, #outro footer .foot-audit, #outro footer .foot-tag { color: #565b64; }
-#outro footer .foot-audit b { color: #2b2f36; }
+#outro footer .meta, #outro footer .foot-tag { color: #565b64; }
 #outro footer .foot-links a { color: #4a4f58; }
 #outro footer .foot-links a:hover { color: #101114; }
 #outro .sec-head h2 {
@@ -940,8 +1082,6 @@ html.deck .to-bottom { display: none; }
   margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line);
 }
 .foot-row2 .meta { color: var(--ink-3); font-size: 12px; }
-.foot-audit { font-size: 11.5px; color: var(--ink-3); margin-left: auto; }
-.foot-audit b { color: var(--ink-2); font-weight: 600; }
 .foot-tag { font-size: 11.5px; color: var(--ink-3); }
 
 /* ---------- Toast ---------- */
@@ -964,7 +1104,7 @@ html.deck .to-bottom { display: none; }
   html.deck .block .demo-body { height: auto; }
   .pane-chat { border-right: 0; border-bottom: 1px solid var(--line); height: 380px; }
   .pane-audit { height: 460px; }
-  .split, .start-grid { grid-template-columns: 1fr; }
+  .start-grid { grid-template-columns: 1fr; }
   .ledger-row, .tools .ledger-row { grid-template-columns: 1fr; gap: 8px; }
   .ledger-key { flex-wrap: wrap; }
   .hero-thesis { max-width: none; }
@@ -998,7 +1138,65 @@ html.deck .to-bottom { display: none; }
   z-index: -1; pointer-events: none;
 }
 
-.nav-links a.current { color: var(--accent); }
+/* ============================================================
+   日轨地平线(v6.17.3):全局唯一的光事件——日出,两层合成。
+   [#sun-halo 地平线层] 亮线热缘 ~2px/α.90 贴轨迹半径,3px 内
+   骤降至 .30 再入大气光——锋刃与辉光分离,边际如刀;大气光分层
+   (12px .19 → 40px .11 → 95px .05 → 340px 低空余晖);线下
+   16px 内压暗、留 7px 薄明地缘,暗面越实边际越利。锥角彗尾:
+   头部 ±6° 全亮热区,尾部自 .42 起坡;头角前方 8° 分级衰减,
+   太阳未到的天留着晨曦。
+   [#sun-core 日核层,不受遮罩] 暖白盘 ~20px 实心软边(v6.17.4:点
+   状核读作星芒,盘状核才是太阳)→ 琥珀辉朵 85px;光柱紧杆 7px
+   .18 + 柔鞘 26px .055;**日锚热斑**(520×68px 扁椭圆贴线,α.14)
+   让太阳近旁的亮线局部变白变厚——单色渐变给不了的"沿线色温
+   变化";中心 = --sun-y + --sun-lift,精确贴线。中心抬离亮线的
+   高度由 JS 驱动(t=0 抬 6px → t=1 抬 16px,太阳随翻页爬升)。
+   两层同 z-index:-2,DOM 序定上下;01/08 不透明底自然遮住。
+   ============================================================ */
+#sun-halo {
+  position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background: radial-gradient(circle var(--sun-r, 2592px) at var(--sun-cx, 50%) var(--sun-cy, 3300px),
+    rgba(236, 148, 86, 0) calc(var(--sun-r, 2592px) - 16px),
+    rgba(255, 220, 168, .07) calc(var(--sun-r, 2592px) - 7px),
+    rgba(255, 231, 192, .24) calc(var(--sun-r, 2592px) - 3px),
+    rgba(255, 237, 208, .58) calc(var(--sun-r, 2592px) - 1px),
+    rgba(255, 244, 222, .90) calc(var(--sun-r, 2592px) + 1px),
+    rgba(255, 231, 196, .30) calc(var(--sun-r, 2592px) + 4px),
+    rgba(255, 214, 156, .19) calc(var(--sun-r, 2592px) + 12px),
+    rgba(252, 188, 122, .11) calc(var(--sun-r, 2592px) + 40px),
+    rgba(240, 158, 94, .05) calc(var(--sun-r, 2592px) + 95px),
+    rgba(232, 146, 86, .022) calc(var(--sun-r, 2592px) + 190px),
+    rgba(228, 138, 82, 0) calc(var(--sun-r, 2592px) + 340px));
+  -webkit-mask-image: conic-gradient(from calc(var(--sun-phi, 0deg) - 36deg) at var(--sun-cx, 50%) var(--sun-cy, 3300px),
+    transparent 0deg, rgba(0, 0, 0, .28) 5deg, rgba(0, 0, 0, .42) 9deg, rgba(0, 0, 0, .55) 14deg,
+    rgba(0, 0, 0, .65) 19deg, rgba(0, 0, 0, .74) 23deg, rgba(0, 0, 0, .82) 27deg,
+    #000 30deg 36deg, rgba(0, 0, 0, .6) 38.5deg, rgba(0, 0, 0, .26) 41deg, transparent 44deg);
+  mask-image: conic-gradient(from calc(var(--sun-phi, 0deg) - 36deg) at var(--sun-cx, 50%) var(--sun-cy, 3300px),
+    transparent 0deg, rgba(0, 0, 0, .28) 5deg, rgba(0, 0, 0, .42) 9deg, rgba(0, 0, 0, .55) 14deg,
+    rgba(0, 0, 0, .65) 19deg, rgba(0, 0, 0, .74) 23deg, rgba(0, 0, 0, .82) 27deg,
+    #000 30deg 36deg, rgba(0, 0, 0, .6) 38.5deg, rgba(0, 0, 0, .26) 41deg, transparent 44deg);
+}
+#sun-core {
+  position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(ellipse 7px 300px at var(--sun-x, 50%) calc(var(--sun-y, calc(76vh - 6px)) - 150px),
+      rgba(255, 232, 196, .18) 0, rgba(255, 220, 176, .07) 45%, rgba(255, 212, 168, 0) 100%),
+    radial-gradient(ellipse 26px 330px at var(--sun-x, 50%) calc(var(--sun-y, calc(76vh - 6px)) - 165px),
+      rgba(255, 224, 182, .055) 0, rgba(255, 214, 170, .025) 55%, rgba(255, 205, 158, 0) 100%),
+    radial-gradient(circle 85px at var(--sun-x, 50%) var(--sun-y, calc(76vh - 6px)),
+      rgba(255, 253, 246, .98) 0, rgba(255, 252, 244, .96) 5px, rgba(255, 248, 232, .82) 10px,
+      rgba(255, 236, 204, .42) 16px, rgba(255, 218, 176, .16) 30px,
+      rgba(246, 176, 108, .06) 55px, rgba(244, 172, 106, 0) 85px),
+    radial-gradient(ellipse 260px 34px at var(--sun-x, 50%) calc(var(--sun-y, calc(76vh - 6px)) + var(--sun-lift, 10px) - 2px),
+      rgba(255, 236, 198, .14) 0, rgba(255, 226, 180, .05) 55%, rgba(255, 216, 170, 0) 100%);
+}
+
+/* ============================================================
+   背景光场（v6.10 现状）：呼吸光已删（v6.10 光语言收敛，见 DESIGN.md）。
+   中间块背景 = --g-page（整幅顶光坡）+ ::before（顶光 focus + 曝光面纱）
+   + 画布台账线 + 颗粒。环境光单一方向,唯一光事件是 #sun-halo 日轨弓形辉光。
+   ============================================================ */
 
 /* 新事件落位的留痕脉冲(与应用的 trail-settle 同源:钢蓝弱化底沉降) */
 .ev-item.dyn-anim .ev-row { animation: trail-settle 1s ease-out; }
@@ -1019,6 +1217,8 @@ html.deck .to-bottom { display: none; }
   .ev-item.dyn-anim .ev-row { animation: none; }
   .hero-01 .hero-reveal { animation: none; }
   .ev-detail { transition: none; }
+  .aud-detail { transition: none; }
+  .aud-row-btn .chev { transition: none; }
 }
 
 /* ============================================================
@@ -1091,6 +1291,8 @@ html.js .line-draw.drawn::after {
      its provenance.
      ============================================================ -->
 
+<div id="sun-halo" aria-hidden="true"></div>
+<div id="sun-core" aria-hidden="true"></div>
 <canvas id="traceCanvas" aria-hidden="true"></canvas>
 
 <svg hidden aria-hidden="true" style="display:none" xmlns="http://www.w3.org/2000/svg">
@@ -1189,6 +1391,15 @@ html.js .line-draw.drawn::after {
         <span class="hero-name">留痕 Agent</span>
         <span class="ver">v0.1.0</span>
       </div>
+      <!-- v6.12 大字化证据:事实升维成中尺度数字组(补上 118px 与 11px 之间的尺度层),纯排版零容器 -->
+      <div class="hero-stats hero-reveal" style="--d:240ms" aria-label="关键事实">
+        <div class="hs-line">
+          <div class="hs"><span class="n">24</span><span class="l">工具</span></div>
+          <div class="hs"><span class="n">3</span><span class="l">档审批门</span></div>
+          <div class="hs"><span class="n">8</span><span class="l">个模板</span></div>
+        </div>
+        <p class="hs-note">MIT 开源 · 数据只写本机，不上传</p>
+      </div>
       <div class="hero-main hero-reveal" style="--d:80ms">
         <h1 class="hero-thesis">替你操作电脑，<br>每一步都留痕。</h1>
         <p class="hero-tail">你亲眼核对它做过的每一件事，而不是相信它。</p>
@@ -1198,6 +1409,13 @@ html.js .line-draw.drawn::after {
           <span>继续</span>
           <span class="arrow" aria-hidden="true">↓</span>
         </p>
+        <!-- 留痕三行:无容器,纯文字沉在暗带里(顶部背景 ≤91,全部文字 ≥4.6:1) -->
+        <aside class="hero-trail" aria-label="留痕流示例">
+          <div class="ht-head hero-reveal" style="--d:460ms"><b>audit.jsonl</b><span>· 示例</span></div>
+          <div class="ht-row hero-reveal" style="--d:520ms"><span class="dot d-wait" aria-hidden="true"></span><span class="t">19:41:05</span><span class="op">approval.wait</span><span class="hx">等待你批准</span></div>
+          <div class="ht-row hero-reveal" style="--d:580ms"><span class="dot d-ok" aria-hidden="true"></span><span class="t">19:41:31</span><span class="op">approval.ok</span><span class="hx">已批准 · 22 秒后执行</span></div>
+          <div class="ht-row hero-reveal" style="--d:640ms"><span class="dot d-ok" aria-hidden="true"></span><span class="t">19:41:33</span><span class="op">fs.verify</span><span class="hx">8/8 就位 · 0 覆盖</span></div>
+        </aside>
       </div>
     </div>
   </section>
@@ -1347,40 +1565,104 @@ html.js .line-draw.drawn::after {
         <p class="sec-label" aria-hidden="true">留痕与报告 / timeline</p>
         <h2>发生过的事，查得到，带得走。</h2>
       </div>
-      <div class="split">
-        <ul class="feats">
-          <li class="rise line-draw">
-            <span>按发生顺序追加，可过滤、可搜索。</span>
-          </li>
-          <li class="rise line-draw">
-            <span>点开任意事件，JSON 原文俱在。</span>
-          </li>
-          <li class="rise line-draw">
-            <span>单文件 HTML 报告，截图内嵌，带走即归档。</span>
-            <span class="feats-btn"><button class="btn sm" id="exportBtn2" type="button"><svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-download"/></svg>导出演示报告</button></span>
-          </li>
-        </ul>
-        <div class="codecard">
-          <div class="codecard-head">
-            <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-file"/></svg>
-            <b class="fn">audit.jsonl</b>
-            <span class="lock">只追加，永不覆盖</span>
-            <button class="btn sm copy-btn" data-copy='{"ts":"19:25:02","type":"message","role":"user","text":"把下载文件夹里的 PDF 按年份整理"}
+      <!-- 台账标本:人读的事件行(点开即 JSON 原文)——"查得到"落在行上,"带得走"落在头部动作 -->
+      <div class="audit-led rise">
+        <div class="aud-head">
+          <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-file"/></svg>
+          <b class="fn">audit.jsonl</b>
+          <span class="lock">只追加，永不覆盖</span>
+          <button class="btn sm copy-btn" data-copy='{"ts":"19:25:02","type":"message","role":"user","text":"把下载里的 PDF 按年份整理"}
 {"ts":"19:25:04","type":"fs.list","path":"Downloads","count":12}
+{"ts":"19:25:06","type":"screen.capture","target":"全屏"}
 {"ts":"19:25:09","type":"approval.wait","action":"fs.move","policy":"confirm"}
 {"ts":"19:25:31","type":"approval.ok","by":"user"}
-{"ts":"19:25:33","type":"fs.move","from":"Downloads/报价单2024.pdf","to":"Downloads/2024/报价单2024.pdf"}' type="button">
-              <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-copy"/></svg>
-              复制
-            </button>
-          </div>
-          <pre><span class="c">// 每行一个事件，按发生顺序追加</span>
-{"ts":"<span class="k">19:25:02</span>","type":"message","role":"user","text":"<span class="s">把下载文件夹里的 PDF 按年份整理</span>"}
-{"ts":"<span class="k">19:25:04</span>","type":"fs.list","path":"<span class="s">Downloads</span>","count":12}
-{"ts":"<span class="k">19:25:09</span>","type":"approval.wait","action":"fs.move","policy":"<span class="s">confirm</span>"}
-{"ts":"<span class="k">19:25:31</span>","type":"approval.ok","by":"<span class="s">user</span>"}
-{"ts":"<span class="k">19:25:33</span>","type":"fs.move","from":"<span class="s">Downloads/报价单2024.pdf</span>","to":"<span class="s">Downloads/2024/报价单2024.pdf</span>"}</pre>
+{"ts":"19:25:33","type":"fs.move","from":"合同2024.pdf","to":"2024/合同2024.pdf"}
+{"ts":"19:25:36","type":"fs.verify","expect":8,"ok":8}' type="button">
+            <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-copy"/></svg>
+            复制原文
+          </button>
+          <button class="btn sm" id="exportBtn2" type="button">
+            <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-download"/></svg>
+            导出演示报告
+          </button>
         </div>
+        <div class="aud-rows">
+          <div class="aud-row">
+            <button class="aud-row-btn" type="button" aria-expanded="false">
+              <span class="t">19:25:02</span>
+              <span class="dot d-msg" aria-hidden="true"></span>
+              <span class="op">message</span>
+              <span class="x">用户：把下载里的 PDF 按年份整理</span>
+              <span class="chev"><svg width="12" height="12" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+            </button>
+            <div class="aud-detail"><div class="aud-detail-inner"><pre>{"ts":"19:25:02","type":"message","role":"user","text":"把下载里的 PDF 按年份整理"}</pre></div></div>
+          </div>
+          <div class="aud-row">
+            <button class="aud-row-btn" type="button" aria-expanded="false">
+              <span class="t">19:25:04</span>
+              <span class="dot d-op" aria-hidden="true"></span>
+              <span class="op">fs.list</span>
+              <span class="x">Downloads · 12 项</span>
+              <span class="chev"><svg width="12" height="12" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+            </button>
+            <div class="aud-detail"><div class="aud-detail-inner"><pre>{"ts":"19:25:04","type":"fs.list","path":"Downloads","count":12}</pre></div></div>
+          </div>
+          <div class="aud-row">
+            <button class="aud-row-btn" type="button" aria-expanded="false">
+              <span class="t">19:25:06</span>
+              <span class="dot d-op" aria-hidden="true"></span>
+              <span class="op">screen.capture</span>
+              <span class="x">全屏截图，已写入审计</span>
+              <span class="chev"><svg width="12" height="12" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+            </button>
+            <div class="aud-detail"><div class="aud-detail-inner"><pre>{"ts":"19:25:06","type":"screen.capture","target":"全屏"}</pre></div></div>
+          </div>
+          <div class="aud-row">
+            <button class="aud-row-btn" type="button" aria-expanded="false">
+              <span class="t">19:25:09</span>
+              <span class="dot d-wait" aria-hidden="true"></span>
+              <span class="op">approval.wait</span>
+              <span class="x">移动 8 个文件 · 等待你批准</span>
+              <span class="chev"><svg width="12" height="12" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+            </button>
+            <div class="aud-detail"><div class="aud-detail-inner"><pre>{"ts":"19:25:09","type":"approval.wait","action":"fs.move","policy":"confirm"}</pre></div></div>
+          </div>
+          <div class="aud-row">
+            <button class="aud-row-btn" type="button" aria-expanded="false">
+              <span class="t">19:25:31</span>
+              <span class="dot d-ok" aria-hidden="true"></span>
+              <span class="op">approval.ok</span>
+              <span class="x">已批准 · 等待 22 秒后执行</span>
+              <span class="chev"><svg width="12" height="12" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+            </button>
+            <div class="aud-detail"><div class="aud-detail-inner"><pre>{"ts":"19:25:31","type":"approval.ok","by":"user"}</pre></div></div>
+          </div>
+          <div class="aud-row">
+            <button class="aud-row-btn" type="button" aria-expanded="false">
+              <span class="t">19:25:33</span>
+              <span class="dot d-op" aria-hidden="true"></span>
+              <span class="op">fs.move</span>
+              <span class="x">合同2024.pdf → 2024/合同2024.pdf</span>
+              <span class="chev"><svg width="12" height="12" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+            </button>
+            <div class="aud-detail"><div class="aud-detail-inner"><pre>{"ts":"19:25:33","type":"fs.move","from":"合同2024.pdf","to":"2024/合同2024.pdf"}</pre></div></div>
+          </div>
+          <div class="aud-row">
+            <button class="aud-row-btn" type="button" aria-expanded="false">
+              <span class="t">19:25:36</span>
+              <span class="dot d-ok" aria-hidden="true"></span>
+              <span class="op">fs.verify</span>
+              <span class="x">8 个文件全部就位 · 0 覆盖</span>
+              <span class="chev"><svg width="12" height="12" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+            </button>
+            <div class="aud-detail"><div class="aud-detail-inner"><pre>{"ts":"19:25:36","type":"fs.verify","expect":8,"ok":8}</pre></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="aud-notes rise">
+        <div class="aud-note"><span class="nk">01</span><span>按发生顺序追加，可过滤、可搜索。</span></div>
+        <div class="aud-note"><span class="nk">02</span><span>点开任意事件，JSON 原文俱在。</span></div>
+        <div class="aud-note"><span class="nk">03</span><span>单文件 HTML 报告，截图内嵌，带走即归档。</span></div>
       </div>
     </div>
   </section>
@@ -1454,7 +1736,7 @@ html.js .line-draw.drawn::after {
           <div class="term-head">
             <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-terminal"/></svg>
             <b class="fn">Windows PowerShell</b>
-            <button class="btn sm copy-btn" data-copy="git clone https://github.com/FANG050829/trace-agent.git&#10;cd trace-agent&#10;npm install&#10;npm run dev" type="button">
+            <button class="btn sm copy-btn" data-copy="# 克隆仓库，安装依赖，启动开发模式&#10;git clone https://github.com/FANG050829/trace-agent.git&#10;cd trace-agent&#10;npm install&#10;npm run dev&#10;&#10;# 不想装环境？打出 Windows 安装包（NSIS），装完即用&#10;npm run dist&#10;&#10;# 本地模型：安装并启动 Ollama 后，设置页选「使用本地 Ollama」&#10;ollama pull qwen3:8b" type="button">
               <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-copy"/></svg>
               复制
             </button>
@@ -1463,7 +1745,13 @@ html.js .line-draw.drawn::after {
 <span class="cmd">git clone</span> <span class="s">https://github.com/FANG050829/trace-agent.git</span>
 <span class="cmd">cd trace-agent</span>
 <span class="cmd">npm install</span>
-<span class="cmd">npm run dev</span></pre>
+<span class="cmd">npm run dev</span>
+
+<span class="cm"># 不想装环境？打出 Windows 安装包（NSIS），装完即用</span>
+<span class="cmd">npm run dist</span>
+
+<span class="cm"># 本地模型：安装并启动 Ollama 后，设置页选「使用本地 Ollama」</span>
+<span class="cmd">ollama pull qwen3:8b</span></pre>
         </div>
         <div>
           <ol class="steps">
@@ -1556,6 +1844,11 @@ html.js .line-draw.drawn::after {
         </a>
         <a class="btn" href="#start">看五分钟上手</a>
       </div>
+      <!-- v6.14 收束句:页脚真实计数升格为正文——全篇说"它做过的都留痕",
+           末页告诉访客"你刚才的浏览也被留痕了"(纯内存计数,不上传) -->
+      <p class="outro-audit rise">
+        本次浏览已留痕 <b id="cntAll">0</b> 条事件（点击 <span id="cntClicks">0</span> · 浏览 <span id="cntViews">0</span>）· 仅记录于本页，不上传
+      </p>
     </div>
 
     <footer>
@@ -1583,7 +1876,6 @@ html.js .line-draw.drawn::after {
         </div>
         <div class="foot-row2 rise">
           <span class="meta">v0.1.0 · MIT License · © 2026 youxi</span>
-          <span class="foot-audit mono">本次浏览已留痕 <b id="cntAll">0</b> 条事件（点击 <span id="cntClicks">0</span> · 浏览 <span id="cntViews">0</span>）· 仅记录于本页内存，不上传</span>
           <span class="foot-tag mono">audit.jsonl · 只追加，永不覆盖</span>
         </div>
       </div>
@@ -1709,8 +2001,16 @@ html.js .line-draw.drawn::after {
     });
     applyFilterTo(li);
     evList.appendChild(li);
+    trimEvView();
     evCount.textContent = String(S.events.length);
     if (evStick()) evList.scrollTop = evList.scrollHeight;
+  }
+
+  // 只保留最近 8 条在视图里(超出的旧事件打 .old,导出报告仍含全部)
+  function trimEvView() {
+    const items = $$('.ev-item', evList);
+    const drop = items.length - 8;
+    items.forEach((li, i) => li.classList.toggle('old', i < drop));
   }
 
   function addEvent(type, text, detail) {
@@ -1881,6 +2181,7 @@ html.js .line-draw.drawn::after {
     S.filter = 'all';
     $$('.filters button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.filter === 'all')));
     $$('.ev-item', evList).forEach(li => { li.hidden = false; });
+    trimEvView();
     chatPane.scrollTop = 0;
     evList.scrollTop = 0;
     setStatus('idle');
@@ -2137,7 +2438,6 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
   const STAGGER = 60, MAX_STEP = 7;
   const stageGroups = [
     ...$$('.ledger').map(l => $$('.ledger-row', l)),
-    $$('.feats'),
     $$('.steps'),
     ...$$('.tbl tbody'),
     $$('.foot-row2'),
@@ -2187,6 +2487,27 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
     $$('.count-up').forEach(runCount);
   }
 
+  /* ---------------- v6.14 收束句数字落定 ----------------
+     进入 08 块时,计数从 0 缓动到当前真实值(0.8s,与数字落定同曲线),
+     结束后交还 renderCount 实时更新;reduced-motion 与无观察器直接显示。 */
+  const outroAudit = $('.outro-audit');
+  if (outroAudit && 'IntersectionObserver' in window) {
+    const aio = new IntersectionObserver(entries => {
+      if (!entries.some(en => en.isIntersecting)) return;
+      aio.disconnect();
+      const to = sess.clicks + sess.views;
+      if (reduced || to <= 0) { renderCount(); return; }
+      const t0 = performance.now(), dur = 800;
+      (function tick(t) {
+        const k = Math.min(1, (t - t0) / dur);
+        if (cnt.all) cnt.all.textContent = String(Math.round(to * (1 - Math.pow(1 - k, 3))));
+        if (k < 1) requestAnimationFrame(tick);
+        else renderCount();
+      })(t0);
+    }, { threshold: 0.6 });
+    aio.observe(outroAudit);
+  }
+
   /* ================= deck 交互：受控整块滚动 =================
      滚轮 / 键盘 / 锚点 / 刻度轨全部走同一条 animateTo 缓动曲线，
      一次滚动 = 精确落在块边界。动画期间滚轮事件被吞掉并把锁顺延，
@@ -2210,6 +2531,56 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
   // 首次测量时部分动态内容(分档事件行等)尚未填充、字体尚未就位,载入后复测
   addEventListener('load', measureBlocks);
   setTimeout(measureBlocks, 450);
+
+  /* ---- 日轨地平线:日出——彗尾式弧段 + 头部日核(v6.17) ----
+     轨迹 = 半径 1.8 倍页宽的大圆(弧顶在屏高 76%),本身不画线;
+     地平线辉光是沿弧的 37° 弧段(头亮尾淡),--sun-phi 由 02→07
+     滚动进度线性驱动(-14.5°→+14.5°),翻页时整段弓形地平线沿弧
+     滑行,到 07 亮头抵达右端、整条地平线铺满。
+     --sun-x/--sun-y 是弧线头角的大圆坐标(抬离亮线 6→16px,随翻
+     页爬升),驱动 #sun-core 日核层(不受彗尾遮罩,与 #sun-halo
+     同 z 值、DOM 序在上);几何(cx/cy/r)在 resize/load 复测,
+     scroll 走 rAF 节流。 */
+  const halo = $('#sun-halo'), core = $('#sun-core');
+  // 变量必须同时写两层:二者是兄弟节点,内联自定义属性不随兄弟继承
+  function sunSet(k, v) {
+    halo.style.setProperty(k, v);
+    if (core) core.style.setProperty(k, v);
+  }
+  const sun = { top0: 0, top1: 1, cx: 0, r: 1, cy: 0, th: 0 };
+  function sunMeasure() {
+    const demo = $('#demo'), edge = $('#edge');
+    if (!demo || !edge || !halo) return;
+    sun.top0 = demo.offsetTop;
+    sun.top1 = edge.offsetTop;
+    sun.cx = innerWidth / 2;
+    sun.r = innerWidth * 1.8;
+    sun.cy = innerHeight * 0.76 + sun.r;
+    sun.th = Math.asin(innerWidth * 0.45 / sun.r);
+    sunSet('--sun-cx', sun.cx.toFixed(1) + 'px');
+    sunSet('--sun-cy', sun.cy.toFixed(1) + 'px');
+    sunSet('--sun-r', sun.r.toFixed(1) + 'px');
+    sunPaint();
+  }
+  function sunPaint() {
+    if (!halo) return;
+    const t = Math.min(1, Math.max(0, (scrollY - sun.top0) / (sun.top1 - sun.top0 || 1)));
+    const rad = sun.th * (2 * t - 1);
+    sunSet('--sun-phi', (rad * 180 / Math.PI).toFixed(2) + 'deg');
+    sunSet('--sun-x', (sun.cx + sun.r * Math.sin(rad)).toFixed(1) + 'px');
+    // 抬升 6→16px:一天随翻页推进,太阳缓缓爬离地平线
+    const lift = 6 + 10 * t;
+    sunSet('--sun-y', (sun.cy - sun.r * Math.cos(rad) - lift).toFixed(1) + 'px');
+    sunSet('--sun-lift', lift.toFixed(1) + 'px');   // 日锚热斑用它贴线
+  }
+  let sunRaf = 0;
+  addEventListener('scroll', () => {
+    if (sunRaf) return;
+    sunRaf = requestAnimationFrame(() => { sunRaf = 0; sunPaint(); });
+  }, { passive: true });
+  addEventListener('resize', sunMeasure);
+  addEventListener('load', sunMeasure);
+  sunMeasure();
 
   /* ---- 统一缓动动画：全部导航的唯一下注点 ---- */
   const EASE = t => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -2381,7 +2752,7 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
   /* ---------------- 复制到剪贴板 ---------------- */
   $$('.copy-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
-      const text = btn.dataset.copy || (btn.closest('.term, .codecard')?.querySelector('pre')?.textContent ?? '');
+      const text = btn.dataset.copy || (btn.closest('.term, .audit-led')?.querySelector('pre')?.textContent ?? '');
       try {
         await navigator.clipboard.writeText(text);
       } catch {
@@ -2403,6 +2774,14 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
         if (use) use.setAttribute('href', '#i-copy');
       }, 1400);
     });
+  });
+
+  /* ---------------- 04 台账:点行展开 JSON 原文 ---------------- */
+  document.addEventListener('click', e => {
+    const b = e.target.closest('.aud-row-btn');
+    if (!b) return;
+    const open = b.closest('.aud-row').classList.toggle('open');
+    b.setAttribute('aria-expanded', String(open));
   });
 
   /* ---------------- 方案一:三档审批门的示意条 ---------------- */

@@ -44,6 +44,7 @@ export function SkillsView({ onRun }: { onRun: (prompt: string) => void }): Reac
 
   return (
     <div className="skills-view">
+      <div className="page-inner">
       <div className="skills-head">
         <div>
           <h2>技能库</h2>
@@ -78,6 +79,7 @@ export function SkillsView({ onRun }: { onRun: (prompt: string) => void }): Reac
             patchLocal={patchLocal}
           />
         ))}
+      </div>
       </div>
 
       {editing && (
