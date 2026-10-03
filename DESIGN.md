@@ -22,6 +22,26 @@ colors:
   press-white: "#ffffff"
   press-black: "#101114"
   overlay-scrim: "rgba(8, 9, 12, 0.7)"
+  # ——— 介绍页 v6：金属亮度渐变与纸面亮区 ———
+  metal-hi: "#f6f7f9"
+  metal-mid: "#c8cdd6"
+  metal-lo: "#9aa0aa"
+  metal-deep: "#3a3f47"
+  hero-paper: "#f7f9fb"
+  outro-paper: "#e9edf3"
+  # ——— 介绍页 v6：亮暗过渡区文字阶 ———
+  ink-strong: "#2b2f36"
+  ink-bright: "#dfe2e7"
+  ink-soft: "#c9ced6"
+  ink-hint: "#b6bbc3"
+  ink-meta: "#565b64"
+  ink-outro-link: "#4a4f58"
+  # ——— 交互与系统面 ———
+  scroll-thumb: "#2c2f36"
+  scroll-thumb-hover: "#3a3e46"
+  err-red-hover: "#f0a3a3"
+  black: "#000000"
+  float-shadow: "rgba(0, 0, 0, 0.45)"
 typography:
   title:
     fontFamily: "'Segoe UI Variable Text', 'Segoe UI', 'Microsoft YaHei UI', 'Microsoft YaHei', system-ui, sans-serif"
@@ -92,11 +112,78 @@ typography:
     fontWeight: 400
     lineHeight: "1.8"
     letterSpacing: "normal"
+  web-mono-display:
+    fontFamily: "'JBM', 'JetBrains Mono', 'Cascadia Code', 'Cascadia Mono', Consolas, 'Courier New', monospace"
+    fontSize: "12px"
+    fontWeight: 800
+    lineHeight: 1.5
+  web-thesis:
+    fontFamily: "'JBM', 'Cascadia Code', 'Segoe UI Variable Display', 'Microsoft YaHei', system-ui, sans-serif"
+    fontSize: "clamp(46px, 8.2vw, 118px)"
+    fontWeight: 800
+    lineHeight: 1.02
+    letterSpacing: "-0.035em"
+  web-hero-name:
+    fontFamily: "'JBM', 'Cascadia Code', 'Segoe UI Variable Display', 'Microsoft YaHei', system-ui, sans-serif"
+    fontSize: "clamp(22px, 2.6vw, 30px)"
+    fontWeight: 600
+    lineHeight: 1.2
+    letterSpacing: "-0.01em"
+  web-hero-stat:
+    fontFamily: "'JBM', 'Cascadia Code', 'Segoe UI Variable Display', 'Microsoft YaHei', system-ui, sans-serif"
+    fontSize: "clamp(40px, 4vw, 56px)"
+    fontWeight: 800
+    lineHeight: 0.95
+    letterSpacing: "-0.03em"
+  web-block-title:
+    fontFamily: "'JBM', 'Cascadia Code', 'Segoe UI Variable Display', 'Microsoft YaHei', system-ui, sans-serif"
+    fontSize: "clamp(32px, 4.6vw, 58px)"
+    fontWeight: 800
+    lineHeight: 1.1
+    letterSpacing: "-0.02em"
+  web-hero-sub:
+    fontFamily: "'JBM', 'Cascadia Code', 'Segoe UI Variable Display', 'Microsoft YaHei', system-ui, sans-serif"
+    fontSize: "clamp(16px, 1.8vw, 19px)"
+    fontWeight: 700
+    lineHeight: 1.7
+  web-ghost:
+    fontFamily: "'JBM', 'Cascadia Code', monospace"
+    fontSize: "clamp(130px, 22vw, 300px)"
+    fontWeight: 800
+    lineHeight: 0.92
+    letterSpacing: "-0.05em"
+  web-tier-name:
+    fontFamily: "'JBM', 'Cascadia Code', 'Cascadia Mono', Consolas, 'Courier New', monospace"
+    fontSize: "clamp(34px, 3.9vw, 56px)"
+    fontWeight: 800
+    lineHeight: 1.05
+    letterSpacing: "-0.02em"
+  web-outro-audit:
+    fontFamily: "'JBM', 'Cascadia Code', 'Cascadia Mono', Consolas, 'Courier New', monospace"
+    fontSize: "clamp(17px, 1.9vw, 23px)"
+    fontWeight: 600
+    lineHeight: 1.55
+    letterSpacing: "0.02em"
+  web-report-title:
+    fontFamily: "'Segoe UI', 'Microsoft YaHei', sans-serif"
+    fontSize: "20px"
+    fontWeight: 700
+    lineHeight: 1.4
+  app-welcome-title:
+    fontFamily: "'Segoe UI Variable Text', 'Segoe UI', 'Microsoft YaHei UI', 'Microsoft YaHei', system-ui, sans-serif"
+    fontSize: "19px"
+    fontWeight: 650
+    lineHeight: 1.3
+    letterSpacing: "0.01em"
 rounded:
+  xxs: "2px"
+  micro: "3px"
   xs: "4px"
   sm: "5px"
   md: "6px"
   lg: "8px"
+  xl: "10px"
+  pill: "999px"
 components:
   button-default:
     backgroundColor: "transparent"
@@ -125,7 +212,7 @@ components:
     textColor: "{colors.ink-tertiary}"
   modal:
     backgroundColor: "{colors.panel}"
-    rounded: "10px"
+    rounded: "{rounded.xl}"
     padding: "18px 20px"
   web-button-primary:
     backgroundColor: "{colors.ink}"
@@ -570,7 +657,7 @@ components:
 
 **全部 8 块装进一屏。** 03 审批门删除与分档条重复的 3 行台账（其中 confirm 行还引用着已删除的"标题闪烁"行为，文案已过时）；06 上手的 8 行模板表压成标签组；04 留痕随截图轨道移除而变轻。实测 900px 与 1280×720 视口下均零超高块，`.overflowing` 兜底保留为矮屏安全网。
 
-**性能。** 背景画布 DPR 上限 2 → 1.5（1px 线条肉眼无差，像素量 -44%），渲染 60fps → 30fps（画面只有极缓脉动）；移除截图预取与 `<img>` 加载。`--g-page` 正式应用于 `body`（此前是死令牌）。
+**性能。** 背景画布 DPR 上限 2 → 1.5（1px 线条肉眼无差，像素量 -44%），渲染 60fps → 30fps（画面只有极缓脉动）；移除截图预取与图片加载。`--g-page` 正式应用于 `body`（此前是死令牌）。
 
 **极简清理。** 阅读进度发丝线与"回到顶部"药丸删除（deck 里刻度轨 + Home 键已覆盖其职责）；块间加 1px 发丝线（`--line`）维持台账身份；站内锚点与刻度轨点击统一走缓动曲线；翻块后焦点移交目标块（`tabindex="-1"` + `focus({ preventScroll: true })`），读屏可感知位置变化。
 
@@ -722,7 +809,7 @@ deck 验收一度整批失败（键盘/滚轮全部不动或中途冻结），�
 - **守卫**：`prefers-reduced-motion` 三层 `display:none`；`pointer:coarse` 不启用指针光；全部 CSS/JS 内联，GitHub Pages 单文件直出。
 - **像素取证**：指针停留点周围背景 (22,23,26) vs 远处 (16,17,19)；A/B 对照证实工具格不被光穿透（不透明井底在光之上，变亮的单元格是 hover 态 rgb(26,28,33)）。
 
-**验收**：五套 verify 全绿——adapt 7 视口零横向溢出、900px 下零超高（demo=907 恰在兜底线内）、deck 键盘/滚轮落点 Δ0、首屏对比度 AA、motion 24/24、fixes、console 零报错。`detect.mjs`（降级 regex 模式）跑过：新增 advisory 均为本节登记值（档名 clamp 34–56、光场 rgba 240/247），两处 `transition: width` 为既有 1px 刻度轨/轨迹条。逐块截图工具沉淀为 `.impeccable/shot-blocks.mjs`（含落点探针与拍摄瞬间水印）。
+**验收**：五套 verify 全绿——adapt 7 视口零横向溢出、900px 下零超高（demo=907 恰在兜底线内）、deck 键盘/滚轮落点 Δ0、首屏对比度 AA、motion 24/24、fixes、console 零报错。`detect.mjs`（降级 regex 模式）跑过：新增 advisory 均为本节登记值（档名 clamp 34–56、光场 rgba 240/247），两处 1px 刻度轨/轨迹条的宽度过渡为既有样式（v6.18 起已改 scaleX，见「v6.18」节）。逐块截图工具沉淀为 `.impeccable/shot-blocks.mjs`（含落点探针与拍摄瞬间水印）。
 
 ### v6.7 · 光场重做——去劣质感（2026-09-28）
 
@@ -926,3 +1013,24 @@ deck 验收一度整批失败（键盘/滚轮全部不动或中途冻结），�
 2. **彗尾平滑**:遮罩尾部 3 个控制点加密到 7 个(.28@5° → .42@9° → .55@14° → .65@19° → .74@23° → .82@27° → 全亮 30–36°),消弧向色阶折痕。
 
 验收:02/04/07 实拍——热斑贴线、太阳近旁白热区随太阳滑行、亮线两侧渐回金色;正文可读性不变。全部通过 ✓。
+
+### v6.18 · 验证收口——对比度预算、动效工程化、豁免登记（2026-10-03）
+
+按检测器（impeccable）+ 自研像素探针双轨收口介绍页。frontmatter 补齐 v6 专属值登记：17 个颜色（metal 四阶、hero/outro 纸面、过渡区文字阶、滚动条与浮层阴影）、11 个字阶（JBM 展示栈 web-* 全系 + 应用欢迎标题）、圆角补 xxs/micro/xl/pill——静态 design-system-* 误报 ×36 全部清零。
+
+**对比度预算四处修复**（position 探针逐元素实测后动手）：
+
+1. **小字保底 12px**:`.hs-note` 11→12px、`.sec-label` 11.5→12px、`.audit-foot` 11→12px、`.toolgrid-head .cap` 11.5→12px,tiny-text ×2 与近临界灰字清零。
+2. **首屏副句加重**:`.hero-tail` font-weight 600→700——19px/700 落 WCAG 大号加粗档（阈值 3.0）,实测 4.2:1 起。JBM 单一字面（800）与中文回退字面在 600/700 下同源,零视觉变化,纯阈值达标。
+3. **留痕流下沉 28px**:`.hero-trail` 加 `margin-bottom:-28px`——head 原位正卡渐变 113px 中灰"死带"（黑白方向都到不了 4.5:1）,下沉后落暗带,浅色字实测 ≥5.4:1（head 5.98:1,行 9.4–13.1:1）。
+4. **尾页元信息加深**:`#outro footer .meta/.foot-tag` #565b64→#4a4f58,像素实测 meta 4.15→5.21:1、foot-tag 6.76:1。
+
+**动效工程化**:刻度轨按钮（22→34px 三态）与脉冲进度填充两处宽度过渡全改 `transform:scaleX`（origin left,基宽 34px/100%）——1px 线的伸缩不再逐帧重排,layout-transition ×2 清零;JS 侧填充 setter 同步改 scaleX,渐变淡出跨度视觉等价。
+
+**豁免登记**（`.impeccable/config.json` detector.ignoreRules,四条均为登记过的签名或已证伪）:`gradient-text`（v6 签名,用户已解除视觉禁令,展示字全部 clamp 32–118px/800,亮带端实测 10:1+）;`cramped-padding`（静态模式 FP:jsdom 解析不了 padding-block:clamp() 且把 1px 发丝线误读为可见边界,browser 模式实测 0 项）;`radial-spotlight-glow`（日轨太阳核心 #ffe8c4,登记过的签名）;`ai-color-palette`（--g-run 青色径向与 tool-teal 语义色标,登记过的语义色）。low-contrast 保留为全项目守卫不豁免。
+
+**browser 模式 low-contrast ×14 终审=全部幻影**:检测器对渐变上的文字取"最差停点"且把 1px 发丝线按满铺合成,与用户实际所见（文字真实位置的真实底色）无关。`.impeccable/probe-pixel.mjs` 隐藏文字→截图→读中心像素中值:head b 5.98:1、轨迹行 .op 9.44/13.13:1、hero-tail 5.37:1（需 3.0）、hero-hint 7.77:1、尾页 meta 5.21:1、foot-tag 6.76:1、outro sec-label 4.87:1——全 PASS。静态模式（标准门）exit=0,仅存 3 条登记过的浮层阴影 advisory。
+
+**探针沉淀**:probe-contrast.mjs（位置插值对比度+青色扫描,支持 `WxH` 视口参数,reduced-motion 确定性采样——演示窗照常播放但淡入帧被页面 reduce 分支关闭）、probe-geo.mjs（几何落位）、probe-match.mjs（色对→元素反查）、probe-pixel.mjs（像素级 ground truth）。
+
+验收:1280/1440/1366 三视口 position 探针 0 fails;静态 detector exit=0;`npm run check`（typecheck + 测试 + 报告样式同步）全绿;DESIGN.md frontmatter 无重复键。全部通过 ✓。
