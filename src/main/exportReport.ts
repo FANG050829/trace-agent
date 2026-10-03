@@ -40,7 +40,7 @@ export function buildReportHtml(meta: SessionMeta, events: AuditEvent[], shotsDi
             imageBudget -= buf.length
             shotHtml = `<img class="shot" src="data:image/png;base64,${buf.toString('base64')}" alt="截图">`
           } else {
-            shotHtml = `<div class="shot-missing">截图 ${esc(e.shot)} 过大未内嵌,见会话目录 shots/ 下同名文件</div>`
+            shotHtml = `<div class="shot-missing">截图 ${esc(e.shot)} 过大未内嵌，见会话目录 shots/ 下同名文件</div>`
           }
         } catch {
           shotHtml = `<div class="shot-missing">截图 ${esc(e.shot)} 文件缺失</div>`
@@ -118,11 +118,11 @@ export function buildReportHtml(meta: SessionMeta, events: AuditEvent[], shotsDi
 <div class="wrap">
   <header>
     <h1>审计报告 · ${esc(meta.title)}</h1>
-    <div class="meta">会话 ID:<span class="mono">${esc(meta.id)}</span><br>时间范围:<span class="mono">${fmtTime(firstTs)} — ${fmtTime(lastTs)}</span> · 共 ${events.length} 条事件</div>
+    <div class="meta">会话 ID：<span class="mono">${esc(meta.id)}</span><br>时间范围：<span class="mono">${fmtTime(firstTs)} — ${fmtTime(lastTs)}</span> · 共 ${events.length} 条事件</div>
     <div class="summary">${summary}</div>
   </header>
   ${rows || '<div class="ev system"><div class="ev-text">该会话没有审计事件。</div></div>'}
-  <footer>由 留痕 Agent 导出 · 本文件自包含,可直接归档或分享</footer>
+  <footer>由 留痕 Agent 导出 · 本文件自包含，可直接归档或分享</footer>
 </div>
 </body>
 </html>`

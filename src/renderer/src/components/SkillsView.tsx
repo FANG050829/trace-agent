@@ -49,7 +49,7 @@ export function SkillsView({ onRun }: { onRun: (prompt: string) => void }): Reac
         <div>
           <h2>技能库</h2>
           <p className="dim" style={{ marginTop: 4 }}>
-            把常用的任务提示词沉淀成技能,一键重跑;也可设定时执行(应用常驻或最小化到托盘时生效)。
+            把常用的任务提示词沉淀成技能，一键重跑；也可设定时执行（应用常驻或最小化到托盘时生效）。
           </p>
         </div>
         <button className="primary" onClick={() => setEditing({ name: '', prompt: '' })}>
@@ -60,7 +60,7 @@ export function SkillsView({ onRun }: { onRun: (prompt: string) => void }): Reac
       {!loaded && <div className="dim">加载中…</div>}
       {loaded && skills.length === 0 && (
         <div className="skills-empty">
-          还没有技能。下次 agent 帮你完成一个任务后,点聊天页顶部的「沉淀为技能」把它保存下来。
+          还没有技能。下次 agent 帮你完成一个任务后，点聊天页顶部的「沉淀为技能」把它保存下来。
         </div>
       )}
       <div className="tpl-grid">
@@ -71,7 +71,7 @@ export function SkillsView({ onRun }: { onRun: (prompt: string) => void }): Reac
             onRun={onRun}
             onEdit={() => setEditing({ id: s.id, name: s.name, prompt: s.prompt })}
             onDelete={() => {
-              if (confirm(`删除技能「${s.name}」?`)) {
+              if (confirm(`删除技能「${s.name}」？`)) {
                 api.deleteSkill(s.id).then(refresh)
               }
             }}
@@ -90,7 +90,7 @@ export function SkillsView({ onRun }: { onRun: (prompt: string) => void }): Reac
               技能名称
               <input
                 value={editing.name}
-                placeholder="如:整理下载文件夹"
+                placeholder="如：整理下载文件夹"
                 onChange={(e) => setEditing({ ...editing, name: e.target.value })}
               />
             </label>
@@ -182,7 +182,7 @@ function SkillCard(props: {
             </button>
           </div>
           <p className="dim" style={{ fontSize: 11.5 }}>
-            定时运行会在全新会话中执行;应用最小化到托盘时也会生效(设置里开启「关闭到托盘」)。
+            定时运行会在全新会话中执行；应用最小化到托盘时也会生效（设置里开启「关闭到托盘」）。
           </p>
         </div>
       )}

@@ -5,7 +5,7 @@ import type { ToolImpl } from './index'
 export const screenshotTool: ToolImpl = {
   name: 'screenshot',
   label: '屏幕截图',
-  descForModel: '截取当前主屏幕画面。截完后你(如果所用模型支持图片)会直接"看到"截图内容。',
+  descForModel: '截取当前主屏幕画面。截完后你（如果所用模型支持图片）会直接"看到"截图内容。',
   parameters: { type: 'object', properties: {} },
   risk: () => 'safe',
   approvalSummary: () => '截取屏幕',
@@ -22,7 +22,7 @@ export const screenshotTool: ToolImpl = {
     const size = source.thumbnail.getSize()
     const shotFile = ctx.audit.saveShot(png)
     return {
-      textForModel: `已截取屏幕并保存为 ${shotFile}(${size.width}x${size.height})。`,
+      textForModel: `已截取屏幕并保存为 ${shotFile}（${size.width}x${size.height}）。`,
       shotFile,
       imageDataUrl: `data:image/png;base64,${png.toString('base64')}`,
       detail: { width: size.width, height: size.height }

@@ -5,7 +5,7 @@ import { runCommand } from './command'
 export const windowList: ToolImpl = {
   name: 'window_list',
   label: '查看窗口',
-  descForModel: '列出当前屏幕上打开的应用窗口(进程名、标题),用于了解用户桌面状态。',
+  descForModel: '列出当前屏幕上打开的应用窗口（进程名、标题），用于了解用户桌面状态。',
   parameters: { type: 'object', properties: {} },
   risk: () => 'safe',
   approvalSummary: () => '查看打开的窗口列表',
@@ -28,7 +28,7 @@ export const windowList: ToolImpl = {
     }
     const lines = rows.map((w) => `- ${w.ProcessName}(pid ${w.Id}):${w.MainWindowTitle}`)
     return {
-      textForModel: lines.length ? `当前打开的窗口:\n${lines.join('\n')}` : text,
+      textForModel: lines.length ? `当前打开的窗口：\n${lines.join('\n')}` : text,
       detail: { windows: rows }
     }
   }

@@ -77,7 +77,7 @@ export function AuditPanel(props: { events: AuditEvent[]; sessionId: string | nu
     return (
       <aside className="audit-panel">
         <div className="audit-head">审计时间线</div>
-        <div className="audit-empty">打开或创建一个会话后,这里会实时记录每一步操作。</div>
+        <div className="audit-empty">打开或创建一个会话后，这里会实时记录每一步操作。</div>
       </aside>
     )
   }
@@ -88,7 +88,7 @@ export function AuditPanel(props: { events: AuditEvent[]; sessionId: string | nu
         审计时间线
         <span className="audit-count">{props.events.length}</span>
         <span className="audit-head-spacer" />
-        <button className="ghost small" onClick={() => void doExport()} disabled={exporting} title="导出为自包含的 HTML 审计报告(含截图)">
+        <button className="ghost small" onClick={() => void doExport()} disabled={exporting} title="导出为自包含的 HTML 审计报告（含截图）">
           <Icon name="download" size={12} />
           {exporting ? '导出中' : '导出报告'}
         </button>
@@ -141,7 +141,7 @@ export function AuditPanel(props: { events: AuditEvent[]; sessionId: string | nu
           )
         })}
         {props.events.length === 0 && (
-          <div className="audit-empty">开始对话后,每一步操作都会实时记录在这里。</div>
+          <div className="audit-empty">开始对话后，每一步操作都会实时记录在这里。</div>
         )}
         {props.events.length > 0 && shown.length === 0 && <div className="audit-empty">没有匹配的事件。</div>}
         <div ref={bottomRef} />

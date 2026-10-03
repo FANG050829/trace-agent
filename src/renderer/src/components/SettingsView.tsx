@@ -12,9 +12,9 @@ const PRESETS: Omit<ProviderConfig, 'id' | 'apiKey'>[] = [
 ]
 
 const POLICY_DESC: Record<RiskPolicy, string> = {
-  relaxed: '宽松:仅不可逆操作需确认,其余自动执行',
-  standard: '标准(推荐):写文件/跑命令等敏感操作需确认,读取类自动',
-  strict: '严格:除读取外每一步都要你点头'
+  relaxed: '宽松：仅不可逆操作需确认，其余自动执行',
+  standard: '标准（推荐）：写文件/跑命令等敏感操作需确认，读取类自动',
+  strict: '严格：除读取外每一步都要你点头'
 }
 
 export function SettingsView(props: { settings: AppSettings | null; onSaved: (s: AppSettings) => void }): React.ReactNode {
@@ -81,7 +81,7 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
       <h2>设置</h2>
       <section>
         <h3>模型服务</h3>
-        <p className="dim">选择一个服务商并填入 API Key。只要是 OpenAI 兼容接口都能用(智谱、DeepSeek、Kimi、通义、OpenAI 等)。</p>
+        <p className="dim">选择一个服务商并填入 API Key。只要是 OpenAI 兼容接口都能用（智谱、DeepSeek、Kimi、通义、OpenAI 等）。</p>
         <div className="preset-row">
           {PRESETS.map((p, i) => (
             <button key={p.name} className="small" onClick={() => addProvider(i)}>
@@ -94,7 +94,7 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
             自定义
           </button>
         </div>
-        {draft.providers.length === 0 && <div className="dim">还没有添加服务商,点上面的按钮快速添加。</div>}
+        {draft.providers.length === 0 && <div className="dim">还没有添加服务商，点上面的按钮快速添加。</div>}
         {draft.providers.map((p) => (
           <div key={p.id} className={`provider-card ${draft.activeProviderId === p.id ? 'active' : ''}`}>
             <div className="provider-head">
@@ -114,7 +114,7 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
                 <button
                   className="ghost small danger-text"
                   onClick={() => {
-                    if (!confirm(`删除服务商「${p.name || '未命名'}」?`)) return
+                    if (!confirm(`删除服务商「${p.name || '未命名'}」？`)) return
                     upd({
                       providers: draft.providers.filter((x) => x.id !== p.id),
                       activeProviderId: draft.activeProviderId === p.id ? null : draft.activeProviderId
@@ -150,7 +150,7 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
                 <input
                   value={p.model}
                   list={`models-${p.id}`}
-                  placeholder="填模型名,或测试连接后从列表选"
+                  placeholder="填模型名，或测试连接后从列表选"
                   onChange={(e) => updProvider(p.id, { model: e.target.value })}
                 />
                 <datalist id={`models-${p.id}`}>
@@ -162,7 +162,7 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
             </div>
             <label className="check-row">
               <input type="checkbox" checked={p.vision} onChange={(e) => updProvider(p.id, { vision: e.target.checked })} />
-              支持看图(视觉模型,截图类任务需要)
+              支持看图（视觉模型，截图类任务需要）
             </label>
             {testMsg[p.id] && <div className="test-msg">{testMsg[p.id]}</div>}
           </div>
@@ -170,7 +170,7 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
       </section>
 
       <section>
-        <h3>本地模型(Ollama)</h3>
+        <h3>本地模型（Ollama）</h3>
         <label className="radio-row">
           <input
             type="radio"
@@ -199,7 +199,7 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
         <div className="check-row-wrap">
           <label className="check-row">
             <input type="checkbox" checked={draft.ollama.vision} onChange={(e) => upd({ ollama: { ...draft.ollama, vision: e.target.checked } })} />
-            支持看图(如 qwen2.5vl / llava)
+            支持看图（如 qwen2.5vl / llava）
           </label>
           <button className="ghost small" onClick={detectOllama}>
             检测并获取模型列表
@@ -222,7 +222,7 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
         </div>
         <label className="check-row">
           <input type="checkbox" checked={draft.screenshotToVision} onChange={(e) => upd({ screenshotToVision: e.target.checked })} />
-          截图自动回传给视觉模型(模型不支持看图时可关闭)
+          截图自动回传给视觉模型（模型不支持看图时可关闭）
         </label>
         <div className="roots-block">
           <div className="roots-head">
@@ -240,8 +240,8 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
             </button>
           </div>
           <p className="roots-hint">
-            Agent 的文件工具只能读写这里列出的目录;留空则不限制范围(其余步骤仍按风险等级确认)。
-            应用数据目录(审计记录、加密密钥)始终禁止访问。
+            Agent 的文件工具只能读写这里列出的目录；留空则不限制范围（其余步骤仍按风险等级确认）。
+            应用数据目录（审计记录、加密密钥）始终禁止访问。
           </p>
           <div className="roots-list">
             {(draft.workspaceRoots ?? []).map((r) => (
@@ -282,7 +282,7 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
         <h3>高级</h3>
         <div className="check-row-wrap">
           <label className="check-row">
-            温度(创造性,0-2)
+            温度（创造性，0-2）
             <input
               type="number"
               min={0}
@@ -294,7 +294,7 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
             />
           </label>
           <label className="check-row">
-            上下文预算(字符)
+            上下文预算（字符）
             <input
               type="number"
               min={12000}
@@ -306,7 +306,7 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
             />
           </label>
         </div>
-        <p className="dim">上下文预算控制发给模型的历史长度:超出后最早的消息会被自动省略,较老的截图只保留最近几张。上下文窗口小的模型(如 8k)建议调低。</p>
+        <p className="dim">上下文预算控制发给模型的历史长度：超出后最早的消息会被自动省略，较老的截图只保留最近几张。上下文窗口小的模型（如 8k）建议调低。</p>
       </section>
 
       <section>
@@ -317,9 +317,9 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
             checked={draft.background.closeToTray}
             onChange={(e) => upd({ background: { ...draft.background, closeToTray: e.target.checked } })}
           />
-          关闭窗口时最小化到托盘(定时技能继续执行,托盘图标可唤回窗口)
+          关闭窗口时最小化到托盘（定时技能继续执行，托盘图标可唤回窗口）
         </label>
-        <p className="dim">技能库里可为任意技能设置定时(每天 / 按间隔 / 单次)。应用运行期间(含托盘常驻)每 30 秒检查一次到期任务。</p>
+        <p className="dim">技能库里可为任意技能设置定时（每天 / 按间隔 / 单次）。应用运行期间（含托盘常驻）每 30 秒检查一次到期任务。</p>
       </section>
 
       <section>
@@ -330,7 +330,7 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
             checked={draft.lanApproval.enabled}
             onChange={(e) => upd({ lanApproval: { ...draft.lanApproval, enabled: e.target.checked } })}
           />
-          启用局域网远程审批(高风险操作可发送到同局域网的手机/平板确认)
+          启用局域网远程审批（高风险操作可发送到同局域网的手机/平板确认）
         </label>
         {draft.lanApproval.enabled && (
           <>
@@ -349,7 +349,7 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
               {info?.lanUrl && (
                 <button
                   className="ghost small"
-                  title="复制到剪贴板,在同一 Wi-Fi 下的手机浏览器打开"
+                  title="复制到剪贴板，在同一 Wi-Fi 下的手机浏览器打开"
                   onClick={() => navigator.clipboard.writeText(info.lanUrl ?? '')}
                 >
                   <Icon name="copy" size={12} /> 复制审批页地址
@@ -357,9 +357,9 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
               )}
             </div>
             {info?.lanUrl && (
-              <div className="test-msg">审批页:{info.lanUrl}</div>
+              <div className="test-msg">审批页：{info.lanUrl}</div>
             )}
-            <p className="dim">保存后生效。手机与电脑需在同一局域网;地址自带访问令牌,请勿外传。仅建议在可信网络使用。</p>
+            <p className="dim">保存后生效。手机与电脑需在同一局域网；地址自带访问令牌，请勿外传。仅建议在可信网络使用。</p>
           </>
         )}
       </section>
@@ -378,17 +378,17 @@ export function SettingsView(props: { settings: AppSettings | null; onSaved: (s:
               onClick={async () => {
                 const dir = await api.pickDirectory()
                 if (!dir) return
-                if (!confirm('把数据目录更改为:' + dir + '?应用将自动重启以生效。')) return
+                if (!confirm('把数据目录更改为：' + dir + '？应用将自动重启以生效。')) return
                 await api.setDataDir(dir)
               }}
             >
-              更改数据目录(重启生效)
+              更改数据目录（重启生效）
             </button>
           ) : (
             <span className="dim" style={{ fontSize: 11.5 }}>开发模式下数据目录固定在项目内。</span>
           )}
         </div>
-        <p className="dim">审计日志、会话记录、技能与设置都在数据目录内;打包版默认在程序旁,可通过标记文件 data-dir.txt 或环境变量 TRACE_DATA_DIR 指定其他位置。</p>
+        <p className="dim">审计日志、会话记录、技能与设置都在数据目录内；打包版默认在程序旁，可通过标记文件 data-dir.txt 或环境变量 TRACE_DATA_DIR 指定其他位置。</p>
       </section>
 
       <div className="save-row">

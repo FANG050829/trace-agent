@@ -32,9 +32,9 @@ export function resolveLLM(settings: AppSettings): LLMConfig {
     }
   }
   const p = settings.providers.find((x) => x.id === settings.activeProviderId)
-  if (!p) throw new Error('尚未选择模型服务:请到「设置」页配置并选择一个服务商(或本地 Ollama)。')
-  if (!p.apiKey) throw new Error(`服务商「${p.name}」还没有填写 API Key,请到「设置」页补全。`)
-  if (!p.model) throw new Error(`服务商「${p.name}」还没有填写模型名,请到「设置」页补全。`)
+  if (!p) throw new Error('尚未选择模型服务：请到「设置」页配置并选择一个服务商（或本地 Ollama）。')
+  if (!p.apiKey) throw new Error(`服务商「${p.name}」还没有填写 API Key，请到「设置」页补全。`)
+  if (!p.model) throw new Error(`服务商「${p.name}」还没有填写模型名，请到「设置」页补全。`)
   return { baseUrl: p.baseUrl, apiKey: p.apiKey, model: p.model, temperature: settings.temperature }
 }
 
@@ -160,7 +160,7 @@ export class AgentRunner {
     if (this.running) {
       // 不丢消息:排队等待当前任务结束后自动发送
       this.queue.push(text)
-      this.emitEvent(this.audit.append('system', { text: 'Agent 正在执行任务,这条消息已排队,当前任务结束后自动发送。' }))
+      this.emitEvent(this.audit.append('system', { text: 'Agent 正在执行任务，这条消息已排队，当前任务结束后自动发送。' }))
       return
     }
     this.running = true
@@ -211,12 +211,12 @@ export class AgentRunner {
         saveTranscript(this.sessionId, this.messages)
       }
       if (steps >= maxSteps) {
-        this.emitEvent(this.audit.append('system', { text: `已达到单次任务步数上限(${maxSteps}),自动停止。你可以说"继续"让它接着做。` }))
+        this.emitEvent(this.audit.append('system', { text: `已达到单次任务步数上限（${maxSteps}），自动停止。你可以说"继续"让它接着做。` }))
       } else {
         const dur = Math.round((Date.now() - startedAt) / 1000)
         this.emitEvent(
           this.audit.append('system', {
-            text: `任务结束:共 ${steps} 步,用时 ${dur >= 60 ? `${Math.floor(dur / 60)} 分 ${dur % 60} 秒` : `${dur} 秒`}。`,
+            text: `任务结束：共 ${steps} 步，用时 ${dur >= 60 ? `${Math.floor(dur / 60)} 分 ${dur % 60} 秒` : `${dur} 秒`}。`,
             detail: { steps, durationSec: dur }
           })
         )
@@ -258,7 +258,7 @@ export class AgentRunner {
         const delayMs = 1500 * attempt
         this.emitEvent(
           this.audit.append('system', {
-            text: `模型请求失败(${err.message.slice(0, 120)}),${Math.round(delayMs / 1000)} 秒后自动重试(第 ${attempt}/${MAX_ATTEMPTS - 1} 次)…`
+            text: `模型请求失败（${err.message.slice(0, 120)}），${Math.round(delayMs / 1000)} 秒后自动重试（第 ${attempt}/${MAX_ATTEMPTS - 1} 次）…`
           })
         )
         await sleep(delayMs, this.abort!.signal)
@@ -322,7 +322,7 @@ export class AgentRunner {
     }
     if (argsBroken) {
       // 参数不是合法 JSON:把错误回喂给模型,而不是拿着空参数瞎跑
-      this.finishTool(callEvent.id, tc, fail(`工具 ${tc.name} 的调用参数不是合法 JSON,已放弃执行。请重新调用并确保参数是完整的 JSON。`), 'error', settings)
+      this.finishTool(callEvent.id, tc, fail(`工具 ${tc.name} 的调用参数不是合法 JSON，已放弃执行。请重新调用并确保参数是完整的 JSON。`), 'error', settings)
       return
     }
 
@@ -362,7 +362,7 @@ export class AgentRunner {
               ? '已通过局域网批准该操作'
               : '用户批准了该操作'
             : timedOut
-              ? `等待确认超过 ${Math.round(APPROVAL_TIMEOUT_MS / 60000)} 分钟,已自动按拒绝处理`
+              ? `等待确认超过 ${Math.round(APPROVAL_TIMEOUT_MS / 60000)} 分钟，已自动按拒绝处理`
               : viaLan
                 ? '已通过局域网拒绝该操作'
                 : '用户拒绝了该操作',
@@ -373,7 +373,7 @@ export class AgentRunner {
       this.emitState()
       if (!approved) {
         this.finishTool(callEvent.id, tc, {
-          textForModel: '用户拒绝了该操作。请停下询问用户希望如何继续,不要原样重试。',
+          textForModel: '用户拒绝了该操作。请停下询问用户希望如何继续，不要原样重试。',
           detail: { denied: true }
         }, 'denied', settings)
         return
@@ -387,7 +387,7 @@ export class AgentRunner {
     } catch (e) {
       const err = e as Error
       if (err.name === 'AbortError') throw err // 用户取消:让外层统一收尾
-      result = fail(`工具执行出错:${err.message}`)
+      result = fail(`工具执行出错：${err.message}`)
       this.finishTool(callEvent.id, tc, result, 'error', settings)
       return
     }
@@ -425,7 +425,7 @@ export class AgentRunner {
       this.messages.push({
         role: 'user',
         content: [
-          { type: 'text', text: '(系统附加)这是上一步操作后保存的截图,请结合画面继续判断下一步。' },
+          { type: 'text', text: '（系统附加）这是上一步操作后保存的截图，请结合画面继续判断下一步。' },
           { type: 'image_url', image_url: { url: result.imageDataUrl } }
         ]
       })

@@ -47,10 +47,10 @@ export function verifyAuditChain(lines: string[]): ChainCheck {
       if (typeof h !== 'string') continue // 旧日志:无链可验
       stored = h
     } catch {
-      return { ok: false, total, brokenAt: i + 1, reason: '这一行不是合法的 JSON,文件可能被截断或改写' }
+      return { ok: false, total, brokenAt: i + 1, reason: '这一行不是合法的 JSON，文件可能被截断或改写' }
     }
     if (auditHash(prev, event) !== stored) {
-      return { ok: false, total, brokenAt: i + 1, reason: '该行内容与哈希不符,记录疑似被改写或删除' }
+      return { ok: false, total, brokenAt: i + 1, reason: '该行内容与哈希不符，记录疑似被改写或删除' }
     }
     prev = stored
   }

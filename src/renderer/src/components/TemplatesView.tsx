@@ -32,7 +32,7 @@ export function TemplatesView({ onUse }: { onUse: (prompt: string) => void }): R
     <div className="templates-view">
       <div className="page-inner">
       <h2>模板库</h2>
-      <p className="dim">挑一个场景,填几个参数,agent 会带着完整的审计记录去执行。</p>
+      <p className="dim">挑一个场景，填几个参数，agent 会带着完整的审计记录去执行。</p>
       {err && <div className="notice st-error">{err}</div>}
       {CATS.map((cat) => {
         const list = templates.filter((t) => t.category === cat)
@@ -55,6 +55,9 @@ export function TemplatesView({ onUse }: { onUse: (prompt: string) => void }): R
                       {t.badge && <span className="badge">{t.badge}</span>}
                     </div>
                     <div className="tpl-desc">{t.desc}</div>
+                    <span className="tpl-chev">
+                      <Icon name="chevron" size={14} />
+                    </span>
                   </div>
                   {openId === t.id && (
                     <div className="tpl-form">
@@ -62,7 +65,7 @@ export function TemplatesView({ onUse }: { onUse: (prompt: string) => void }): R
                         <label key={p.key}>
                           <span>
                             {p.label}
-                            {p.required && <em>*</em>}
+                            {p.required && <em>（必填）</em>}
                           </span>
                           <span className="input-row">
                             <input

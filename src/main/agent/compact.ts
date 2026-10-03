@@ -19,7 +19,7 @@ export function healTranscript(messages: ChatMessage[]): { messages: ChatMessage
   const flushPending = (): void => {
     if (!pending.size) return
     for (const [id] of pending) {
-      out.push({ role: 'tool', tool_call_id: id, content: '(该工具调用因任务中断而未执行。)' })
+      out.push({ role: 'tool', tool_call_id: id, content: '（该工具调用因任务中断而未执行。）' })
       changed = true
     }
     pending.clear()

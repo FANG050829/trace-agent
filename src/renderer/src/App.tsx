@@ -96,6 +96,9 @@ export default function App(): React.ReactNode {
   const [settings, setSettings] = useState<AppSettings | null>(null)
   const [skillDraft, setSkillDraft] = useState<{ name: string; prompt: string } | null>(null)
   const [toast, setToast] = useState<string | null>(null)
+  // 审批裁决的本地快照:pending 会被状态事件立刻清掉,靠它把「已批准/已拒绝」
+  // 在审批卡上多停留 0.65s,避免卡片闪没、用户不确定点没点上
+  const [verdict, setVerdict] = useState<{ ok: boolean; req: ApprovalRequest } | null>(null)
 
   const activeRef = useRef<string | null>(null)
   const liveRef = useRef<string | null>(null)
@@ -121,6 +124,7 @@ export default function App(): React.ReactNode {
     const st = stateBySession.current.get(id)
     setRunning(st?.running ?? false)
     setPending(st?.pending ?? null)
+    setVerdict(null)
   }
 
   useEffect(() => {
@@ -180,6 +184,13 @@ export default function App(): React.ReactNode {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // 裁决展示到点即撤(审计时间线里的 approval_decision 记录会留下完整历史)
+  useEffect(() => {
+    if (!verdict) return
+    const t = setTimeout(() => setVerdict(null), 650)
+    return () => clearTimeout(t)
+  }, [verdict])
+
   const openSession = async (id: string): Promise<void> => {
     await openSessionInternal(id)
   }
@@ -234,9 +245,9 @@ export default function App(): React.ReactNode {
     try {
       await api.saveSkill({ name, prompt })
       setSkillDraft(null)
-      showToast(`技能「${name}」已保存,可在技能库中重跑`)
+      showToast(`技能「${name}」已保存，可在技能库中重跑`)
     } catch (e) {
-      showToast(`保存失败:${(e as Error).message}`)
+      showToast(`保存失败：${(e as Error).message}`)
     }
   }
 
@@ -292,21 +303,21 @@ export default function App(): React.ReactNode {
         onSettings={() => setView('settings')}
       />
       <main className="main">
-        <header className="topbar">
+        <header className={`topbar${running ? ' is-run' : ''}`}>
           <div className="crumb">
             {view === 'chat'
               ? (activeMeta?.title ?? '欢迎')
               : view === 'templates'
-                ? '资源'
+                ? '模板库'
                 : view === 'skills'
-                  ? '资源'
-                  : '配置'}
+                  ? '技能库'
+                  : '设置'}
           </div>
           <div className="topbar-right">
             {view === 'chat' && activeModel && <span className="model-badge" title="当前使用的模型">{activeModel}</span>}
             {!llmReady && view === 'chat' && (
               <button className="ghost small warn" onClick={() => setView('settings')}>
-                未配置模型,点击设置
+                未配置模型，点击设置
               </button>
             )}
             {view === 'chat' && activeId && hasConversation && !running && (
@@ -317,9 +328,14 @@ export default function App(): React.ReactNode {
             <span className={`status-dot ${pending ? 'wait' : running ? 'run' : ''}`} />
             <span className="status-text">{statusText}</span>
             {view === 'chat' && activeId && (
-              <button className="ghost small" onClick={() => setAuditOpen(!auditOpen)} title="显示/隐藏审计面板(Ctrl+B)">
-                <Icon name="panelRight" size={13} />
-                {auditOpen ? '隐藏审计面板' : '显示审计面板'}
+              <button
+                className="ghost"
+                onClick={() => setAuditOpen(!auditOpen)}
+                title="显示/隐藏审计面板（Ctrl+B）"
+                aria-label={auditOpen ? '隐藏审计面板' : '显示审计面板'}
+                aria-pressed={auditOpen}
+              >
+                <Icon name="panelRight" size={14} />
               </button>
             )}
           </div>
@@ -337,10 +353,12 @@ export default function App(): React.ReactNode {
               onCancel={() => activeId && api.cancel(activeId)}
               onRespond={(ok) => {
                 if (activeId && pending) {
+                  setVerdict({ ok, req: pending })
                   setPending(null)
                   api.respondApproval(activeId, pending.approvalId, ok)
                 }
               }}
+              verdict={verdict}
               onOpenTemplates={() => setView('templates')}
               onOpenSettings={() => setView('settings')}
             />
@@ -370,10 +388,10 @@ export default function App(): React.ReactNode {
         <div className="modal-mask" onClick={() => setSkillDraft(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h3>沉淀为技能</h3>
-            <p>把这次任务的提示词保存下来,以后在技能库里一键重跑。保存前可以修改措辞。</p>
+            <p>把这次任务的提示词保存下来，以后在技能库里一键重跑。保存前可以修改措辞。</p>
             <label className="modal-field">
               技能名称
-              <input value={skillDraft.name} onChange={(e) => setSkillDraft({ ...skillDraft, name: e.target.value })} placeholder="如:整理下载文件夹" />
+              <input value={skillDraft.name} onChange={(e) => setSkillDraft({ ...skillDraft, name: e.target.value })} placeholder="如：整理下载文件夹" />
             </label>
             <label className="modal-field">
               提示词

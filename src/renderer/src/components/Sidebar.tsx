@@ -37,7 +37,7 @@ export function Sidebar(props: {
           <div className="app-sub">桌面自动化 · 全程可审计</div>
         </div>
       </div>
-      <button className="new-session" onClick={props.onNew} title="新建会话(Ctrl+N)">
+      <button className="new-session" onClick={props.onNew} title="新建会话（Ctrl+N）">
         <Icon name="plus" size={14} /> 新建会话
       </button>
       <div className="session-search">
@@ -72,7 +72,7 @@ export function Sidebar(props: {
               />
             ) : (
               <>
-                <div className="session-title" title={s.title + '(双击重命名)'}>
+                <div className="session-title" title={s.title + '（双击重命名）'}>
                   {s.title}
                 </div>
                 <div className="session-time">{fmtTime(s.updatedAt)}</div>
@@ -81,7 +81,7 @@ export function Sidebar(props: {
                   title="删除会话"
                   onClick={(e) => {
                     e.stopPropagation()
-                    if (confirm(`删除会话「${s.title}」?其审计记录将一并删除。`)) props.onDelete(s.id)
+                    if (confirm(`删除会话「${s.title}」？其审计记录将一并删除。`)) props.onDelete(s.id)
                   }}
                 >
                   <Icon name="x" size={12} />
@@ -100,6 +100,7 @@ export function Sidebar(props: {
         <button className={props.view === 'skills' ? 'active' : ''} onClick={props.onSkills}>
           <Icon name="repeat" size={14} /> 技能库
         </button>
+        <div className="nav-label">系统</div>
         <button className={props.view === 'settings' ? 'active' : ''} onClick={props.onSettings}>
           <Icon name="sliders" size={14} /> 设置
         </button>

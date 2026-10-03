@@ -112,7 +112,7 @@ export function registerIpc(): void {
     const name = String(s.name ?? '').trim()
     const prompt = String(s.prompt ?? '').trim()
     if (!name) throw new Error('请给技能起个名字')
-    if (!prompt) throw new Error('技能内容(提示词)不能为空')
+    if (!prompt) throw new Error('技能内容（提示词）不能为空')
     const schedule = (s.schedule ?? undefined) as SkillSchedule | undefined
     return upsertSkill({ id: s.id, name, prompt, schedule })
   })
@@ -141,7 +141,7 @@ export function registerIpc(): void {
         const ids: string[] = (j?.data ?? []).map((m: any) => m.id).filter(Boolean)
         return {
           ok: true,
-          message: `连接成功,可用模型:${ids.slice(0, 8).join(', ') || '(服务未返回列表)'}`,
+          message: `连接成功，可用模型：${ids.slice(0, 8).join(', ') || '（服务未返回列表）'}`,
           models: ids.slice(0, 200)
         }
       }
@@ -155,11 +155,11 @@ export function registerIpc(): void {
         body: JSON.stringify({ model: p.model || 'gpt-3.5-turbo', messages: [{ role: 'user', content: 'ping' }], max_tokens: 1, stream: false }),
         signal: AbortSignal.timeout(20000)
       })
-      if (r.ok) return { ok: true, message: `连接成功(模型 ${p.model})`, models: p.model ? [p.model] : [] }
+      if (r.ok) return { ok: true, message: `连接成功（模型 ${p.model}）`, models: p.model ? [p.model] : [] }
       const t = await r.text().catch(() => '')
       return { ok: false, message: `HTTP ${r.status}${t ? ':' + t.slice(0, 200) : ''}`, models: [] }
     } catch (e) {
-      return { ok: false, message: `连接失败:${(e as Error).message}`, models: [] }
+      return { ok: false, message: `连接失败：${(e as Error).message}`, models: [] }
     }
   })
 
@@ -170,9 +170,9 @@ export function registerIpc(): void {
       if (!r.ok) return { ok: false, models: [] as string[], message: `HTTP ${r.status}` }
       const j: any = await r.json()
       const models: string[] = (j?.models ?? []).map((m: any) => m.name).filter(Boolean)
-      return { ok: true, models, message: `Ollama 可用,共 ${models.length} 个模型` }
+      return { ok: true, models, message: `Ollama 可用，共 ${models.length} 个模型` }
     } catch (e) {
-      return { ok: false, models: [] as string[], message: `连不上 Ollama:${(e as Error).message}` }
+      return { ok: false, models: [] as string[], message: `连不上 Ollama：${(e as Error).message}` }
     }
   })
 
@@ -189,9 +189,9 @@ export function registerIpc(): void {
   ipcMain.handle('export:session', async (_e, id: string): Promise<ExportResult> => {
     assertSessionId(id)
     const meta = listSessions().find((m) => m.id === id)
-    if (!meta) return { ok: false, message: `会话不存在:${id}` }
+    if (!meta) return { ok: false, message: `会话不存在：${id}` }
     const events = loadAudit(id) as AuditEvent[]
-    if (!events.length) return { ok: false, message: '该会话还没有审计记录,先让 agent 干点活吧。' }
+    if (!events.length) return { ok: false, message: '该会话还没有审计记录，先让 agent 干点活吧。' }
     const safeName = (meta.title || '会话').replace(/[\\/:*?"<>|]/g, '_').slice(0, 40)
     const r = await dialog.showSaveDialog(win()!, {
       title: '导出审计报告',
@@ -202,9 +202,9 @@ export function registerIpc(): void {
     try {
       fs.writeFileSync(r.filePath, buildReportHtml(meta, events, shotsDir(id)), 'utf-8')
       shell.showItemInFolder(r.filePath)
-      return { ok: true, message: `已导出:${r.filePath}` }
+      return { ok: true, message: `已导出：${r.filePath}` }
     } catch (e) {
-      return { ok: false, message: `导出失败:${(e as Error).message}` }
+      return { ok: false, message: `导出失败：${(e as Error).message}` }
     }
   })
 
@@ -232,9 +232,9 @@ export function registerIpc(): void {
   })
 
   ipcMain.handle('app:setDataDir', (_e, dir: string) => {
-    if (!dataDirMarker) throw new Error('开发模式下数据目录固定在项目内,无需更改。')
+    if (!dataDirMarker) throw new Error('开发模式下数据目录固定在项目内，无需更改。')
     const target = path.resolve(String(dir ?? ''))
-    if (!fs.existsSync(target)) throw new Error('目录不存在,请先创建。')
+    if (!fs.existsSync(target)) throw new Error('目录不存在，请先创建。')
     fs.writeFileSync(dataDirMarker, target, 'utf-8')
     // 立即生效需要重启:重启后 config 按标记文件解析
     app.relaunch()

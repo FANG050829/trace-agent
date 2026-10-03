@@ -33,13 +33,13 @@ export const runCommand: ToolImpl = {
   name: 'run_command',
   label: '运行命令',
   descForModel:
-    '运行一条 PowerShell 命令并返回输出。适合查询系统信息、批量处理、调用 COM 自动化(如 WPS/Word)等。命令有超时限制,输出会被截断。',
+    '运行一条 PowerShell 命令并返回输出。适合查询系统信息、批量处理、调用 COM 自动化（如 WPS/Word）等。命令有超时限制，输出会被截断。',
   parameters: {
     type: 'object',
     properties: {
       command: { type: 'string', description: '要执行的 PowerShell 命令' },
-      cwd: { type: 'string', description: '工作目录,默认用户主目录' },
-      timeout_sec: { type: 'number', description: '超时秒数,默认 60,最大 600' }
+      cwd: { type: 'string', description: '工作目录，默认用户主目录' },
+      timeout_sec: { type: 'number', description: '超时秒数，默认 60，最大 600' }
     },
     required: ['command']
   },
@@ -48,7 +48,7 @@ export const runCommand: ToolImpl = {
     if (DANGEROUS_RE.test(cmd)) return 'dangerous'
     return READ_ONLY_RE.test(cmd) ? 'safe' : 'confirm'
   },
-  approvalSummary: (a) => `运行命令:${String(a.command ?? '').slice(0, 120)}`,
+  approvalSummary: (a) => `运行命令：${String(a.command ?? '').slice(0, 120)}`,
   async run(args, ctx: ToolContext) {
     const command = String(args.command ?? '')
     // cwd 同样过守卫:否则 `cd .data` 就能绕开文件工具的目录限制
@@ -90,16 +90,16 @@ export const runCommand: ToolImpl = {
       })
       child.on('error', (e) => {
         clearTimeout(timer)
-        resolve({ textForModel: `命令启动失败:${e.message}`, detail: { error: e.message } })
+        resolve({ textForModel: `命令启动失败：${e.message}`, detail: { error: e.message } })
       })
       child.on('close', (code) => {
         clearTimeout(timer)
         const stdout = decode(out).trim()
         const stderr = decode(err).trim()
-        const parts = [`退出码:${code ?? (killed ? `已终止(${killedReason || '未知原因'})` : '未知')}`]
-        if (stdout) parts.push(`输出:\n${stdout}`)
-        if (stderr) parts.push(`错误:\n${stderr}`)
-        if (!stdout && !stderr) parts.push('(无输出)')
+        const parts = [`退出码：${code ?? (killed ? `已终止（${killedReason || '未知原因'}）` : '未知')}`]
+        if (stdout) parts.push(`输出：\n${stdout}`)
+        if (stderr) parts.push(`错误：\n${stderr}`)
+        if (!stdout && !stderr) parts.push('（无输出）')
         resolve({
           textForModel: parts.join('\n').slice(0, 12000),
           detail: {

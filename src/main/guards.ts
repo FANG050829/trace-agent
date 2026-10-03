@@ -18,7 +18,7 @@ export function isValidSessionId(id: unknown): id is string {
 
 /** 校验会话 id,不合法直接抛错(IPC 入口用它把住第一道门) */
 export function assertSessionId(id: unknown): string {
-  if (!isValidSessionId(id)) throw new Error(`非法的会话 ID:${String(id).slice(0, 64)}`)
+  if (!isValidSessionId(id)) throw new Error(`非法的会话 ID：${String(id).slice(0, 64)}`)
   return id
 }
 
@@ -49,8 +49,8 @@ export function resolveInWorkspace(target: string, roots: string[]): string {
   if (list.some((r) => isInside(r, abs))) return abs
   const preview = list.slice(0, 3).join('、')
   throw new Error(
-    `路径不在允许的工作目录内,已拒绝访问。\n目标:${abs}\n允许的目录:${preview}${list.length > 3 ? ' 等' : ''}\n` +
-      '如需操作其他位置,请到「设置 → 安全与审计 → 允许的工作目录」里添加。'
+    `路径不在允许的工作目录内，已拒绝访问。\n目标：${abs}\n允许的目录：${preview}${list.length > 3 ? ' 等' : ''}\n` +
+      '如需操作其他位置，请到「设置 → 安全与审计 → 允许的工作目录」里添加。'
   )
 }
 
@@ -62,8 +62,8 @@ export function assertNotProtected(target: string, dataDir: string): string {
   const abs = path.resolve(String(target ?? ''))
   if (isInside(dataDir, abs)) {
     throw new Error(
-      `已拒绝访问应用数据目录:${abs}\n这里是留痕 Agent 自己的审计记录、会话数据与配置(含加密后的密钥),` +
-        'Agent 的文件工具不能读写这些内容,否则「全程留痕」就不成立了。'
+      `已拒绝访问应用数据目录：${abs}\n这里是留痕 Agent 自己的审计记录、会话数据与配置（含加密后的密钥），` +
+        'Agent 的文件工具不能读写这些内容，否则「全程留痕」就不成立了。'
     )
   }
   return abs

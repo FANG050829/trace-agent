@@ -61,7 +61,7 @@ export class SessionAudit {
         fs.chmodSync(file, 0o666)
         fs.appendFileSync(file, line + '\n', 'utf-8')
       } catch (e2) {
-        throw new Error(`审计日志写入失败:${(e2 as Error).message}(${file})`)
+        throw new Error(`审计日志写入失败：${(e2 as Error).message}（${file}）`)
       }
     }
     this.prevHash = (JSON.parse(line) as { h: string }).h

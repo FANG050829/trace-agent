@@ -158,7 +158,7 @@ export function removeSession(id: string): void {
 export function renameSession(id: string, title: string): void {
   assertSessionId(id)
   const meta = listSessions().find((m) => m.id === id)
-  if (!meta) throw new Error(`会话不存在:${id}`)
+  if (!meta) throw new Error(`会话不存在：${id}`)
   upsertSession({ ...meta, title: title.slice(0, 60) || meta.title })
 }
 
@@ -196,7 +196,7 @@ export function saveTranscript(id: string, messages: unknown[]): void {
     messages,
     (k, v) => {
       if (typeof v === 'string' && v.startsWith('data:image/') && v.length > 65536) {
-        return v.slice(0, 64) + '...(截图数据已省略)'
+        return v.slice(0, 64) + '...（截图数据已省略）'
       }
       return v
     },

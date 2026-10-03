@@ -151,7 +151,7 @@ function page(token: string, nonce: string): string {
 <div class="wrap">
   <h1>⌁ 留痕 Agent · 远程审批</h1>
   ${rows}
-  <p style="color:#7f8490;font-size:11.5px;margin-top:14px">页面即拉即显,批准/拒绝后请刷新查看最新列表。仅限可信局域网使用。</p>
+  <p style="color:#7f8490;font-size:11.5px;margin-top:14px">页面即拉即显，批准/拒绝后请刷新查看最新列表。仅限可信局域网使用。</p>
 </div>
 </body>
 </html>`
@@ -173,7 +173,7 @@ export function startLanApproval(): void {
     if (isRateLimited(client)) {
       res
         .writeHead(429, { ...baseHeaders, 'content-type': 'text/html; charset=utf-8', 'retry-after': '60' })
-        .end(errorPage('尝试次数过多,请稍后再试。'))
+        .end(errorPage('尝试次数过多，请稍后再试。'))
       return
     }
     const token = settings.lanApproval.token
@@ -196,14 +196,14 @@ export function startLanApproval(): void {
         const form = new URLSearchParams(body)
         if (form.get('t') !== token) {
           noteFailure(client)
-          return reply(403, errorPage('令牌不正确,拒绝访问。'))
+          return reply(403, errorPage('令牌不正确，拒绝访问。'))
         }
         // CSRF 防护:表单里的 nonce 必须与本次会话 cookie 一致。
         // 单纯校验 URL 上的令牌挡不住"诱导已打开页面的浏览器自动提交表单"。
         const cookies = parseCookies(req.headers.cookie)
         if (form.get('n') !== cookies['trace_lan']) {
           noteFailure(client)
-          return reply(403, errorPage('请求来源校验失败(CSRF),请重新打开审批页再操作。'))
+          return reply(403, errorPage('请求来源校验失败（CSRF），请重新打开审批页再操作。'))
         }
         const sessionId = form.get('sessionId') ?? ''
         const approvalId = form.get('approvalId') ?? ''
@@ -214,14 +214,14 @@ export function startLanApproval(): void {
         } catch {
           ok = false // 非法会话 id
         }
-        const respBody = `<meta name="viewport" content="width=device-width, initial-scale=1"><meta charset="utf-8"><body style="background:#0d0e11;color:#e8e9ec;font-family:sans-serif;text-align:center;padding:80px 20px"><div class="ok-msg"><b style="font-size:20px">${ok ? (approved ? '已批准' : '已拒绝') : '未找到该待确认操作(可能已被处理)'}</b><p style="color:#7f8490;margin-top:10px">3 秒后返回列表…</p></div></body>`
+        const respBody = `<meta name="viewport" content="width=device-width, initial-scale=1"><meta charset="utf-8"><body style="background:#0d0e11;color:#e8e9ec;font-family:sans-serif;text-align:center;padding:80px 20px"><div class="ok-msg"><b style="font-size:20px">${ok ? (approved ? '已批准' : '已拒绝') : '未找到该待确认操作（可能已被处理）'}</b><p style="color:#7f8490;margin-top:10px">3 秒后返回列表…</p></div></body>`
         reply(200, respBody, { refresh: `3; url=/?t=${encodeURIComponent(token)}` })
       })
       return
     }
     if (url.searchParams.get('t') !== token) {
       noteFailure(client)
-      return reply(403, errorPage('令牌不正确,拒绝访问。'))
+      return reply(403, errorPage('令牌不正确，拒绝访问。'))
     }
     noteSuccess(client)
     // 每个访问者一个 CSRF nonce,写进 HttpOnly cookie(明文 HTTP 下无法用 Secure 标记)

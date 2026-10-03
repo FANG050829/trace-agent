@@ -50,7 +50,7 @@ export async function* streamChat(
     } catch {
       /* ignore */
     }
-    throw new Error(`模型请求失败(HTTP ${res.status})${text ? ':' + text : ''}`)
+    throw new Error(`模型请求失败（HTTP ${res.status}）${text ? ':' + text : ''}`)
   }
 
   const reader = res.body.getReader()

@@ -64,7 +64,7 @@ function fmtSize(n: number): string {
 export const fsListDir: ToolImpl = {
   name: 'fs_list_dir',
   label: '列出目录',
-  descForModel: '列出一个目录下的文件和子目录(名称、类型、大小、修改时间)。',
+  descForModel: '列出一个目录下的文件和子目录（名称、类型、大小、修改时间）。',
   parameters: {
     type: 'object',
     properties: { path: { type: 'string', description: '目录绝对路径' } },
@@ -86,7 +86,7 @@ export const fsListDir: ToolImpl = {
       return `${e.isDirectory() ? '[目录]' : '[文件]'} ${e.name}${e.isDirectory() ? '' : ` (${fmtSize(size)})`}`
     })
     return {
-      textForModel: `目录 ${p} 共 ${entries.length} 项:\n${rows.join('\n') || '(空目录)'}${entries.length > MAX_LIST ? `\n(仅显示前 ${MAX_LIST} 项)` : ''}`,
+      textForModel: `目录 ${p} 共 ${entries.length} 项：\n${rows.join('\n') || '（空目录）'}${entries.length > MAX_LIST ? `\n（仅显示前 ${MAX_LIST} 项）` : ''}`,
       detail: { path: p, count: entries.length, entries: rows }
     }
   }
@@ -95,12 +95,12 @@ export const fsListDir: ToolImpl = {
 export const fsReadFile: ToolImpl = {
   name: 'fs_read_file',
   label: '读取文件',
-  descForModel: '读取一个文本文件的内容(自动识别 UTF-8/GBK 编码)。不适合读图片等二进制文件。',
+  descForModel: '读取一个文本文件的内容（自动识别 UTF-8/GBK 编码）。不适合读图片等二进制文件。',
   parameters: {
     type: 'object',
     properties: {
       path: { type: 'string', description: '文件绝对路径' },
-      max_bytes: { type: 'number', description: '最多读取的字节数,默认 524288' }
+      max_bytes: { type: 'number', description: '最多读取的字节数，默认 524288' }
     },
     required: ['path']
   },
@@ -109,7 +109,7 @@ export const fsReadFile: ToolImpl = {
   async run(args, ctx) {
     const p = guard(String(args.path ?? ''), ctx)
     const stat = fs.statSync(p)
-    if (stat.isDirectory()) throw new Error('这是一个目录,请用 fs_list_dir')
+    if (stat.isDirectory()) throw new Error('这是一个目录，请用 fs_list_dir')
     const limit = Math.min(Number(args.max_bytes) || MAX_READ_BYTES, 4 * 1024 * 1024)
     const fh = fs.openSync(p, 'r')
     const buf = Buffer.alloc(Math.min(stat.size, limit))
@@ -117,14 +117,14 @@ export const fsReadFile: ToolImpl = {
     fs.closeSync(fh)
     if (looksBinary(buf)) {
       return {
-        textForModel: `${p} 是二进制文件(${fmtSize(stat.size)}),无法按文本读取。`,
+        textForModel: `${p} 是二进制文件（${fmtSize(stat.size)}），无法按文本读取。`,
         detail: { path: p, size: stat.size, binary: true }
       }
     }
     const text = decodeSmart(buf)
     const truncated = stat.size > limit
     return {
-      textForModel: `文件 ${p}(${fmtSize(stat.size)}):\n${text}${truncated ? `\n...(已截断,原文件共 ${fmtSize(stat.size)})` : ''}`,
+      textForModel: `文件 ${p}（${fmtSize(stat.size)}）：\n${text}${truncated ? `\n...（已截断，原文件共 ${fmtSize(stat.size)}）` : ''}`,
       detail: { path: p, size: stat.size, truncated }
     }
   }
@@ -133,7 +133,7 @@ export const fsReadFile: ToolImpl = {
 export const fsWriteFile: ToolImpl = {
   name: 'fs_write_file',
   label: '写入文件',
-  descForModel: '把文本内容写入文件(覆盖或新建),父目录不存在会自动创建。',
+  descForModel: '把文本内容写入文件（覆盖或新建），父目录不存在会自动创建。',
   parameters: {
     type: 'object',
     properties: {
@@ -150,7 +150,7 @@ export const fsWriteFile: ToolImpl = {
     fs.mkdirSync(path.dirname(p), { recursive: true })
     fs.writeFileSync(p, content, 'utf-8')
     return {
-      textForModel: `已写入 ${p}(${fmtSize(Buffer.byteLength(content))})。`,
+      textForModel: `已写入 ${p}（${fmtSize(Buffer.byteLength(content))}）。`,
       detail: { path: p, bytes: Buffer.byteLength(content) }
     }
   }
@@ -159,7 +159,7 @@ export const fsWriteFile: ToolImpl = {
 export const fsMkdir: ToolImpl = {
   name: 'fs_mkdir',
   label: '创建目录',
-  descForModel: '创建目录(含多级父目录)。',
+  descForModel: '创建目录（含多级父目录）。',
   parameters: {
     type: 'object',
     properties: { path: { type: 'string', description: '目录绝对路径' } },
@@ -177,7 +177,7 @@ export const fsMkdir: ToolImpl = {
 export const fsMove: ToolImpl = {
   name: 'fs_move',
   label: '移动/重命名',
-  descForModel: '移动或重命名文件/目录。目标位置已存在同名文件时会拒绝执行,不会覆盖。',
+  descForModel: '移动或重命名文件/目录。目标位置已存在同名文件时会拒绝执行，不会覆盖。',
   parameters: {
     type: 'object',
     properties: {
@@ -194,7 +194,7 @@ export const fsMove: ToolImpl = {
     // 不做静默覆盖:目标已存在时停下,让模型/用户决定改名还是先删除
     if (fs.existsSync(dst)) {
       return {
-        textForModel: `目标已存在:${dst}。本次没有执行移动(拒绝覆盖)。可以换一个目标名,或先确认后再删除已有文件。`,
+        textForModel: `目标已存在：${dst}。本次没有执行移动（拒绝覆盖）。可以换一个目标名，或先确认后再删除已有文件。`,
         detail: { src, dst, conflict: true }
       }
     }
@@ -212,25 +212,25 @@ export const fsMove: ToolImpl = {
 export const fsDelete: ToolImpl = {
   name: 'fs_delete',
   label: '删除',
-  descForModel: '删除文件或目录(目录会递归删除)。这是不可逆操作,会请求用户确认。',
+  descForModel: '删除文件或目录（目录会递归删除）。这是不可逆操作，会请求用户确认。',
   parameters: {
     type: 'object',
     properties: { path: { type: 'string', description: '要删除的路径' } },
     required: ['path']
   },
   risk: () => 'dangerous',
-  approvalSummary: (a) => `删除 ${a.path}(不可恢复)`,
+  approvalSummary: (a) => `删除 ${a.path}（不可恢复）`,
   async run(args, ctx) {
     const p = guard(String(args.path ?? ''), ctx)
     const blocked = deleteGuard(p)
     if (blocked) {
-      const msg = `已拒绝删除「${p}」:受保护路径(${blocked})。系统目录、盘符根目录、用户主目录与本应用审计数据不允许被删除。`
+      const msg = `已拒绝删除「${p}」：受保护路径（${blocked}）。系统目录、盘符根目录、用户主目录与本应用审计数据不允许被删除。`
       return { textForModel: msg, detail: { path: p, blocked: true } }
     }
     const stat = fs.statSync(p)
     fs.rmSync(p, { recursive: true, force: true })
     return {
-      textForModel: `已删除 ${p}(${stat.isDirectory() ? '目录' : fmtSize(stat.size)})。`,
+      textForModel: `已删除 ${p}（${stat.isDirectory() ? '目录' : fmtSize(stat.size)}）。`,
       detail: { path: p }
     }
   }
@@ -241,13 +241,13 @@ const SKIP_DIRS = new Set(['node_modules', '.git', '.data', '.cache', 'out', '$R
 export const fsSearch: ToolImpl = {
   name: 'fs_search',
   label: '搜索文件',
-  descForModel: '在目录下递归搜索:文件名或文本文件内容包含关键词的文件(跳过 node_modules 等)。',
+  descForModel: '在目录下递归搜索：文件名或文本文件内容包含关键词的文件（跳过 node_modules 等）。',
   parameters: {
     type: 'object',
     properties: {
       dir: { type: 'string', description: '搜索起始目录' },
       keyword: { type: 'string', description: '关键词' },
-      in_content: { type: 'boolean', description: '是否同时搜索文件内容,默认 true' }
+      in_content: { type: 'boolean', description: '是否同时搜索文件内容，默认 true' }
     },
     required: ['dir', 'keyword']
   },
@@ -290,7 +290,7 @@ export const fsSearch: ToolImpl = {
     walk(dir, 0)
     return {
       textForModel: hits.length
-        ? `在 ${dir} 中找到 ${hits.length} 个匹配"${args.keyword}"的文件:\n${hits.join('\n')}`
+        ? `在 ${dir} 中找到 ${hits.length} 个匹配"${args.keyword}"的文件：\n${hits.join('\n')}`
         : `在 ${dir} 中没有找到匹配"${args.keyword}"的文件。`,
       detail: { dir, keyword: args.keyword, count: hits.length, hits }
     }

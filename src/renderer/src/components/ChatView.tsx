@@ -95,7 +95,7 @@ function ToolCard({ item, sessionId }: { item: Extract<RenderItem, { kind: 'tool
 }
 
 const WELCOME_EXAMPLES = [
-  { icon: 'folder', text: '整理我的下载文件夹,先给方案' },
+  { icon: 'folder', text: '整理我的下载文件夹，先给方案' },
   { icon: 'globe', text: '打开 baidu.com 截个图' },
   { icon: 'terminal', text: '看看 C 盘还剩多少空间' }
 ]
@@ -110,10 +110,15 @@ export function ChatView(props: {
   onSend: (text: string) => void
   onCancel: () => void
   onRespond: (approved: boolean) => void
+  verdict: { ok: boolean; req: ApprovalRequest } | null
   onOpenTemplates: () => void
   onOpenSettings: () => void
 }): React.ReactNode {
   const { items, running, pending, streamingTool, sessionId, llmReady } = props
+  // 审批卡三种形态:等待中(pending) / 裁决停留(verdict 同单) / 裁决余像(pending 已被状态事件清掉)
+  const cardReq = pending ?? props.verdict?.req ?? null
+  const resolvedOk: boolean | null =
+    props.verdict && cardReq && props.verdict.req.approvalId === cardReq.approvalId ? props.verdict.ok : null
   const [input, setInput] = React.useState('')
   const scrollRef = React.useRef<HTMLDivElement>(null)
   const taRef = React.useRef<HTMLTextAreaElement>(null)
@@ -185,7 +190,7 @@ export function ChatView(props: {
               <h2>留痕 Agent</h2>
             </div>
             <p className="welcome-desc">
-              交代一件事,它替你操作文件、运行命令、截屏、控制浏览器。每一步都写入审计时间线,执行前会先征求你的确认。
+              交代一件事，它替你操作文件、运行命令、截屏、控制浏览器。每一步都写入审计时间线，执行前会先征求你的确认。
             </p>
             <div className="welcome-label">试一试</div>
             <div className="welcome-examples">
@@ -267,26 +272,33 @@ export function ChatView(props: {
           </div>
         )}
 
-        {pending && (
-          <div className="approval-card">
+        {cardReq && (
+          <div className={`approval-card${resolvedOk !== null ? ' resolved' : ''}`}>
             <div className="approval-head">
-              <Icon name="alert" size={14} />
-              需要你的确认
+              <Icon name={resolvedOk === null ? 'alert' : resolvedOk ? 'check' : 'x'} size={14} />
+              {resolvedOk === null ? '需要你的确认' : resolvedOk ? '已批准' : '已拒绝'}
             </div>
             <div className="approval-meta">
-              <span className="approval-tool">{pending.toolLabel}</span>
-              {RISK_BADGE[pending.risk] && <span className={`chip ${RISK_BADGE[pending.risk].cls}`}>{RISK_BADGE[pending.risk].text}</span>}
+              <span className="approval-tool">{cardReq.toolLabel}</span>
+              {RISK_BADGE[cardReq.risk] && <span className={`chip ${RISK_BADGE[cardReq.risk].cls}`}>{RISK_BADGE[cardReq.risk].text}</span>}
             </div>
-            <div className="approval-summary">{pending.summary}</div>
-            <pre className="approval-args">{pending.argsText}</pre>
-            <div className="approval-actions">
-              <button className="primary" onClick={() => props.onRespond(true)}>
-                批准执行
-              </button>
-              <button className="danger-outline" onClick={() => props.onRespond(false)}>
-                拒绝
-              </button>
-            </div>
+            <div className="approval-summary">{cardReq.summary}</div>
+            <pre className="approval-args">{cardReq.argsText}</pre>
+            {resolvedOk === null ? (
+              <div className="approval-actions">
+                <button className="primary" onClick={() => props.onRespond(true)}>
+                  批准执行
+                </button>
+                <button className="danger-outline" onClick={() => props.onRespond(false)}>
+                  拒绝
+                </button>
+              </div>
+            ) : (
+              <div className={`approval-verdict ${resolvedOk ? 'ok' : 'no'}`}>
+                <Icon name={resolvedOk ? 'check' : 'x'} size={13} />
+                {resolvedOk ? '正在执行，过程会写入审计时间线' : '操作未执行'}
+              </div>
+            )}
           </div>
         )}
         <div style={{ height: 4 }} />
@@ -302,7 +314,7 @@ export function ChatView(props: {
         <textarea
           ref={taRef}
           value={input}
-          placeholder={running ? '正在执行任务…此时发送的消息会排队,任务结束后自动处理' : '描述要做的事,可拖入文件'}
+          placeholder={running ? '正在执行任务…此时发送的消息会排队，任务结束后自动处理' : '描述要做的事，可拖入文件'}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
             // 中文输入法组词中的回车不发送

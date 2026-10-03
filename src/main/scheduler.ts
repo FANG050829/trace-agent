@@ -81,7 +81,7 @@ export function runSkillNow(sk: Skill): void {
   try {
     new Notification({
       title: '留痕 Agent · 定时技能',
-      body: `「${sk.name}」已开始执行,可在会话列表查看进度。`
+      body: `「${sk.name}」已开始执行，可在会话列表查看进度。`
     }).show()
   } catch {
     /* 通知失败不影响执行 */
