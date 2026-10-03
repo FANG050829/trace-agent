@@ -1,4 +1,6 @@
 <!doctype html>
+<!-- impeccable-disable gradient-text -- v6 签名视觉(用户明确解除视觉禁令):金属亮度渐变标题是本页核心语言,全部为大字号展示字(clamp 32–118px / 800),亮带端实测对比度 10:1 以上 -->
+<!-- impeccable-disable cramped-padding -- 静态模式误报:jsdom 解析不了 padding-block:clamp() 且把 1px 发丝线背景误读为可见边界;浏览器模式实测 0 项(1280/1440/1366 三视口复核) -->
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
@@ -114,7 +116,9 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
   display: grid; grid-template-columns: minmax(0, 1fr) 310px;
   column-gap: clamp(24px, 3vw, 40px);
 }
-.hero-01 .hero-trail { grid-column: 2; grid-row: 2 / 5; align-self: end; width: 310px; }
+/* 轨迹面板整体下沉 28px:head 原位置正卡在渐变 113px 中灰"死带"
+   (黑白方向都到不了 4.5:1),进暗带后浅色字 ≥5.4:1(几何探针实测) */
+.hero-01 .hero-trail { grid-column: 2; grid-row: 2 / 5; align-self: end; width: 310px; margin-bottom: -28px; }
 /* 品牌行的版本徽标(亮区配色,流内) */
 .hero-01 .ver { font-family: var(--mono); font-size: 11px; color: #565b64; border: 1px solid rgba(16, 17, 20, .18); border-radius: 4px; padding: 1px 6px; }
 .hero-01 .block-mark, .hero-01 .hero-name { color: #101114; }
@@ -158,7 +162,7 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
   font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em;
   color: #565b64;
 }
-.hs-note { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: #565b64; }
+.hs-note { font-family: var(--mono); font-size: 12px; letter-spacing: .04em; color: #565b64; }
 
 .hero-trail { display: flex; flex-direction: column; gap: 5px; }
 .ht-head {
@@ -183,8 +187,8 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
 }
 
 
-/* 首屏 01 的版式：标记 + 名字 + 主张 + 继续提示，逐行淡入 */
-.hero-01 .wrap { max-width: 1000px; }
+/* 首屏 01 的版式：标记 + 名字 + 主张 + 继续提示，逐行淡入
+   （wrap 不再单独收窄：与内页共用 .wrap 的 1200px，全站左缘一条线） */
 .hero-markrow { display: flex; align-items: center; gap: 12px; }
 .hero-name {
   font-family: var(--font-display); font-size: clamp(22px, 2.6vw, 30px);
@@ -197,7 +201,10 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
   margin-top: clamp(20px, 3.4vh, 34px);
   max-width: 12em;
 }
-.hero-tail { margin-top: clamp(14px, 2vh, 22px); font-size: clamp(15px, 1.5vw, 17px); max-width: 40ch; }
+.hero-tail { margin-top: clamp(14px, 2vh, 22px); font-size: clamp(15px, 1.5vw, 17px); text-wrap: balance; }
+/* 核心词组锁一行:balance 为行均等会把「每一件事」拆成两行,语义读断;
+   锁定后 balance 把词组推到行首,正好是强调该在的位置 */
+.hero-tail b { white-space: nowrap; }
 .hero-rule { height: 1px; margin-top: clamp(24px, 4vh, 40px); max-width: 220px; }
 .hero-hint {
   margin-top: clamp(20px, 3.4vh, 34px);
@@ -207,6 +214,12 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
 .hero-hint .kbd {
   display: inline-flex; align-items: center; gap: 5px;
   border: 1px solid var(--line); border-radius: 4px; padding: 2px 7px;
+}
+/* 触屏没有滚轮:主键帽换成「滑动」,与 pointer:snap 的翻页方式一致 */
+.hero-hint .kbd-coarse { display: none; }
+@media (pointer: coarse) {
+  .hero-hint .kbd-fine { display: none; }
+  .hero-hint .kbd-coarse { display: inline-flex; }
 }
 .hero-hint .arrow { animation: nudge 2.4s ease-in-out infinite; }
 @keyframes nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
@@ -226,7 +239,7 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
    用单色亮度渐变填充(与幽灵编号同一材料)。 */
 .sec-label {
   display: flex; align-items: center; gap: 10px;
-  font-family: var(--mono); font-size: 11.5px; letter-spacing: .14em;
+  font-family: var(--mono); font-size: 12px; letter-spacing: .14em;
   color: var(--ink-3);
   margin-bottom: 16px;
 }
@@ -242,12 +255,19 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent;
 }
-.block .sec-head .lead { margin-top: 14px; max-width: 42ch; }
+/* 导语 measure 放宽到一行装得下最长的那句（08 收尾 578px ≈ 65ch），
+   装不下时 balance 兜底成两行等宽——不留一两个字的孤行 */
+.block .sec-head .lead { margin-top: 14px; max-width: 68ch; text-wrap: balance; }
 /* 02:标题与实时状态条同行,不再竖着堆 */
 #demo .sec-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; margin-bottom: clamp(16px, 2.4vh, 30px); }
 #demo .sec-head .sec-text { min-width: 0; }
 #demo .hero-pulse { margin-top: 0; padding-bottom: 6px; }
-@media (max-width: 1100px) { #demo .sec-head { flex-direction: column; align-items: flex-start; } }
+@media (max-width: 1100px) {
+  #demo .sec-head { flex-direction: column; align-items: flex-start; }
+  /* 列向 + flex-start 下子项按 max-content 计宽：h2 单行 CJK ≈440px，
+     窄于 ~560 的视口会被撑出横向滚动条——sec-text 显式钉回容器宽，让标题/导语换行 */
+  #demo .sec-head .sec-text { width: 100%; }
+}
 
 .block .sec-head .lead { margin-top: 14px; line-height: 1.8; }
 .block .demo-cap { max-width: 76ch; line-height: 1.7; }
@@ -267,9 +287,11 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
 .block .templ { margin-top: clamp(16px, 2.4vh, 32px); }
 .block .templ .sub { margin-bottom: 12px; }
 .block .ledger-row { padding: 16px 0; }
-/* 首屏副句:大标题下的定调句,加重 */
+/* 首屏副句:大标题下的定调句,加重
+   36ch 两行 + balance 等宽收口——整行单行会把副句压进渐变暗带,
+   对比度掉到 AA 之下;等宽两行则停在亮带里(对比度与构图都不动) */
 .hero-01 .hero-tail {
-  color: #101114; font-weight: 600;
+  color: #101114; font-weight: 700;
   font-size: clamp(16px, 1.8vw, 19px);
   max-width: 36ch; line-height: 1.7;
 }
@@ -343,12 +365,14 @@ html.deck { scroll-snap-type: none; scroll-behavior: auto; }
   z-index: 55; display: flex; flex-direction: column; gap: 9px;
 }
 .rail button {
-  display: block; width: 22px; height: 1px; padding: 0; cursor: pointer;
+  /* 22→34px 的刻度伸缩用 transform 完成:1px 高的线不做布局重排 */
+  display: block; width: 34px; height: 1px; padding: 0; cursor: pointer;
   background: var(--line-strong); border: 0;
-  transition: width .2s ease-out, background .2s ease-out;
+  transform: scaleX(.647); transform-origin: left center;
+  transition: transform .2s ease-out, background .2s ease-out;
 }
-.rail button:hover { background: var(--ink-3); width: 28px; }
-.rail button[aria-current="true"] { width: 34px; background: var(--g-rail); }
+.rail button:hover { background: var(--ink-3); transform: scaleX(.824); }
+.rail button[aria-current="true"] { transform: scaleX(1); background: var(--g-rail); }
 .rail button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
 @media (max-width: 900px) { .rail { display: none; } }
 
@@ -437,10 +461,13 @@ a:hover { text-decoration: underline; }
 .ic { flex: none; display: block; }
 
 /* ---------- 顶栏 ---------- */
-/* v6.18 通透调校:顶栏半透——页面的天光与辉光从标题栏后透上来 */
+/* v6.18 通透调校:顶栏半透——页面的天光与辉光从标题栏后透上来;
+   blur 让滚过的正文在半透层下化开,文字重叠时仍可读 */
 .nav {
   position: sticky; top: 0; z-index: 50;
   background: rgba(13, 14, 17, .8);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--line);
 }
 .nav-in { display: flex; align-items: center; gap: 28px; height: 60px; }
@@ -495,6 +522,8 @@ h1, h2, h3 { text-wrap: balance; font-weight: 650; }
 h2 { font-size: clamp(26px, 3.4vw, 36px); line-height: 1.3; letter-spacing: -0.01em; }
 h3 { font-size: 17px; }
 .lead { color: var(--ink-2); max-width: 680px; margin-top: 16px; font-size: 16.5px; text-wrap: pretty; }
+/* 导语里的强调短语整词跨行——"失败即停"被拆成两行会读断语义 */
+.lead b, .sub b, .sec-note b { white-space: nowrap; }
 .sec-head { margin-bottom: clamp(36px, 5vw, 56px); }
 
 /* ---------- 首屏 ---------- */
@@ -523,9 +552,11 @@ h3 { font-size: 17px; }
   background: var(--g-hair-dim);
 }
 .hero-pulse .fill {
-  position: absolute; left: 0; top: 50%; height: 1px; width: 0;
+  /* 进度填充走 scaleX:轨道是常驻 1px 线,宽度动画会触发整行重排 */
+  position: absolute; left: 0; top: 50%; height: 1px; width: 100%;
   background: linear-gradient(90deg, var(--teal) 0%, rgba(95, 179, 163, .2) 100%);
-  transition: width .45s ease-out;
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform .45s ease-out;
 }
 .hero-pulse .lp {
   position: relative; display: inline-flex; align-items: center; gap: 7px;
@@ -703,7 +734,7 @@ html.deck .to-bottom { display: none; }
   margin-top: auto;
   padding: 9px 0 0;
   background: var(--g-hair-dim) top / 100% 1px no-repeat;
-  font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+  font-family: var(--mono); font-size: 12px; color: var(--ink-3);
   font-variant-numeric: tabular-nums;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
@@ -750,6 +781,7 @@ html.deck .to-bottom { display: none; }
   border-radius: var(--radius); padding: 11px 13px; margin: 4px 0 2px;
   white-space: pre; overflow-x: auto;
 }
+/* 证据 JSON 字色按 DESIGN.md 代码窗语法:键=ink、字符串=teal、注释=ink-3 */
 .ledger-row .ev-proof pre .c { color: var(--ink-3); }
 .ledger-row .ev-proof pre .k { color: var(--ink); }
 .ledger-row .ev-proof pre .s { color: var(--teal); }
@@ -836,13 +868,19 @@ html.deck .to-bottom { display: none; }
 }
 .tier-ev pre .k { color: var(--ink); }
 .tier-ev pre .s { color: var(--teal); }
+.tier-ev pre .c { color: var(--ink-3); }
 @media (max-width: 760px) { .tiers { grid-template-columns: 1fr; gap: 14px; } }
 
-/* 块尾注记行:一根渐变刻线 + 一行字,替代灰段落 */
+/* 块尾注记行:一根渐变刻线 + 一行字,替代灰段落
+   margin 要让注记落到日弧亮带之下(900px 高度下弧顶≈684、左端≈744),
+   亮带从数据面板与注记之间穿过——这是有意的分隔,不是压字 */
 .sec-note {
   display: flex; align-items: baseline; gap: 12px;
-  margin-top: clamp(18px, 3vh, 30px);
+  margin-top: clamp(64px, 10vh, 104px);
   font-size: 13.5px; color: var(--ink-3); line-height: 1.7;
+  /* 亮线从注记左端身后斜穿而过(弧在屏上固定,各块尾注都会扫过它),
+     暗晕把字从暖白亮线上压出来——与工具格同一条规则 */
+  text-shadow: 0 1px 2px rgba(5, 6, 10, .9), 0 0 7px rgba(5, 6, 10, .75);
 }
 .sec-note::before {
   content: ""; width: 26px; height: 1px; flex: none; align-self: center;
@@ -855,7 +893,7 @@ html.deck .to-bottom { display: none; }
 .toolgrid { margin-top: 22px; }
 .toolgrid-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
 .toolgrid-head h3 { font-size: 15px; }
-.toolgrid-head .cap { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+.toolgrid-head .cap { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
 /* 05 工具网格:格子全透明——黑匣子底与日轨辉光能穿过格子,
    发丝网格改由每格左/上的 -1px 外阴影补进 1px 缝隙;第一行/列
    出界的两圈阴影被 overflow:hidden 裁掉,内线保留、外框依旧没有 */
@@ -871,6 +909,9 @@ html.deck .to-bottom { display: none; }
   transition: background .12s ease-out;
 }
 .tool-cell:hover { background: rgba(232, 233, 236, .05); }
+/* 日弧亮带会从透明格子后穿过:给字压一层与底同色的暗晕,
+   暗处不可见,过亮带时充当局部压底——格子依旧透光,字不花 */
+.tool-cell .zh, .tool-cell .en { text-shadow: 0 1px 2px rgba(5, 6, 10, .9), 0 0 7px rgba(5, 6, 10, .75); }
 .tool-cell .zh { font-size: 14.5px; color: var(--ink); font-weight: 600; }
 .tool-cell .en { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
 /* 24 件在任何断点都整除(6/8/4/3/2),网格永远不出现空缺格漏底 */
@@ -914,7 +955,9 @@ html.deck .to-bottom { display: none; }
   display: flex; align-items: center; gap: 9px;
 }
 .edgem-k .ic { color: var(--ink-3); }
-.edgem-v { display: flex; flex-wrap: wrap; gap: 8px; }
+/* 两端锚定:key 左、chips 齐右缘——与 04 行左内容右指示同构,
+   满宽发丝线两头都有落点,右半区不再是空的 */
+.edgem-v { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
 .edgem-v .chip { color: var(--ink-2); font-size: 13.5px; }
 /* v6.13 点缀(07):四行都是"红线"语义,行图标染错误红;
    引导句两个粗体关键词是审批/警示语义,染琥珀——与审批档同色 */
@@ -922,6 +965,7 @@ html.deck .to-bottom { display: none; }
 #edge .lead b { color: var(--warn); font-weight: 600; }
 @media (max-width: 760px) {
   .edgem-row { grid-template-columns: 1fr; gap: 8px; }
+  .edgem-v { justify-content: flex-start; }
 }
 
 /* ---------- 时间线与报告(04):台账标本——人读的事件行,点开即原文 ---------- */
@@ -1034,7 +1078,7 @@ html.deck .to-bottom { display: none; }
   counter-increment: st;
   display: flex; gap: 14px; padding: 15px 0;
   background: var(--g-hair-dim) bottom / 100% 1px no-repeat;
-  color: var(--ink-2); font-size: 15px;
+  color: var(--ink-2); font-size: 15px; text-wrap: balance;
 }
 .steps li::before {
   content: counter(st, decimal-leading-zero);
@@ -1075,7 +1119,7 @@ html.deck .to-bottom { display: none; }
 }
 #outro footer .wrap { padding-block: 0; }
 #outro footer .brand { color: #101114; }
-#outro footer .meta, #outro footer .foot-tag { color: #565b64; }
+#outro footer .meta, #outro footer .foot-tag { color: #4a4f58; }
 #outro footer .foot-links a { color: #4a4f58; }
 #outro footer .foot-links a:hover { color: #101114; }
 #outro .sec-head h2 {
@@ -1131,6 +1175,9 @@ html.deck .to-bottom { display: none; }
 @media (max-width: 520px) {
   body { font-size: 15px; }
   .hero-actions .btn { flex: 1; justify-content: center; }
+  /* 轨道条 nowrap min-content ≈440px，390 视口装不下；
+     演示台内的状态/事件流已完整呈现同一信息，窄屏直接撤掉 */
+  #demo .hero-pulse { display: none; }
   .approval-body { font-size: 11px; }
   .tbl th:nth-child(1), .tbl td:nth-child(1) { display: none; }
   .ev-row { padding-inline: 10px; }
@@ -1424,10 +1471,10 @@ html.js .line-draw.drawn::after {
       </div>
       <div class="hero-main hero-reveal" style="--d:80ms">
         <h1 class="hero-thesis">替你操作电脑，<br>每一步都留痕。</h1>
-        <p class="hero-tail">你亲眼核对它做过的每一件事，而不是相信它。</p>
+        <p class="hero-tail">你亲眼核对它做过的<b>每一件事</b>，而不是相信它。</p>
         <div class="hero-rule"></div>
         <p class="hero-hint">
-          <span class="kbd">↓</span><span class="kbd">滚轮</span>
+          <span class="kbd">↓</span><span class="kbd kbd-fine">滚轮</span><span class="kbd kbd-coarse">滑动</span>
           <span>继续</span>
           <span class="arrow" aria-hidden="true">↓</span>
         </p>
@@ -2886,7 +2933,7 @@ pre{font-family:Consolas,monospace;font-size:11.5px;color:#7f8490;margin:2px 0 6
       const i = OPS.indexOf(op);
       if (i < 0) return;
       reached = Math.max(reached, i);
-      if (fill) fill.style.width = (reached / (OPS.length - 1)) * 100 + '%';
+      if (fill) fill.style.transform = 'scaleX(' + reached / (OPS.length - 1) + ')';
       steps.forEach((s, k) => {
         s.classList.toggle('run', k === reached && (op === 'fs.list' || op === 'fs.move'));
         s.classList.toggle('wait', k === reached && op === 'approval.wait');
